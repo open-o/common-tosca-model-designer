@@ -1,0 +1,295 @@
+<!--
+
+
+    Copyright (C) 2016 ZTE, Inc. and others. All rights reserved. (ZTE)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html>
+  <head>
+    <meta charset="UTF-8">    
+    <title>Service Templates</title>
+    <link type="text/css" href="/winery-topologymodeler/css/winery-common.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap-theme.css" />
+    
+    <link rel="stylesheet" href="components/blueimp-file-upload/css/jquery.fileupload.css" />
+    <link rel="stylesheet" href="components/blueimp-file-upload/css/jquery.fileupload-ui.css" />
+
+    <link type="text/css" href="css/winery-repository.css" rel="Stylesheet" />   
+    <link type="text/css" href="css/paas.css" rel="stylesheet" />
+</head>
+<body style="width:100%">
+    <div class="zte-btn-group">               
+        <div class="btn-group" style="vertical-align:inherit">
+            <button id="createBtn" type="button" class="zte-btn zte-primary dropdown-toggle" data-toggle="dropdown">
+                <span>创建</span><span class="caret"></span>
+            </button>
+            <ul id="templateDropdownMenu" class="dropdown-menu" role="menu"></ul>
+        </div>
+        <button type="button" class="zte-btn zte-primary" id="importCSAR" style="margin-right: 10px;">导入</button>
+    </div>
+    <div id="serviceTemplateTable_div" style="padding-left:20px;padding-right:20px"></div>
+
+    <div class="modal fade z1051" id="diagyesno">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button id="diagclose" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="diagyesnotitle"></h4>
+                </div>
+                <div class="modal-body">
+                    <p id="diagyesnomsg"></p>
+                </div>
+                <div class="modal-footer">
+                    <button id="diagyesnonobtn" type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    <button id="diagyesnoyesbtn" type="button" class="btn btn-primary">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div><!-- end diagyesno -->
+
+    <div class="modal fade" id="upCSARDiag">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Upload CSAR</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="upCSARForm">CSAR file:</label>
+                                <input id="upCSARForm" class="form-control" type="file" name="upCSARForm" accept="application/zip,.csar" />
+                            </div>
+                        </fieldset>
+                        <p>You may also <strong>drop the file</strong> here.</p>
+                        <p>The file is <strong>immediately</strong> uploaded without any confirmation.</p>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" data-loading-text="Uploading..." id="cancelfileuploadbtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div><!-- end upCSARDiag -->
+
+    <script type='text/javascript' src='components/requirejs/require.js'></script>
+    <script type='text/javascript' src='components/jquery/jquery.js'></script>
+    <script type='text/javascript' src='components/bootstrap/dist/js/bootstrap.js'></script>
+
+    <script type="text/javascript" src="js/winery-support-non-AMD.js"></script>
+    <script type="text/javascript" src="/winery-topologymodeler/js/winery-common.js"></script>
+
+    <script type="text/javascript">
+    /**
+     * Displays a nice message box with "yes" and "no"
+     *
+     * TODO: currently cannot be recursively called
+     *
+     * @param msg      Message to display
+     * @param fnOnYes  function to be called if user presses "yes"
+     * @param title    (optional) title of the dialog
+     */
+    function vConfirmYesNo(msg, fnOnYes, title) {
+        title = title || "Please confirm";
+        $("#diagyesnotitle").text(title);
+        $("#diagyesnomsg").text(msg);
+        $("#diagyesnoyesbtn").off("click");
+        $("#diagyesnoyesbtn").on("click", function() {
+            var diag = $("#diagyesno");
+            // quick hack to get fnOnYes() working -> use the hidden.bs.modal event
+            diag.on("hidden.bs.modal", function() {
+                fnOnYes();
+                diag.off("hidden.bs.modal");
+            });
+            diag.modal("hide");
+        });
+        $("#diagyesno").modal("show");
+    }
+
+    function getQueryString(name) { 
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+        var r = window.location.search.substr(1).match(reg); 
+        if (r != null) return unescape(r[2]); 
+        return null; 
+    }
+
+    require.config({
+        baseUrl: "js",
+        paths: {
+            "winery-datatable": "/winery-topologymodeler/js/winery-datatable",
+
+            "datatables": "../components/datatables/media/js/jquery.dataTables",
+            "jquery": "../components/jquery/jquery",
+
+            "jquery.fileupload": "../components/blueimp-file-upload/js/jquery.fileupload",
+            "jquery.fileupload-ui": "../components/blueimp-file-upload/js/jquery.fileupload-ui",
+            "jquery.fileupload-process": "../components/blueimp-file-upload/js/jquery.fileupload-process",
+            "jquery.ui.widget": "../components/blueimp-file-upload/js/vendor/jquery.ui.widget"
+        }
+    });
+
+    require(["winery-datatable", "jquery.fileupload"], function(wd){
+        var operationRender = function(obj) {
+            var namespace_encode = encodeURIComponent(encodeURIComponent(obj.aData.namespace));
+            var name = $(obj.aData.name).text();
+            var serviceTemplateURL = "/winery/servicetemplates/" + namespace_encode + "/" + name;
+
+            var exportURL = serviceTemplateURL + '?csar&exportType';
+            var editURL = serviceTemplateURL + '/topologytemplate?edit';
+
+            var operationHtml = '<a href="'+ exportURL +'" class="zte-btn zte-small">导出</a>'
+                    + '<a href="'+ editURL +'" class="zte-btn zte-small editBtn">编辑</a>'
+                    + '<a name="'+ name +'" data-ns="'+ obj.aData.namespace +'" data-url="'
+                    + serviceTemplateURL + '/" class="zte-btn zte-small delBtn">删除</a>';
+            return operationHtml;
+        }
+
+        var nameRender = function(obj) {
+            var namespace_encode = encodeURIComponent(encodeURIComponent(obj.aData.namespace));
+            var topologyViewURL = "/winery/servicetemplates/" + namespace_encode + "/" + obj.aData.name 
+                    + "/topologytemplate?view";
+            return '<a class="name link" href="'+ topologyViewURL +'">'+ obj.aData.name +'</a>';
+        }
+
+        var serviceTemplate = {
+            divId : "serviceTemplateTable_div",
+            id : "serviceTemplateTable",
+            url : "/winery/servicetemplates/",
+            columns : [
+                {"mData": "id", "name": "ID", "bVisible": false}, 
+                {"mData": "name", "name": "名称", "fnRender": nameRender}, 
+                {"mData": "namespace", "name": "命名空间"},
+                {"mData": null, "name": "操作", "sClass": "center", "fnRender": operationRender}
+            ]
+        }
+        wd.initTable(serviceTemplate, function(){
+            //初始化删除按钮
+            $(".delBtn").click(function(){
+                var rowElement = $(this).parent().parent();
+                var name = $(this).attr("name");
+                var namespace = $(this).attr("data-ns");
+                var url = $(this).attr("data-url");
+
+                if(namespace.indexOf("nfv") > -1) {
+                    //nfv中创建的nodetype也要删除
+                    url += "?delSubstitutableNodeType=true";
+                }
+                //删除记录
+                deleteResource(name, url, function() {
+                    rowElement.remove();
+                });
+            });
+
+            //根据url中的type过滤表格数据
+            var serviceTemplateType = getQueryString("type");
+            if(serviceTemplateType) {
+                var table = $("#" + serviceTemplate.id).dataTable();
+                var data = table.fnGetNodes();
+                $.each(data, function(index, trElem){
+                    var namespace = $(trElem.cells[1]).text();
+                    var index = namespace.indexOf(serviceTemplateType);
+                    //删除不符合类型的数据
+                    if(index == -1) {
+                        table.fnDeleteRow(trElem);
+                    }
+                });
+            }
+        });
+
+        //初始化文件上传
+        $("#upCSARDiag").fileupload({
+            dataType: 'json',
+            url: '/winery/',
+            type: 'POST',
+            dropZone: $("#upCSARDiag"),
+            paramName: 'file',
+            autoUpload: true
+        }).bind("fileuploadstart", function(e) {
+            $("#cancelfileuploadbtn").button("loading");
+        }).bind('fileuploadfail', function(e, data) {
+            vShowAJAXError("File upload failed", data.jqXHR, data.errorThrown);
+            $("#cancelfileuploadbtn").button("reset");
+        }).bind('fileuploaddone', function(e, data) {
+            var text = "File uploaded successfully.";
+            var responseText = data.jqXHR.responseText;
+            if (responseText != "") {
+                // we expect a JSON array
+                var response = $.parseJSON(responseText);
+                if (response.length == 0) {
+                    // some JSON parsing error, just display the text itself
+                    text = text + "<br /><br />With following issues, possibly wrong<br />" + responseText;
+                } else if (response.length == 1) {
+                    text = text + "<br /><br />With following issue<br />" + response[0];
+                } else {
+                    text = text + "<br /><br />With following issues, possibly wrong<br /><ul>";
+                    $(response).each(function(i,e) {
+                        text = text + "<li>" + e + "</li>";
+                    });
+                    text = text + "</ul>";
+                }
+            }
+            vShowSuccess(text);
+            $("#cancelfileuploadbtn").button("reset");
+            $('#upCSARDiag').modal('hide');
+
+            setTimeout('self.location.reload()',1000);            
+        });
+    });
+
+    $(function(){
+        $("#importCSAR").click(function(){
+            $('#upCSARDiag').modal('show');
+        });
+        
+        //nfv菜单
+        loadAndParseFile("nfvDropdownMenu.json");
+        //paas菜单
+        loadAndParseFile("paasDropdownMenu.json");
+
+        function loadAndParseFile(filename) {
+            $.ajax({
+                url: "/winery/conf/" + filename,
+                async: false,
+                dataType: 'json',
+                success: function(data) {
+                    var type = getQueryString("type");
+                    //创建按钮下拉菜单
+                    var liHtml = $("#templateDropdownMenu").html();
+                    data = data || [];
+                    for(var i=0; i<data.length; i++) {
+                        var menu = data[i];
+                        if(type && type == menu.type) {//type不为空的话，则根据type对菜单过滤
+                            $("#createBtn").html("创建")
+                                .click(function(){
+                                    window.location = "/winery/" + menu.url;
+                                });
+                            $("#templateDropdownMenu").hide();
+                            break;
+                        } else {
+                            liHtml += '<li><a href="/winery/'+menu.url+'">'+menu.name_zh+'</a></li>';
+                        }
+                    }
+                    $("#templateDropdownMenu").html(liHtml);
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>

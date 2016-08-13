@@ -1,0 +1,118 @@
+/*******************************************************************************
+	Copyright (C) 2016 ZTE, Inc. and others. All rights reserved. (ZTE)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ *******************************************************************************/
+
+div.propertiesView {
+	width: 350px;
+	position: fixed;
+	top: 37px;
+	right: -1px;
+	background: #eaeaea;
+	z-index: 600;
+	background-image: linear-gradient(to left, #FFFFFF 0%, rgb(237, 243, 247) 100%);
+	border-radius: 9px 0px 0px 9px;
+	border: 1px solid #aeaeae;
+	padding: 14px;
+	box-shadow: -1px 2px 7px rgb(156, 156, 156);
+	font-size: 80%;
+}
+
+.myDivHide {
+ 	display : none;
+}
+
+#boundaryDefinition .add {
+	position:relative;
+	top:2;
+	height:25px;
+	margin-left:-5px;
+	background:#238ff9;
+	border:1px solid #b0c4de;
+}
+
+#boundaryDefinition .add i {
+	font-size:16;
+	color:#fff
+}
+
+#boundaryDefinition .menuContainerHead {
+	margin-top: 10px;
+}
+
+#boundaryDefinition .menuContainerHead .form-group {
+	margin-bottom: 0;
+}
+
+#boundaryDefinition .menuContainerHead label {
+	font-size: 13px;
+}
+
+.menuContainerHead .desc-input {
+	margin-left: 5px;
+	width: 150px;
+	display: inline;
+	height: 25px;
+}
+
+/* 表格删除按钮样式 */
+.icon-del{
+  font-size: 15px;
+  color: #238dfa;
+  cursor: pointer;
+}
+
+/* 脚本上传按钮样式 */
+.fileinput-button {
+	background-color: #238dfa;
+	color: #fff;
+}
+#scriptFilesubmit {
+	color: #238dfa;
+}
+
+/* flavor按钮及模态框样式 */
+.flavor-btn {
+	float: right;
+	margin-bottom: 15px;
+	margin-right: 0;
+}
+
+.tipArea{
+  	border-bottom: 1px solid #d4d4d4;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.tipArea:after, .tipArea:before {
+    border: 10px solid transparent;
+    border-top: 10px solid #fff;
+    width: 0;
+    height: 0;
+    position: relative;
+    right: 45px;
+    top: 30px;
+    content: ' ';
+}
+
+.tipArea:before {
+    border-top-color: #d4d4d4;
+    right: -45px;
+    top: 31px;
+}
+
+.modal-label {
+	word-break: break-all;
+}

@@ -1,0 +1,132 @@
+/*******************************************************************************
+	Copyright (C) 2016 ZTE, Inc. and others. All rights reserved. (ZTE)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ *******************************************************************************/
+
+#templateDrawingArea {
+	height: 500px;
+	position: relative;
+}
+
+#templateEditorArea {
+	width: 100%;
+	height: 100%;
+	margin-top: 45px;
+}
+
+div.NodeTemplateShape {
+	cursor: move;
+}
+
+div.topbar {
+/* 	position: absolute;
+	height: 30px; */
+	width: 100%;
+}
+
+div.topbarbuttons {
+	display: none!important;
+}
+
+div.topbar:hover > div.topbarbuttons {
+	display: inherit;
+}
+
+/* hide the area to add a deployment artifact */
+div.addDA {
+	display: none;
+}
+
+
+.div_cp{
+	border-radius : 50px!important;
+	width : 32px!important;
+	height : 30px!important;
+	background : red;
+	z-index: 30!important;
+}
+
+.div_cp_header{
+	left : 2px!important;
+	top : 6px!important;
+	width : 40px!important;
+}
+
+.div_vl{
+	border-radius : 20px!important;
+	width : 80px!important;
+	height : 50px!important;
+}
+
+.div_cpEndpoint{
+	left: 20px!important;
+}
+
+.div_vl_header{
+	left : 30px!important;
+	top : 16px!important;
+}
+
+.div_vlEndpoint{
+	left: 60px!important;
+}
+
+.div_vdu_1{
+	background : #48C352!important;
+}
+
+.div_vdu_2{
+	background : #A1F3A8!important;
+}
+
+.div_vdu_3{
+	background : #F19F3A!important;
+}
+
+.div_cp_1{
+	background : #F58904!important;
+}
+
+.div_cp_2{
+	background : #BB77AD!important;
+}
+
+.div_cp_3{
+	background : #94BB77!important;
+}
+
+.div_vl_1{
+	background : #70C9E4!important;
+}
+
+.div_vl_2{
+	background : #67CE1B!important;
+}
+
+.div_vl_3{
+	background : #EAA3E8!important;
+}
+
+.div_selectionbox {
+	position: absolute;
+	border-style: solid;
+	border-width: 2px;
+	border-color: black;
+	opacity: 0.15;
+	z-index: 19;
+	cursor : pointer;
+	display: none;
+	background: #655C5C;
+}
+

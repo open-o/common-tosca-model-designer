@@ -1,0 +1,227 @@
+/*******************************************************************************
+    Copyright (C) 2016 ZTE, Inc. and others. All rights reserved. (ZTE)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ *******************************************************************************/
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td, img {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    /* min-width: 1440px; */
+    font-family: openSans, "Microsoft YaHei" ,"Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #f6f6f6;
+    height: 100%;
+}
+
+
+
+div.header {
+    height: 64px;
+    background-color: #fff;
+}
+
+div.logo {
+    width: 132px;
+    height: 64px;
+    background-color: #238ff9;
+    text-align: center;
+    float: left;
+}
+.logo img {
+    padding-top: 13px;
+}
+a {
+    color: #238ff9;
+}
+a {
+    text-decoration: none;
+}
+
+.menu-icon {
+    width: -moz-calc(100% - 156px);
+    width: -webkit-calc(100% - 156px);
+    width: calc(100% - 156px);
+    text-align: center;
+    padding-right: 20px;
+    float: right;
+    line-height: 64px;
+}
+.cur-user {
+    float: right;
+    margin-right: 10px;
+    color: #999;
+}
+.menu-icon .divider {
+    float: right;
+    border-right: 1px solid #999;
+    height: 16px;
+    margin-top: 24px;
+    margin-left: 20px;
+    margin-right: 20px;
+    border-color: #c0c0c0;
+}
+
+.menu-icon a {
+    float: right;
+    width: 36px;
+    height: 64px;
+    color: #999;
+}
+
+.menu-icon a .fa {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+    margin-top: 15px;
+}
+
+.menu-icon a .fa.add {
+    color: #238ff9;
+    width: 36px;
+    height: 36px;
+    font-size: 41.5px;
+    margin-top: 10px;
+}
+
+.main .mainContent {
+     
+    width: 100%;
+}
+
+.addDevSer-header {
+        height: 40px;
+    background-color: aliceblue;
+    padding-top: 10px;
+    margin: 0 20px;
+}
+
+.addDevSer-header span {
+    margin-left: 20px;
+    border-left: 2px solid #238ff9;
+    padding-left: 10px;
+}
+
+.addDevSer-content {
+        padding: 20px;
+    margin: 20px;
+    margin-top: 0;
+    background-color: #fff;
+    margin-bottom: 20px;
+}
+
+
+
+
+.form-item {
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.addDevSer-content .form-item {
+    position: relative;
+    margin-top: 20px;
+    margin-left: 60px;
+}
+
+.addDevSer-content .form-item .name {
+    font-size: 14px;
+}
+
+
+
+.form-control {
+
+    width: 250px;
+    height: 24px;
+    padding: 0px 4px;
+    font-family: inherit;
+   
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid rgb(169, 169, 169);
+    border-radius: 3px;
+    margin-right: 10px;
+   
+}
+
+.addDevSer-content .nameHints {
+    margin-left: 20px;
+    font-size: 12px;
+    color: #999;
+}
+
+.addDevSer-content .button{
+    text-align: center;
+    margin-top: 10px;
+}
+
+.zte-btn:hover, .zte-btn:hover a, .zte-btn.primary {
+    color: #fff;
+    background-color: #238ff9;
+    border: 1px solid #238ff9;
+}
+.zte-btn {
+    height: 24px;
+    font-size: 14px;
+    color: #238ff9;
+    font-family: inherit;
+    border: 1px solid #b0c4de;
+    background-color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 4px;
+    min-width: 60px;
+    display: inline-block;
+    box-sizing: border-box;
+}
+.zte-btn.disabled{
+  opacity: .65;
+  cursor: default;
+}
+
+.instance-location{
+    margin-left: 40px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.required {
+  color: #e02222;
+  font-size: 12px;
+  padding-right: 3px;
+}
+
+.has-error .help-block, .has-error .control-label, .has-error .radio, .has-error .checkbox, .has-error .radio-inline, .has-error .checkbox-inline {
+    color: #a94442;
+}
+
+.has-error .form-control {
+    border-color: #a94442;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+
+.form-control[disabled]{
+    cursor: not-allowed;
+    background-color: #eee;
+    opacity: 1;
+}
+
+.control-label{
+    width:120px;
+    float: left;
+    text-align: right;
+}
