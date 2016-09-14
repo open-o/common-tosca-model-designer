@@ -1,0 +1,75 @@
+<!--
+
+    Copyright 2016 [ZTE] and others.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" svg:xmlns="http://www.w3.org/2000/svg"> 
+<head>
+    <title>BPMN4TOSCA 2.0 Modeler</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" href="bpmn4tosca-modeler.css" media="all" />
+</head>
+<body>
+    <div class="canvas"></div>
+
+
+
+    
+    <script type="text/javascript" src="javascript/vendor/jquery.js"></script>
+    <script type="text/javascript" src="javascript/vendor/jquery.serialize-object.js"></script>
+    <script type="text/javascript" src="javascript/vendor/jquery-ui.js"></script>
+    <script type="text/javascript" src="javascript/vendor/jquery-ui.touch-punch.js"></script>
+    <script type="text/javascript" src="javascript/vendor/tocca.js"></script>
+    <script type="text/javascript" src="javascript/vendor/underscore.js"></script>
+    <script type="text/javascript" src="javascript/vendor/backbone.js"></script>
+    <script type="text/javascript" src="javascript/vendor/bootstrap.js"></script>
+    <script type="text/javascript" src="javascript/vendor/selectize.js"></script>
+    <script type="text/javascript" src="javascript/vendor/jquery.jsPlumb.js"></script>
+    
+    <script type="text/javascript" src="javascript/bpmn4tosca-modeler.js"></script>
+    <script type="text/javascript" src="javascript/helper/winery.js"></script>
+    <script type="text/javascript" src="javascript/helper/msb.js"></script>
+    <script type="text/javascript" src="javascript/model/element.js"></script>
+    <script type="text/javascript" src="javascript/collection/managementplan.js"></script>
+    <script type="text/javascript" src="javascript/view/canvas.js"></script>
+    <script type="text/javascript" src="javascript/view/canvas.toolbar.js"></script>
+    <script type="text/javascript" src="javascript/view/dialog.js"></script>
+    <script type="text/javascript" src="javascript/view/dialog.parameter.js"></script>
+    <script type="text/javascript" src="javascript/view/condition.js"></script>
+    <script type="text/javascript" src="javascript/view/element.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn.event.end.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn.event.start.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn.gateway.parallel.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn.gateway.fork.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn.gateway.join.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn.gateway.merge.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn4tosca.nodemanagementtask.js"></script>
+    <script type="text/javascript" src="javascript/view/element/bpmn4tosca.resttask.js"></script>
+    
+    <script type="text/javascript" src="swagger/swagger-client.js"></script>
+    <script type="text/javascript" src="swagger/json2.js"></script>
+    <script type="text/javascript" src="swagger/swagger-api-parser.js"></script>
+    
+    
+    <script type="text/javascript">
+        $(function(){
+	        window.BPMN4TOSCAModeler.initialize();
+        });
+    </script>
+</body>
+</html>

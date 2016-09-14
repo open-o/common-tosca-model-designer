@@ -1,0 +1,80 @@
+/**
+ * Copyright 2016 [ZTE] and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+   .dialog {
+     margin-bottom: 1em;
+   }
+   a.expand {
+     background: #e3e3e3;
+   }
+
+   div#time-test {
+     font-family: Arial, Helvetica, sans-serif;
+     font-size: 62.5%;
+   }
+
+   td.test button {
+     float: right;
+   }
+
+   table {
+     border: 1px solid #000;
+   }
+
+   table td, table th {
+     border: 1px solid #000;
+     padding: 10px;
+   }
+
+   td.winner {
+     background-color: #cfc;
+   }
+
+   td.tie {
+     background-color: #ffc;
+   }
+
+   td.fail {
+     background-color: #f99;
+     font-weight: bold;
+     text-align: center;
+   }
+
+   tfoot td {
+     text-align: center;
+   }
+
+   #time-test {
+     margin: 1em 0;
+     padding: .5em;
+     background: #e3e3e3;
+   }
+   #time-taken {
+     font-weight: bold;
+   }
+
+   span.wins {
+     color: #330;
+   }
+
+   span.fails {
+     color: #900;
+   }
+
+   div.buttons {
+     margin-top: 10px;
+     margin-bottom: 10px;
+   }

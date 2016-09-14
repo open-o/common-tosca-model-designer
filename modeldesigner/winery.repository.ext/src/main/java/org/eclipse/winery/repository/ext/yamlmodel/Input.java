@@ -1,0 +1,76 @@
+/**
+ * Copyright 2016 [ZTE] and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.eclipse.winery.repository.ext.yamlmodel;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class Input extends YAMLElement {
+
+  private String type = "";
+  private String defaultValue = "";
+  private boolean required = false;
+  private List<Map<String, Object>> constraints = new ArrayList<Map<String, Object>>();
+  private String entry_schema;
+
+  public String getType() {
+    return this.type;
+  }
+
+  public void setType(String type) {
+    if (type != null) {
+      this.type = type;
+    }
+  }
+
+  public String getDefault() {
+    return this.defaultValue;
+  }
+
+  public void setDefault(String defaultValue) {
+    if (defaultValue != null) {
+      this.defaultValue = defaultValue;
+    }
+  }
+
+  public List<Map<String, Object>> getConstraints() {
+    return this.constraints;
+  }
+
+  public void setConstraints(List<Map<String, Object>> constraints) {
+    if (constraints != null) {
+      this.constraints = constraints;
+    }
+  }
+
+  public boolean isRequired() {
+    return required;
+  }
+
+  public void setRequired(boolean required) {
+    this.required = required;
+  }
+
+  public String getEntry_schema() {
+    return entry_schema;
+  }
+
+  public void setEntry_schema(String entry_schema) {
+    this.entry_schema = entry_schema;
+  }
+
+}

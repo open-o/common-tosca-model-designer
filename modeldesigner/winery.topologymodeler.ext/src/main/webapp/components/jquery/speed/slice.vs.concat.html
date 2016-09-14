@@ -1,0 +1,64 @@
+<!--
+
+    Copyright 2016 [ZTE] and others.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<script type="text/javascript">
+(function(){
+	// Conclusions:
+	// slice() is a little faster than concat() except on Chrome
+	// This clone() is slower on FF & IE but takes 50% on Safari & Chrome
+
+	var SIZE = 1e4,
+		LOOPS = 500;
+
+	var arr = new Array(SIZE);
+	for ( var i = arr.length - 1; i >= 0; --i )
+		arr[i] = 0;
+
+	var t = new Date;
+	for ( i = 0; i < LOOPS; i++ )
+		arr.slice(0);
+	var tslice = new Date - t;
+
+	t = new Date;
+	for ( i = 0; i < LOOPS; i++ )
+		arr.concat();
+	var tconcat = new Date - t;
+
+	// clone() is just to see how fast built-ins are
+	t = new Date;
+	for ( i = 0; i < LOOPS; i++ )
+		clone(arr);
+	var tclone = new Date - t;
+
+	alert([
+		'slice:'+tslice,
+		'concat:'+tconcat,
+		'clone:'+tclone
+	].join('\n'));
+
+
+	function clone(arr){
+		var i = arr.length,
+			copy = new Array(i);
+
+		while (i--)
+			copy[i] = arr[i];
+
+		return copy;
+	}
+})();
+</script>

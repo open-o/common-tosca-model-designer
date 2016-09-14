@@ -1,0 +1,113 @@
+#set( $bpelvar = "$bpelvar" )
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2016 [ZTE] and others.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<process xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="$planName"
+    xmlns:tns="$planNameSpace"
+    targetNamespace="$planNameSpace"
+    xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+    xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight"
+    xmlns:si="http://siserver.org/wsdl" 
+    xmlns:sischema="http://siserver.org/schema"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:ode="http://www.apache.org/ode/type/extension">
+
+    <import namespace="http://siserver.org/wsdl" location="invoker.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></import>
+    <import importType="http://schemas.xmlsoap.org/wsdl/" location="${planName}.wsdl"
+        namespace="$planNameSpace" /> <!-- Todo place_holder wsdl and namespace -->
+
+    <extensions>
+        <extension mustUnderstand="yes"
+            namespace="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight" />
+    </extensions>
+
+    <partnerLinks>
+        <partnerLink name="client" initializePartnerRole="yes"
+            partnerLinkType="tns:${planName}PLT" myRole="${planName}Provider"
+            partnerRole="${planName}Client" />
+
+        <partnerLink name="serviceInvokerPL"
+            initializePartnerRole="yes" partnerLinkType="tns:OpenTOSCAServiceInvokerPLT"
+            myRole="ServiceInvokerClient"  partnerRole="ServiceInvoker"  />    
+    </partnerLinks> 
+
+    <variables>
+        <variable name="input" messageType="tns:planInputMessage" />
+        <variable name="output" messageType="tns:planOutputMessage" />
+
+        #foreach( $var in $variables )
+        <variable name="$var.getName()" type="xsd:string" />
+        #end
+        #foreach( $iaResponseVariable in $iaResponseVariables )
+        <variable name="${iaResponseVariable}" messageType="si:invokeResponse" />
+        #end
+        #foreach( $inputVariable in $inputVariables )
+        <variable name="${inputVariable}" type="xsd:string" />
+        #end
+    </variables>
+
+    <correlationSets>
+        <correlationSet name="ServiceInvokerCS"
+            properties="tns:ServiceInvokerRequestProperty" />
+    </correlationSets>
+
+
+
+    <sequence>
+        <receive createInstance="yes" name="initiate" operation="initiatePlan"
+            partnerLink="client" portType="tns:${planName}PT" variable="input" />
+
+        <!-- Get values for variables 'instanceDataAPIUrl', 'csarId', 'serviceTemplateId', 
+            'serviceInstanceId' from input message These values are required to read/write 
+            properties of the service instance the plan is working on -->
+        <assign name="initFromInputMsg" validate="no">
+            #foreach( $inputVariable in $inputVariables )
+            <copy>
+                <from variable="input" part="payload">
+                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[tns:$inputVariable]]></query>
+                </from>
+                <to variable="$inputVariable" />
+            </copy>
+            #end            
+        </assign>
+
+        <assign name="initFromVarMsg" validate="no">
+            #foreach( $varParam in $variables )
+            <copy>
+                #if( $varParam.getValue() )
+                <from>
+                    <literal>$varParam.getValue()</literal>
+                </from>
+                #else
+                <from>
+                    <literal></literal>
+                </from>
+                #end
+                <to variable="$varParam.getName()" />
+            </copy>
+            #end
+        </assign>
+        
+#foreach( $mngmtTask in $mngmtTaskList )
+        #parse(
+        "../templates/bpel_management_activity_scope_template.xml"
+        )
+        <!--"/src/main/resources/templates/bpel_management_activity_scope_template.xml"-->
+#end
+    </sequence>
+</process>

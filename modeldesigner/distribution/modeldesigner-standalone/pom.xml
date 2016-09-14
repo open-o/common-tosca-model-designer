@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright 2016 [ZTE] and others.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openo.common-tosca.model-designer.modeldesigner.distribution</groupId>
+        <artifactId>modeldesigner.distribution-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>modeldesigner-standalone</artifactId>
+    <name>common-tosca-model-designer/modeldesigner/distribution/modeldesigner-standalone</name>
+    <packaging>pom</packaging>
+
+    <properties>        
+        <version.output>target/version</version.output>
+        <packageid>modeldesigner-standalone</packageid>
+        <packagedir>modeldesigner</packagedir>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <id>tomcat-run</id>
+                        <goals>
+                            <goal>exec-war-only</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- <path>root</path> -->
+                            <!-- optional, needed only if you want to use a preconfigured server.xml file -->
+                            <!-- <serverXml>src/main/tomcatconf/server.xml</serverXml> -->
+                            <!-- optional values which can be configurable -->
+                            <attachArtifactClassifier>exec-war</attachArtifactClassifier>
+                            <attachArtifactClassifierType>jar</attachArtifactClassifierType>
+                            <finalName>modeldesign.jar</finalName>  
+                            <buildDirectory>target/assembly</buildDirectory>      
+
+                            <warRunDependencies>
+                                <warRunDependency>
+                                    <dependency>
+                                        <groupId>org.openo.common-tosca.model-designer.modeldesigner</groupId>
+                                        <artifactId>modeldesigner.winery.repository.ext</artifactId>
+                                        <version>${project.version}</version>
+                                        <type>war</type>
+                                    </dependency>
+                                    <contextPath>/winery</contextPath>
+                                </warRunDependency>
+                                <warRunDependency>
+                                    <dependency>
+                                        <groupId>org.openo.common-tosca.model-designer.modeldesigner</groupId>
+                                        <artifactId>modeldesigner.winery.topologymodeler.ext</artifactId>
+                                        <version>${project.version}</version>
+                                        <type>war</type>
+                                    </dependency>
+                                    <contextPath>/winery-topologymodeler</contextPath>
+                                </warRunDependency>
+                            </warRunDependencies>
+                            <!-- <enableNaming>true</enableNaming> -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-script-resources</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/assembly</outputDirectory>
+                            <groupId>org.openo.common-tosca.model-designer.modeldesigner.distribution</groupId>
+                            <includeArtifactIds>modeldesigner-resource</includeArtifactIds>
+                            <excludeTransitive>true</excludeTransitive>
+                            <ignorePermissions>false</ignorePermissions>
+                        </configuration>
+                    </execution>         
+                    <execution>
+                        <id>unpack-repository-resources</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.openo.common-tosca.model-designer.modeldesigner-repository</groupId>
+                                    <artifactId>modeldesigner.repository.basic</artifactId>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>target/assembly/winery-repository-init/</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>          
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="distribution">
+                                <tar destfile="${version.output}/${packageid}-${project.version}-linux.gtk.x86_64.tar.gz" longfile="posix" compression="gzip">
+                                    <tarfileset dir="target/assembly/" prefix="${packagedir}" filemode="0755" dirmode="0755">
+                                        <exclude name="**/*.bat"/>
+                                        <exclude name="war-exec*"/>
+                                    </tarfileset>
+                                </tar>
+                                <attachartifact file="${version.output}/${packageid}-${project.version}-linux.gtk.x86_64.tar.gz" classifier="linux.gtk.x86_64" type="tar.gz"/> 
+                                <zip destfile="${version.output}/${packageid}-${project.version}.zip" update="true">
+                                    <zipfileset dir="target/assembly/" prefix="${packagedir}" excludes="**/*.sh,war-exec*"/>
+                                </zip>
+                                <attachartifact file="${version.output}/${packageid}-${project.version}.zip"  type="zip"/> 
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openo.common-tosca.model-designer.modeldesigner.distribution</groupId>
+            <artifactId>modeldesigner-resource</artifactId>
+            <version>${project.version}</version>    
+            <type>zip</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.openo.common-tosca.model-designer.modeldesigner-repository</groupId>
+            <artifactId>modeldesigner.repository.basic</artifactId>
+            <version>${model.repository.version}</version>
+            <type>zip</type>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+</project>
+

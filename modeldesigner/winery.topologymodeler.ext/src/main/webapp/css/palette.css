@@ -1,0 +1,119 @@
+/**
+ * Copyright 2016 [ZTE] and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#palette {
+	background-color: #f5f5f5;
+	width: 50px;
+	height:100%;
+	padding: 0px 10px 10px 10px;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	z-index: 100;
+	/* background-image: -ms-linear-gradient(left, #FFFFFF 0%, rgb(237, 242, 247) 100%);
+	background-image: -moz-linear-gradient(left, #FFFFFF 0%, rgb(237, 242, 247) 100%);
+	background-image: -o-linear-gradient(left, #FFFFFF 0%, rgb(237, 242, 247) 100%);
+	background-image: -webkit-gradient(linear, left, right, color-stop(0, #FFFFFF), color-stop(1, rgb(237, 242, 247)));
+	background-image: -webkit-linear-gradient(left, #FFFFFF 0%, rgb(237, 242, 247) 100%);
+	background-image: linear-gradient(to right, #FFFFFF 0%, rgb(237, 242, 247) 100%); */
+	
+	overflow-y: auto;
+
+	/* fix for bootstrap.css, which sets that to "border-box" */
+	box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+}
+
+#palette.shrunk {
+	width: 35px;
+	padding: 0px;
+	padding-left: 9px;
+}
+
+#paletteLabel {
+	width: 0px;
+	background-color: blue;
+	top: 80px;
+	position: relative;
+	transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);
+	display: none;
+	left: 8px;
+	font-size: 12px;
+	color: rgb(143, 151, 170);
+}
+
+div.iconContainer {
+	width: 36px;
+	float: left;
+	height: 36px;
+	cursor: pointer;
+}
+
+
+div.paletteEntry {
+	height: 36px;
+	border: 1px solid #ddd;
+	margin-left: 5px;
+	margin-bottom: 10px;
+	float: left;
+	width: 36px;
+}
+
+div.paletteEntry:hover {
+	background: rgb(237, 242, 247);
+}
+
+
+div.paletteEntry > div.iconContainer > img.icon {
+	height: 20px;
+	vertical-align: top;
+}
+
+
+div.paletteEntry > div.typeContainer {
+	margin: 4px 0px;
+	height: 20px;
+	display: table;
+	width: 180px;
+	font-size: 11px;
+	line-height: 20px;
+}
+
+div.paletteEntry > div.typeContainer > div.typeContainerMiddle {
+	display: table-cell;
+	vertical-align: middle;
+	width: 100%;
+	position: static;
+}
+
+div.paletteEntry > div.typeContainer > div.typeContainerMiddle > div.typeContainerInner {
+}
+
+#addNodeTemplateToPalette{
+	height:34px;
+	width: 34px;
+	float: left;
+	margin-left: 8px;
+	cursor: pointer;
+	background-image: url(/winery-topologymodeler/images/plus.png);
+}
+
+#addNodeTemplateToPalette:hover{
+	background-image: url(/winery-topologymodeler/images/plus_hover.png);
+}

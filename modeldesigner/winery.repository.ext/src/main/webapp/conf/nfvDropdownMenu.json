@@ -1,0 +1,14 @@
+﻿[		
+	{
+		"name_zh": "创建NSD",
+		"name_en": "Create NSD",
+		"type": "ns",
+		"url": "createServiceTemplate.html?type=ns"
+	},
+	{
+		"name_zh": "创建VNFD",
+		"name_en": "Create VNFD",
+		"type": "vnf",
+		"url": "createServiceTemplate.html?type=vnf"
+	}
+]

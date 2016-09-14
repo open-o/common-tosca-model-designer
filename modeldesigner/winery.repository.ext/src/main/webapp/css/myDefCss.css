@@ -1,0 +1,110 @@
+/**
+ * Copyright 2016 [ZTE] and others.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+table.dataTable tr.myodd { 
+	background-color: #f9f9f9;
+	border : 1px solid #ddd;
+	height : 30px;
+}
+
+table tr td {
+	border : 1px solid #ddd;
+	height : 30px;
+	padding: 8px!important;
+}
+
+table tr th {
+	border : 1px solid #ddd;
+	height : 30px;
+	padding: 8px!important;
+}
+
+.policies_div{
+	width: 33.333333%;
+	float: left;
+	position: relative;
+    min-height: 1px;
+	height : 35px;
+	padding-left: 15px!important;
+	padding-right: 15px!important;
+	padding-top: 7px!important;
+}
+
+.policies_div_top {
+	border-top : 1px solid #ddd;
+}
+
+.policies_div_left {
+	border-left : 1px solid #ddd;
+}
+
+.policies_div_right {
+	border-right : 1px solid #ddd;
+}
+
+.policies_div_bottom {
+	border-bottom : 1px solid #ddd;
+}
+
+
+.checkbox{
+  width: 34px;
+  height: 34px;
+  margin: 0px;
+  position: relative;
+  display: block;
+  clear: left;
+  float: left;
+}
+
+.checkbox label {
+    cursor: pointer;
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    top: 0;
+    left: 0;
+    background: #eee;
+    border:1px solid #ddd;
+}
+
+.checkbox label:after {
+    opacity: 0.2;
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 9px;
+    background: transparent;
+    top: 8px;
+    left: 9px;
+    border: 3px solid #333;
+    border-top: none;
+    border-right: none;
+ 
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+.checkbox label:hover::after {
+    /* opacity: 0.5; */
+}
+ 
+.checkbox input[type=checkbox]:checked + label:after {
+    opacity: 1;
+}

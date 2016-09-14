@@ -1,0 +1,75 @@
+<!--
+
+    Copyright 2016 [ZTE] and others.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!doctype html>
+<html>
+<head>
+	<title>Test Event Handling Performance</title>
+	<script src="benchmark.js"></script>
+	<script src="jquery-basis.js"></script>
+	<script>var old = jQuery.noConflict(true);</script>
+	<script src="../dist/jquery.js"></script>
+	<script>
+	jQuery(function(){
+
+	});
+
+	var events = [], num = 400, exec = false;
+
+	jQuery(document).mousemove(function(e){
+		if ( exec ) {
+			return;
+		}
+
+		if ( events.length >= num ) {
+			exec = true;
+			var s = (new Date).getTime();
+
+			for ( var n = 0; n < 5; n++ ) {
+				for ( var i = 0; i < num; i++ ) {
+					old.event.handle.call( document, events[i] );
+				}
+			}
+
+			var oldNum = (new Date).getTime() - s;
+
+			s = (new Date).getTime();
+
+			for ( var n = 0; n < 5; n++ ) {
+				for ( var i = 0; i < num; i++ ) {
+					jQuery.event.handle.call( document, events[i] );
+				}
+			}
+
+			var curNum = (new Date).getTime() - s;
+
+			jQuery("#num").text( old.fn.jquery + ": " + oldNum + " " + jQuery.fn.jquery + ": " + curNum );
+
+			jQuery(this).unbind( "mousemove", e.handler );
+
+		} else {
+			events.push( e.originalEvent );
+			jQuery("#num").text( events.length + " / " + num );
+		}
+	});
+	</script>
+</head>
+<body>
+	<p>Move the mouse, please!</p>
+	<p id="num"></p>
+</body>
+</html>

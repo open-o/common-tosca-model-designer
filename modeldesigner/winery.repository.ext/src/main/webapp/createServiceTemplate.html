@@ -1,0 +1,438 @@
+<!--
+
+    Copyright 2016 [ZTE] and others.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Create Service</title>
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+</head>
+    <body>
+    <div class="main">
+        <div class="mainContent">   
+            <div  class="addDevSer-header">
+                <span id="winery-toolbar-btn-create" name_i18n="winery_i18n"></span>
+                <lable class="serviceType" id="winery-createTemplate-title" name_i18n="winery_i18n"></lable>
+            </div>
+            <div  class="addDevSer-content">
+                <form  id="serviceForm" role="form"> 
+                    <input type="hidden" value="" name="namespace" id="namespace">
+                    <div class="form-item">
+                        <div class="control-label">
+                            <span class="name" id="winery-createTemplate-type" name_i18n="winery_i18n"></span>
+                        </div>
+                        <select class="form-control m-b" id="createType">
+                            <option value="inherit" id="winery-createTemplate-type-inherit" name_i18n="winery_i18n"></option>
+                            <option value="copy" id="winery-createTemplate-type-copy" name_i18n="winery_i18n"></option>
+                        </select>  
+                    </div>
+                    <div class="form-item">
+                        <div class="control-label">
+                            <span class="name" id="winery-createTemplate-basic" name_i18n="winery_i18n"></span>
+                        </div>
+                        <select class="form-control m-b" id="inheritNodetypeSelect"></select>  
+                    </div>
+                    <div class="form-item">
+                        <div class="control-label">
+                            <span class="required" aria-required="true">*</span>
+                            <span class="name" id="winery-createTemplate-name" name_i18n="winery_i18n"></span>
+                        </div>                      
+                        <input  maxlength="50" type="text" class="form-control" name="name" id="name"/>
+                        <!-- <label class="nameHints">"0-9" "a-z" "A-Z" 开头和结尾只能是字母或者数字</label> -->
+                    </div>
+
+                    <div class="form-item" hidden>
+                        <div class="control-label">
+                            <span class="name">nodeType：</span>
+                        </div>
+                        <input maxlength="50" class="form-control" type="text" value="" name="nodetype" id="nodetype" />
+                    </div>
+                      
+                    <div class="button">
+                        <button  class="zte-btn primary" id="saveBtn">
+                            <span class="name" id="winery-toolbar-btn-create" name_i18n="winery_i18n"></span>
+                        </button>
+                        <button  class="zte-btn no-primary" id="cancelBtn"  onclick="javascript:history.go(-1)">
+                            <span class="name" id="winery-btn-cancel" name_i18n="winery_i18n"></span>
+                        </button>
+                    </div>
+                </form>
+            </div> <!-- end div addDevSer-header -->
+        </div><!-- end div mainContent -->
+    </div><!-- end div main -->
+
+    <script src="components/jquery/jquery.min.js"></script>
+    <script src="components/jquery-validation/jquery.validate.js"></script>
+    <script src="components/requirejs/require.js"></script>
+    <script src="components/jquery.i18n/jquery.i18n.properties-1.0.9.js"></script>
+    <script src="/winery-topologymodeler/js/winery-i18n.js"></script>
+    <script>
+    require.config({
+        paths: {
+            "winery-util": "/winery-topologymodeler/js/winery-util"
+        }
+    });
+
+    function getQueryString(name) { 
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+        var r = window.location.search.substr(1).match(reg); 
+        if (r != null) return unescape(r[2]); 
+        return null; 
+    } 
+
+    function changeNodetype(){
+        var selectText = $("#inheritNodetypeSelect").find("option:selected").text()+".";
+        $("#nodetype").val(selectText);
+    }
+
+    $(function(){
+        require(["winery-util"], function(util){
+            var serviceType = getQueryString("type");   
+            var namespace;
+
+            if(serviceType == null) serviceType="vnf";
+            if(serviceType == "vnf"){
+                $(".serviceType").text($.i18n.prop("winery-createTemplate-title-vnf"));
+                namespace = "http://www.zte.com.cn/tosca/nfv/vnf";
+            } else{
+                $(".serviceType").text($.i18n.prop("winery-createTemplate-title-ns"));
+                namespace = "http://www.zte.com.cn/tosca/nfv/ns";
+            }
+            $("#namespace").val(namespace);
+
+            $("#createType").change(function(){
+                var createType = $(this).val();
+                var url;
+                if(createType == "inherit") {
+                    //初始化继承nodetype
+                    url = "/winery/nodetypes/";
+                } else {
+                    //初始化复制的服务模板
+                    url = "/winery/servicetemplates/";
+                }
+
+                $.ajax({
+                    type: "GET",
+                    url:  url,
+                    dataType: "json",
+                    success: function (resp) {
+                        $("#inheritNodetypeSelect").children().remove();
+                        for(var i=0;i<resp.length;i++){
+                            //创建vnf只能看到vnf的nodetype，创建ns只能看到ns的nodetype
+                            if(resp[i].namespace == namespace) {
+                                $("#inheritNodetypeSelect").append("<option value='" 
+                                    + resp[i].namespace + "'>" + resp[i].id + "</option>");
+                            }
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert($.i18n.prop("winery-createTemplate-message-error-basic") + jqXHR.responseText); 
+                    },
+                    complete:function(){
+                        changeNodetype();
+                    }
+                });
+            });
+
+            $("#createType").trigger('change');
+
+            $("#inheritNodetypeSelect").change(function(){ 
+                changeNodetype();
+            }); 
+
+            //名称输入事件，同步名称到nodetype名称
+            /*$("#name").keyup(function(){
+                var name = $(this).val();
+                var inheritNodetype = $("#inheritNodetypeSelect").find("option:selected").text()+".";
+                var nodetypeName = inheritNodetype + name;
+                $("#nodetype").val(nodetypeName);
+            });*/
+
+            $("#saveBtn").click(function(){
+                $(this).addClass("disabled").attr("disabled", true);
+                if (form.valid() == false) {
+                    $(this).removeClass("disabled").attr("disabled", false);
+                    return false;
+                }
+                /*
+                var nodetype = $("#nodetype").val();
+                if(!nodetype){
+                    var selectNodetype = $("#inheritNodetypeSelect").find("option:selected").text();
+
+                    if(nodetype.indexOf(selectNodetype) == -1){
+                        alert("nodetype输入格式有误");
+                        return false;
+                    }
+                }*/
+
+                var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
+                var name = $("#name").val();
+                var nodetype = $("#nodetype").val();
+                $("#nodetype").val(nodetype + name);
+
+                //创建servicetemplates
+                $.ajax({
+                    type: "POST",
+                    async: false,
+                    data: form.serialize(),
+                    url:"/winery/servicetemplates/",
+                    dataType: "text",
+                    error: function(jqXHR, textStatus, errorThrown) {                    
+                        if(jqXHR.status == 409) {
+                            alert($.i18n.prop("winery-createTemplate-message-error-duplicate"));
+                        } else {
+                            alert($.i18n.prop("winery-createTemplate-message-error-create") + jqXHR.responseText);
+                        }
+                        $("#saveBtn").removeClass("disabled").attr("disabled", false);
+                    },
+                    success : function(resp) {
+                        var createType = $("#createType").val();
+                        if(createType == "inherit") {
+                            var nodeTypeName = $("#nodetype").val();
+                            var nodeTypeObj = {
+                                "namespace" : namespace,
+                                "name" : nodeTypeName
+                            }
+                            //保存substitutableNodeType
+                            saveSubstitutableNodeType(nodeTypeObj, namespace_encode, name);
+                        } 
+                        initialServiceTemplateInfo(createType, name, namespace_encode);
+                    }
+                });           
+            });
+
+            //保存substitutableNodeType
+            function saveSubstitutableNodeType(nodeTypeObj, namespace_encode, name) {
+                var substitutableNodeTypeUrl = "/winery/servicetemplates/"+namespace_encode
+                        +"/"+name+"/substitutableNodeType";
+
+                $.ajax({
+                    url : substitutableNodeTypeUrl,
+                    type : "POST",
+                    async: false,
+                    data : JSON.stringify(nodeTypeObj),
+                    contentType : "application/json",
+                    success : function(resp) {
+                        //保存nodetype
+                        createNodeType(nodeTypeObj, namespace_encode, name);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {                   
+                        alert($.i18n.prop("winery-createTemplate-message-error-substituable") + jqXHR.responseText);
+                        $("#saveBtn").removeClass("disabled").attr("disabled", false);
+                    }
+                });
+            }
+
+            //保存nodetype
+            function createNodeType(nodeTypeObj, namespace_encode, name) {
+                $.ajax({
+                    type : "POST",
+                    async: false,
+                    url : "/winery/nodetypes/",
+                    data : $.param(nodeTypeObj),
+                    success : function(resp) {
+                        //保存nodetype继承关系
+                        saveNodeTypeDerivedFrom(namespace_encode, name);
+                    },
+                    error : function(jqXHR, textStatus, errorThrown) {
+                        alert($.i18n.prop("winery-createTemplate-message-error-nodetype") + jqXHR.responseText);
+                        $("#saveBtn").removeClass("disabled").attr("disabled", false);
+                    }
+                });
+            }
+
+            //保存nodetype继承关系
+            function saveNodeTypeDerivedFrom(namespace_encode, name) {
+                var nodetype_namespace = $("#inheritNodetypeSelect").val(); 
+                var selectNodetype = $("#inheritNodetypeSelect").find("option:selected").text();
+                var derivedFromUrl = "/winery/nodetypes/" + namespace_encode + "/"
+                        + $("#nodetype").val() + "/derivedFrom";
+                var value = "{" + nodetype_namespace + "}" + selectNodetype;
+                $.ajax({
+                    type: "PUT",
+                    async: false,
+                    url: derivedFromUrl,
+                    data: value,
+                    dataType: "text",
+                    processData: false, // leads to a send in the body
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert($.i18n.prop("winery-createTemplate-message-error-nodetypeDerivedfrom") + jqXHR.responseText);
+                        $("#saveBtn").removeClass("disabled").attr("disabled", false);
+                    },
+                    success: function() {
+                        console.log("Successfully updated " + derivedFromUrl);
+
+                        //根据继承的nodetype属性，设置服务模板元数据
+                        var nodetype_namespace_encode = encodeURIComponent(encodeURIComponent(nodetype_namespace));
+                        setNodeTemplateMetaDataDerivedFromNodeType(nodetype_namespace_encode, selectNodetype, namespace_encode, name);
+                        
+                        /*window.location = "/winery/servicetemplates/" + namespace_encode
+                            + "/" + name + "/topologytemplate/?edit";
+                        $("#saveBtn").removeClass("disabled").attr("disabled", false);*/
+                    }
+                });
+            }
+
+            //查询继承nodetype的属性，把这些属性设置到服务模板的metadata中去
+            function setNodeTemplateMetaDataDerivedFromNodeType(nodeTypeNamespace, nodeTypeName,
+                nodeTemplateNamespace, nodeTemplateName) {
+                var queryNodeTypePropertiesURL = "/winery/nodetypes/"
+                        + nodeTypeNamespace + "/" + nodeTypeName + "/propertiesdefinition/winery/list/";
+                $.ajax({
+                    type : "GET",
+                    async: false,
+                    dataType : "json",
+                    url : queryNodeTypePropertiesURL,
+                    success : function(resp) {
+                        resp = resp || [];
+                        var metaData = {
+                            metadatas : []
+                        }
+                        var inputData = {
+                            inputs : []
+                        }
+                        $.each(resp, function(index, property){
+                            if(util.hasTag(property.tag, util.PROPERTY)) {
+                                var data = {
+                                    name : property.key,
+                                    value : property.value,
+                                    type : "string",
+                                    desc : "",
+                                    tag : util.addTag("", util.PROPERTY)
+                                }
+                                inputData.inputs.push(data);
+                            } else {
+                                var data = {
+                                    key : property.key,
+                                    value : property.value,
+                                    tag : util.addTag("", util.ATTRIBUTE),
+                                    required : property.required //是否必填
+                                }
+                                metaData.metadatas.push(data);
+                            }
+                        });
+
+                        var metaDataURL = "/winery/servicetemplates/" + nodeTemplateNamespace 
+                                + "/" + nodeTemplateName + "/boundarydefinitions/properties/metadata/list";
+                        var inputDataURL = "/winery/servicetemplates/" + nodeTemplateNamespace 
+                                + "/" + nodeTemplateName + "/boundarydefinitions/properties/inputs/list";
+                        addServiceTemplateBoundaryData(metaDataURL, metaData);
+                        addServiceTemplateBoundaryData(inputDataURL, inputData);
+                    }
+                });
+            }
+
+            //给服务模板添加metadata或者input信息
+            function addServiceTemplateBoundaryData(dataURL, data) {
+                $.ajax({
+                    url : dataURL,
+                    type : "POST",
+                    async : false,
+                    data : JSON.stringify(data),
+                    contentType : "application/json",
+                    success : function(resp) {
+                      
+                    }
+                });
+            }
+
+            //初始化服务模板信息
+            function initialServiceTemplateInfo(createType, name, namespace_encode) {
+                var serviceTemplateParam = {};
+                if(createType == "copy") {
+                    var selectTemplate = $("#inheritNodetypeSelect").find("option:selected");
+                    serviceTemplateParam = {
+                        copyId: selectTemplate.text(),
+                        copyNameSpace: selectTemplate.val()
+                    };
+                }         
+
+                var initialInformationsURL = "/winery/servicetemplates/" + namespace_encode + "/"
+                        + name + "/initialInformations";
+                var loc = "/winery/servicetemplates/"+namespace_encode+"/"+name+"/topologytemplate/?edit";
+                $.ajax({
+                    url : initialInformationsURL,
+                    type : "POST",
+                    async : false,
+                    data : JSON.stringify(serviceTemplateParam),
+                    contentType : "application/json",
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert($.i18n.prop("winery-createTemplate-message-error-initialInformations") + jqXHR.responseText);
+                    },
+                    complete:function(){
+                        $("#saveBtn").removeClass("disabled").attr("disabled", false);
+                        window.location = loc;
+                    }
+                });
+            }
+
+            var form = $('#serviceForm');
+            var error = $('.alert-danger', form);
+            var success = $('.alert-success', form);
+
+            form.validate({
+                doNotHideMessage: true, //this option enables to show the error/success messages on tab switch.
+                errorElement: 'span', //default input error message container
+                errorClass: 'help-block', // default input error message class
+                focusInvalid: false, // do not focus the last invalid input
+                rules: {          
+                    name:{
+                        required: true,
+                        //custom_content:true,
+                        maxlength:50
+                    },
+                    nodetype:{
+                        maxlength:50
+                    }
+                },
+                messages: {        
+                    name:{
+                        required: $.i18n.prop("winery-property-validate-name-required")
+                    }
+                },
+                errorPlacement: function (error, element) { // render error placement for each input type
+                    error.insertAfter(element); // for other inputs, just perform default behavior
+                },
+                invalidHandler: function (event, validator) { //display error alert on form submit   
+                    success.hide();
+                    error.show();
+                    //ZteFrameWork.scrollTo(error, -200);
+                },
+                highlight: function (element) { // hightlight error inputs
+                    $(element)
+                      .closest('.form-item').removeClass('has-success').addClass('has-error'); // set error class to the control group
+                },
+                unhighlight: function (element) { // revert the change done by hightlight
+                    $(element)
+                      .closest('.form-item').removeClass('has-error'); // set error class to the control group
+                },
+                success: function (label) {
+                    label
+                      .addClass('valid') // mark the current input as valid and display OK icon
+                      .closest('.form-itemp').removeClass('has-error'); // set success class to the control group
+                },
+                submitHandler: function (form) {
+                    success.show();
+                    error.hide();
+                    //add here some ajax code to submit your form or just call form.submit() if you want to submit the form without ajax
+                }
+            });
+        });
+    });
+    </script>
+    </body>
+</html>

@@ -1,0 +1,220 @@
+<!--
+
+    Copyright 2016 [ZTE] and others.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    	<!--link href="../components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" type="text/css"/-->
+    	<link	href="../js/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    	<link href="../components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    	
+    	<!--link href="../components/bootstrap/dist/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css" /-->
+    	<link href="../js/dataTables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
+    	<link href="../css/paas.css" rel="stylesheet" type="text/css"/>
+    	<style>
+        .ms-controller {
+        	visibility: hidden
+        }
+        </style>
+	</head>
+	<body class="ms-controller"  ms-controller="softwareRepositoryController" >
+		<div class="container-fluid" style="margin-top:15px;" >		
+            <div class="row-fluid">               
+                <div class="title-header">
+                    <span id="winery-softwareRepository-title" name_i18n="winery_i18n"></span>
+                    <button class="zte-btn zte-small" style="float:right;" id="returnBtn" type="button" ms-click="returnParent()">
+                        <i class="fa fa-reply" id="winery-toolbar-btn-return" name_i18n="winery_i18n"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="row-fluid" style="margin-top: 10px;">
+                <ul class="nav title-list" id="blueprintTab">
+        			<li  ms-visible="vm.tab.ifVNF">
+        		      	<a href="#vnfTab" data-toggle="tab">VNF</a>
+        		   	</li>	
+        			<li ms-visible="vm.tab.ifNS">
+        		      	<a href="#nsTab" data-toggle="tab">NS</a>
+        		   	</li>
+        		   	<li ms-visible="vm.tab.ifServices">
+        		      	<a href="#servicesTab" data-toggle="tab">VNFC</a>
+        		   	</li>
+        		   	<li ms-visible="vm.tab.ifServicelets">
+        		      	<a href="#serviceletsTab" data-toggle="tab">Servicelets</a>
+        		   	</li>
+        		   	<li ms-visible="vm.tab.ifMicroservices">
+        		      	<a href="#microservicesTab" data-toggle="tab">Microservices</a>
+        		   	</li>
+                </ul>
+
+    			<div class="tab-content">
+                    <div class="tab-pane fade" id="vnfTab">
+                        <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('vnfTable','http://www.zte.com.cn/tosca/nfv/vnf')">
+                                <i class="fa fa-plus-circle"></i> {{addBtnName}}
+                            </button>
+                        </div>
+                        <table class="zte-table table-hover " id="vnfTable">
+                            <thead>
+                                <tr>
+                                    <th><span id="winery-softwareRepository-table-index" name_i18n="winery_i18n"></span></th> 
+                                    <th><span id="winery-softwareRepository-table-name" name_i18n="winery_i18n"></span></th>
+                                    <th><span id="winery-softwareRepository-table-desc" name_i18n="winery_i18n"></span></th>                                        
+                                    <th><span id="winery-table-operation" name_i18n="winery_i18n"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody ms-each-vnf="vnfInfoArray">
+                                <tr>                                          
+                                    <td ms-text="$index+1"></td>
+                                    <td ms-text="vnf.name"></td>
+                                    <td ms-text="vnf.description"></td>                                           
+                                    <td>
+                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(vnf.id,'http://www.zte.com.cn/tosca/nfv/vnf')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
+                                        <input type="checkbox" ms-value="vnf.id"/>
+                                    </td>                                      
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade " id="nsTab">
+                        <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('nsTable','http://www.zte.com.cn/tosca/nfv/ns')">
+                                <i class="fa fa-plus-circle"></i> {{addBtnName}}
+                            </button>
+                        </div>
+                        <table class="zte-table table-hover " id="nsTable">
+                            <thead>
+                                <tr>
+                                    <th><span id="winery-softwareRepository-table-index" name_i18n="winery_i18n"></span></th> 
+                                    <th><span id="winery-softwareRepository-table-name" name_i18n="winery_i18n"></span></th>
+                                    <th><span id="winery-softwareRepository-table-desc" name_i18n="winery_i18n"></span></th>                                        
+                                    <th><span id="winery-table-operation" name_i18n="winery_i18n"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody ms-each-ns="nsInfoArray">
+                                <tr>                                          
+                                    <td ms-text="$index+1"></td>
+                                    <td ms-text="ns.name"></td>
+                                    <td ms-text="ns.description"></td>                                           
+                                    <td>
+                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(ns.id,'http://www.zte.com.cn/tosca/nfv/ns')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
+                                        <input type="checkbox" ms-value="ns.id"/>
+                                    </td>                                      
+                                </tr>                                                                
+                            </tbody>
+                        </table>
+                    </div>  
+                    <div class="tab-pane fade " id="servicesTab">
+                        <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('servicesTable','services')">
+                                <i class="fa fa-plus-circle"></i> {{addBtnName}}
+                            </button>
+                        </div>
+                        <table class="zte-table table-hover " id="servicesTable">
+                            <thead>
+                                <tr>
+                                    <th><span id="winery-softwareRepository-table-index" name_i18n="winery_i18n"></span></th> 
+                                    <th><span id="winery-softwareRepository-table-name" name_i18n="winery_i18n"></span></th>
+                                    <th><span id="winery-softwareRepository-table-desc" name_i18n="winery_i18n"></span></th>                                        
+                                    <th><span id="winery-table-operation" name_i18n="winery_i18n"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody ms-each-service="servicesInfoArray">
+                                <tr>                                          
+                                    <td ms-text="$index+1"></td>
+                                    <td ms-text="service.name"></td>
+                                    <td ms-text="service.description"></td>
+                                    <td>
+                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(service.id,'services')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
+                                        <input type="checkbox" ms-value="service.id"/>
+                                    </td>                                      
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div> 
+                    <div class="tab-pane fade " id="serviceletsTab">
+                        <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('serviceletsTable','servicelets')">
+                                <i class="fa fa-plus-circle"></i> {{addBtnName}}
+                            </button>
+                        </div>
+                        <table class="zte-table table-hover " id="serviceletsTable">
+                            <thead>
+                                <tr>
+                                    <th><span id="winery-softwareRepository-table-index" name_i18n="winery_i18n"></span></th> 
+                                    <th><span id="winery-softwareRepository-table-name" name_i18n="winery_i18n"></span></th>
+                                    <th><span id="winery-softwareRepository-table-desc" name_i18n="winery_i18n"></span></th>                                        
+                                    <th><span id="winery-table-operation" name_i18n="winery_i18n"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody ms-each-servicelet="serviceletsInfoArray">
+                                <tr>                                          
+                                    <td ms-text="$index+1"></td>
+                                    <td ms-text="servicelet.name"></td>
+                                    <td ms-text="servicelet.description"></td>
+                                    <td>
+                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(servicelet.id,'servicelets')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
+                                        <input type="checkbox" ms-value="servicelet.id"/>
+                                    </td>                                      
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div> 
+                    <div class="tab-pane fade " id="microservicesTab">
+                        <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('microservicesTable','microservices')">
+                                <i class="fa fa-plus-circle"></i> {{addBtnName}}
+                            </button>
+                        </div>
+                        <table class="zte-table table-hover " id="microservicesTable">
+                            <thead>
+                                <tr>
+                                    <th><span id="winery-softwareRepository-table-index" name_i18n="winery_i18n"></span></th> 
+                                    <th><span id="winery-softwareRepository-table-name" name_i18n="winery_i18n"></span></th>
+                                    <th><span id="winery-softwareRepository-table-desc" name_i18n="winery_i18n"></span></th>                                        
+                                    <th><span id="winery-table-operation" name_i18n="winery_i18n"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody ms-each-microservice="microservicesInfoArray">
+                                <tr>                                          
+                                    <td ms-text="$index+1"></td>
+                                    <td ms-text="microservice.name"></td>
+                                    <td ms-text="microservice.description"></td>
+                                    <td>
+                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(microservice.id,'microservices')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
+                                        <input type="checkbox" ms-value="microservice.id"/>
+                                    </td>                                      
+                                </tr>                                                               
+                            </tbody>
+                        </table>
+                    </div> 
+                </div><!-- end class tab-content -->
+    		</div><!-- end class row-fluid -->
+        </div><!-- end class container-fluid -->
+	</body>
+	<script type="text/javascript" language="javascript" src="../components/jquery/jquery.js"></script>	
+    <script type="text/javascript"  src="../components/jquery.i18n/jquery.i18n.properties-1.0.9.js"></script>
+	
+	<script type="text/javascript"	src="../js/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript"  src="../js/dataTables/jquery.dataTables.min.js"></script>
+    <script type="text/javascript"  src="../js/dataTables/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript"  src="../js/winery-i18n.js"></script>
+
+	<script type="text/javascript"	src="../components/avalon/avalon.js"></script>
+	<script type="text/javascript"	src="../js/softwareRepositoryUtil.js"></script>
+	<script type="text/javascript"	src="../js/softwareRepositoryController.js"></script>
+</html>
