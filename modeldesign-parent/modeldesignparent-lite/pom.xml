@@ -29,11 +29,7 @@
   <name>modeldesignparent-lite</name> 
 
   <properties>
-    <nexusproxy>http://proxynj.zte.com.cn</nexusproxy>
-    <nexus.repository.release>dav:http://10.74.156.77/repos/content/repositories/releases</nexus.repository.release>
-    <nexus.repository.snapshot>dav:http://10.74.156.77/repos/content/repositories/snapshots</nexus.repository.snapshot>
-
-    <stream>latest</stream><!-- CI should pass in -Dstream={stream} -->
+       <stream>latest</stream><!-- CI should pass in -Dstream={stream} -->
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
