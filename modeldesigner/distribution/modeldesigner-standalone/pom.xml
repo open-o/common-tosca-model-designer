@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright 2016 [ZTE] and others.
@@ -142,7 +142,7 @@
                                 <zip destfile="${version.output}/${packageid}-${project.version}.zip" update="true">
                                     <zipfileset dir="target/assembly/" prefix="${packagedir}" excludes="**/*.sh,war-exec*"/>
                                 </zip>
-                                <attachartifact file="${version.output}/${packageid}-${project.version}.zip"  type="zip"/> 
+                                <attachartifact file="${version.output}/${packageid}-${project.version}.zip" type="zip"/> 
                             </target>
                         </configuration>
                     </execution>
@@ -169,4 +169,3 @@
     </dependencies>
 
 </project>
-

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright 2016 [ZTE] and others.
@@ -44,7 +44,7 @@
                                 <zip destfile="target/${project.artifactId}-${project.version}.zip" update="true">
                                     <zipfileset dir="src/main/assembly/" includes="**"/>
                                 </zip>
-                                <attachartifact file="target/${project.artifactId}-${project.version}.zip"  type="zip"/>
+                                <attachartifact file="target/${project.artifactId}-${project.version}.zip" type="zip"/>
                             </target>
                         </configuration>
                     </execution>
@@ -53,4 +53,3 @@
         </plugins>
     </build>
 </project>
-
