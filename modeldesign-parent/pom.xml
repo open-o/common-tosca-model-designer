@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.openo.common-tosca.modeldesignparent</groupId>
         <artifactId>modeldesignparent-lite</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath>modeldesignparent-lite</relativePath>
     </parent>
 
     <groupId>org.openo.common-tosca.modeldesignparent</groupId>
     <artifactId>modeldesignparent-aggregator</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>modeldesignparent-aggregator</name> 
     <packaging>pom</packaging>
 
