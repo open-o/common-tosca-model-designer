@@ -18,25 +18,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.openo.common-tosca.modeldesignparent</groupId>
+    <groupId>org.openo.common-tosca.model-designer</groupId>
     <artifactId>modeldesignparent-lite</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../modeldesignparent-lite</relativePath>
   </parent>
 
-  <groupId>org.openo.common-tosca.modeldesignparent</groupId>
   <artifactId>modeldesignparent</artifactId>
   <packaging>pom</packaging>
   <name>modeldesignparent</name> 
-
-
-  <scm>
-    <connection>scm:git:ssh://gerrit.zte.com.cn:29418/paas/wisdom/modeldesign-parent.git</connection>
-    <developerConnection>scm:git:ssh://gerrit.zte.com.cn:29418/paas/wisdom/modeldesign-parent.git</developerConnection>
-    <tag>HEAD</tag>
-
-  </scm>
-
 
   <!-- Variables should only be used where genuinely useful (to avoid
        repetition); in general versions should be specified in the

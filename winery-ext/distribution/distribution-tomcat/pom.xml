@@ -17,63 +17,60 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-    <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
-    <artifactId>distribution-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+        <groupId>org.openo.common-tosca.model-designer</groupId>
+        <artifactId>distribution-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
     <artifactId>distribution-tomcat</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <name>openo/modeldesign/winery-ext/distribution/distribution-tomcat</name>
     <packaging>pom</packaging>
 
-    
-   <build>
+    <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.tomcat.maven</groupId>
-            <artifactId>tomcat7-maven-plugin</artifactId>
-            <version>2.1</version>
-          <executions>
-            <execution>
-              <id>tomcat-run</id>
-              <goals>
-                <goal>exec-war-only</goal>
-              </goals>
-              <phase>package</phase>
-              <configuration>
-                <!-- <path>root</path> -->
-                <!-- optional, needed only if you want to use a preconfigured server.xml file -->
-                <!-- <serverXml>src/main/tomcatconf/server.xml</serverXml> -->
-                <!-- optional values which can be configurable -->
-                <attachArtifactClassifier>exec-war</attachArtifactClassifier>
-                <attachArtifactClassifierType>jar</attachArtifactClassifierType>
-              
-              <warRunDependencies>
-                <warRunDependency>
-                <dependency>
-                  <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
-                  <artifactId>winery.repository.ext</artifactId>
-                  <version>${project.version}</version>
-                  <type>war</type>
-                </dependency>
-                <contextPath>/winery</contextPath>
-                </warRunDependency>
-                <warRunDependency>
-                <dependency>
-                  <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
-                  <artifactId>winery.topologymodeler.ext</artifactId>
-                  <version>${project.version}</version>
-                  <type>war</type>
-                </dependency>
-                <contextPath>/winery-topologymodeler</contextPath>
-                </warRunDependency>
-              </warRunDependencies>
-              <!-- <enableNaming>true</enableNaming> -->
-              </configuration>
-            </execution>
-          </executions>
-          </plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <id>tomcat-run</id>
+                        <goals>
+                            <goal>exec-war-only</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <!-- <path>root</path> -->
+                            <!-- optional, needed only if you want to use a preconfigured server.xml file -->
+                            <!-- <serverXml>src/main/tomcatconf/server.xml</serverXml> -->
+                            <!-- optional values which can be configurable -->
+                            <attachArtifactClassifier>exec-war</attachArtifactClassifier>
+                            <attachArtifactClassifierType>jar</attachArtifactClassifierType>
+
+                            <warRunDependencies>
+                                <warRunDependency>
+                                    <dependency>
+                                        <groupId>org.openo.common-tosca.model-designer</groupId>
+                                        <artifactId>winery.repository.ext</artifactId>
+                                        <version>${project.version}</version>
+                                        <type>war</type>
+                                    </dependency>
+                                    <contextPath>/winery</contextPath>
+                                </warRunDependency>
+                                <warRunDependency>
+                                    <dependency>
+                                        <groupId>org.openo.common-tosca.model-designer</groupId>
+                                        <artifactId>winery.topologymodeler.ext</artifactId>
+                                        <version>${project.version}</version>
+                                        <type>war</type>
+                                    </dependency>
+                                    <contextPath>/winery-topologymodeler</contextPath>
+                                </warRunDependency>
+                            </warRunDependencies>
+                            <!-- <enableNaming>true</enableNaming> -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

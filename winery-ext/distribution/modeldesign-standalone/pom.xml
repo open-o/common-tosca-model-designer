@@ -17,25 +17,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-    <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
-    <artifactId>distribution-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+        <groupId>org.openo.common-tosca.model-designer</groupId>
+        <artifactId>distribution-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
     <artifactId>modeldesign-standalone</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <name>openo/modeldesign/winery-ext/distribution/modeldesign-standalone</name>
     <packaging>pom</packaging>
 
-    <properties>        
+    <properties>
         <version.output>target/version</version.output>
         <packageid>modeldesign-standalone</packageid>
         <packagedir>modeldesign</packagedir>
     </properties>
-    
-   <build>
+
+    <build>
         <plugins>
-          <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -48,7 +46,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
+                                    <groupId>org.openo.common-tosca.model-designer</groupId>
                                     <artifactId>distribution-tomcat</artifactId>
                                     <classifier>exec-war</classifier>
                                     <overWrite>true</overWrite>
@@ -66,60 +64,60 @@
                         <phase>prepare-package</phase>
                         <configuration>
                             <outputDirectory>${project.build.directory}/assembly</outputDirectory>
-                            <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
+                            <groupId>org.openo.common-tosca.model-designer</groupId>
                             <includeArtifactIds>modeldesign-resource</includeArtifactIds>
                             <excludeTransitive>true</excludeTransitive>
                             <ignorePermissions>false</ignorePermissions>
                         </configuration>
                     </execution>                   
                 </executions>
-          </plugin>
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-antrun-plugin</artifactId>
-              <executions>
-                  <execution>
-                      <id>distribution</id>
-                      <phase>package</phase>
-                      <goals>
-                          <goal>run</goal>
-                      </goals>
-                      <configuration>
-                          <target name="distribution">
-                              <tar destfile="${version.output}/${packageid}-${project.version}-linux.gtk.x86_64.tar.gz" longfile="posix" compression="gzip">
-                                <tarfileset dir="target/assembly/" prefix="${packagedir}" filemode="0755" dirmode="0755">
-                                  <exclude name="**/*.bat"/>
-                                </tarfileset>
-                              </tar>
-<!--                               <attachartifact file="${version.output}/${packageid}-${project.version}-linux.gtk.x86_64.tar.gz" classifier="linux.gtk.x86_64" type="tar.gz"/> -->
-                              <zip destfile="${version.output}/${packageid}-${project.version}.zip" update="true">
-                                  <zipfileset dir="target/assembly/" prefix="${packagedir}" excludes="**/*.sh"/>
-                              </zip>
-                              <!-- <attachartifact file="${version.output}/${packageid}-${project.version}.zip"  type="zip"/> -->
-                          </target>
-                      </configuration>
-                  </execution>
-              </executions>
-          </plugin>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="distribution">
+                                <tar destfile="${version.output}/${packageid}-${project.version}-linux.gtk.x86_64.tar.gz" longfile="posix" compression="gzip">
+                                    <tarfileset dir="target/assembly/" prefix="${packagedir}" filemode="0755" dirmode="0755">
+                                        <exclude name="**/*.bat"/>
+                                    </tarfileset>
+                                </tar>
+                                <!--                               <attachartifact file="${version.output}/${packageid}-${project.version}-linux.gtk.x86_64.tar.gz" classifier="linux.gtk.x86_64" type="tar.gz"/> -->
+                                <zip destfile="${version.output}/${packageid}-${project.version}.zip" update="true">
+                                    <zipfileset dir="target/assembly/" prefix="${packagedir}" excludes="**/*.sh"/>
+                                </zip>
+                                <!-- <attachartifact file="${version.output}/${packageid}-${project.version}.zip"  type="zip"/> -->
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
-      <dependency>
-        <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
-        <artifactId>distribution-tomcat</artifactId>
-        <classifier>exec-war</classifier>
-        <version>${project.version}</version>    
-         <optional>true</optional>
-      </dependency>
+        <dependency>
+            <groupId>org.openo.common-tosca.model-designer</groupId>
+            <artifactId>distribution-tomcat</artifactId>
+            <classifier>exec-war</classifier>
+            <version>${project.version}</version>    
+            <optional>true</optional>
+        </dependency>
 
-      <dependency>
-        <groupId>org.openo.common-tosca.modeldesign.winery-ext.distribution</groupId>
-        <artifactId>modeldesign-resource</artifactId>
-        <version>${project.version}</version>    
-        <type>zip</type>
-        <optional>true</optional>
-      </dependency>
+        <dependency>
+            <groupId>org.openo.common-tosca.model-designer</groupId>
+            <artifactId>modeldesign-resource</artifactId>
+            <version>${project.version}</version>    
+            <type>zip</type>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
 </project>

@@ -18,15 +18,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+        <groupId>org.openo.common-tosca.model-designer</groupId>
         <artifactId>winery-ext-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
     <artifactId>winery.repository.ext.api</artifactId>
     <name>openo/modeldesign/winery-ext/winery.repository.ext.api</name>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
 
     <build>
         <plugins>
@@ -38,7 +36,7 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
-			<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
@@ -49,7 +47,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-							 <classesDirectory>${project.build.directory}/classes </classesDirectory>  
+                            <classesDirectory>${project.build.directory}/classes </classesDirectory>  
                             <outputDirectory>${project.build.directory}</outputDirectory>
                         </configuration>
                     </execution>
@@ -59,11 +57,11 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+            <groupId>org.openo.common-tosca.model-designer</groupId>
             <artifactId>winery.model.tosca.ext</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
-	    </dependency>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.common</artifactId>
@@ -72,14 +70,14 @@
             <optional>true</optional> 
         </dependency>
 
-		<dependency>
-            <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+        <dependency>
+            <groupId>org.openo.common-tosca.model-designer</groupId>
             <artifactId>winery.common.ext</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-		
-		<dependency>
+
+        <dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
             <version>${opentosca.winery.version}</version>
@@ -96,9 +94,6 @@
             <scope>provided</scope>
             <optional>true</optional>            
         </dependency-->
-		
-
-
 
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -109,6 +104,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-			
+
     </dependencies>
 </project>

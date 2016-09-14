@@ -18,24 +18,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+        <groupId>org.openo.common-tosca.model-designer</groupId>
         <artifactId>winery-ext-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+
     <artifactId>winery.repository.ext</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
     <name>openo/modeldesign/winery-ext/winery.repository.ext</name>
     <packaging>war</packaging>
-    <properties>
-      <winery.model.csar.toscametafile.version>0.0.4-SNAPSHOT</winery.model.csar.toscametafile.version>
-      <winery.model.selfservice.version>0.1.20-SNAPSHOT</winery.model.selfservice.version>
-      <apache-velocity.version>1.6.2</apache-velocity.version>
-      <jgrapht.version>0.9.1</jgrapht.version>
-      <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-      <restdoc-server-jersey.version>1.0.1</restdoc-server-jersey.version>
-    </properties>     
 
+    <properties>
+        <winery.model.csar.toscametafile.version>0.0.4-SNAPSHOT</winery.model.csar.toscametafile.version>
+        <winery.model.selfservice.version>0.1.20-SNAPSHOT</winery.model.selfservice.version>
+        <apache-velocity.version>1.6.2</apache-velocity.version>
+        <jgrapht.version>0.9.1</jgrapht.version>
+        <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
+        <restdoc-server-jersey.version>1.0.1</restdoc-server-jersey.version>
+    </properties>     
 
     <build>
         <finalName>winery</finalName>
@@ -61,12 +60,12 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+                                    <groupId>org.openo.common-tosca.model-designer</groupId>
                                     <artifactId>winery.model.tosca.ext</artifactId>
                                 </artifactItem>
- 
+
                                 <artifactItem>
-                                    <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+                                    <groupId>org.openo.common-tosca.model-designer</groupId>
                                     <artifactId>winery.common.ext</artifactId>
                                 </artifactItem>
                             </artifactItems>
@@ -97,7 +96,7 @@
         </plugins>
     </build>
     <dependencies>
-<!--         <dependency>
+        <!--         <dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.common</artifactId>
             <version>${opentosca.winery.version}</version>
@@ -140,7 +139,7 @@
             <type>war</type>
         </dependency>
 
-		<!--
+        <!--
         <dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
@@ -165,24 +164,23 @@
 
         <!--ext impl provider by class dir so that it can override the original jar-->
         <dependency>
-            <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+            <groupId>org.openo.common-tosca.model-designer</groupId>
             <artifactId>winery.model.tosca.ext</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+            <groupId>org.openo.common-tosca.model-designer</groupId>
             <artifactId>winery.common.ext</artifactId>
             <version>${project.version}</version> 
             <scope>provided</scope>
         </dependency>
         <!--ext impl ,but id did not exits same class ,so provider by jar -->
         <dependency>
-            <groupId>org.openo.common-tosca.modeldesign.winery-ext</groupId>
+            <groupId>org.openo.common-tosca.model-designer</groupId>
             <artifactId>winery.repository.ext.api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -227,7 +225,6 @@
             <scope>provided</scope>
         </dependency>    
 
-
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
@@ -248,13 +245,11 @@
             <scope>provided</scope>            
         </dependency>
 
-
         <dependency>
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-multipart</artifactId>
             <scope>provided</scope>  
         </dependency>
-
 
         <dependency>
             <groupId>com.sun.jersey</groupId>
@@ -275,7 +270,6 @@
             <scope>provided</scope>  
         </dependency>
 
-
         <dependency>
             <!-- Required for com.sun.xml.bind.namespacePrefixMapper -->
             <groupId>com.sun.xml.bind</groupId>
@@ -283,9 +277,7 @@
             <scope>provided</scope>  
         </dependency>
 
-
         <!--ext dependency lib-->
-
         <!--the following  system lib is  used by de.ustutt.iaas.bpmn2bpel not by winery original-->
         <dependency>
             <groupId>org.apache.velocity</groupId>
@@ -312,7 +304,7 @@
             <systemPath>${project.basedir}/lib/commons-collections-3.2.jar</systemPath>
         </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
@@ -321,22 +313,21 @@
             <groupId>com.esotericsoftware.yamlbeans</groupId>
             <artifactId>yamlbeans</artifactId>
         </dependency>
-		
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-		</dependency>
 
-		<dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
-			
-	    <dependency>
+
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
-
 
     </dependencies>
 </project>
