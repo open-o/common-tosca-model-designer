@@ -22,7 +22,7 @@
             modeldesignparent instead.
   -->
 
-  <groupId>org.openo.orchestrator.modeldesignparent</groupId>
+  <groupId>org.openo.common-tosca.modeldesignparent</groupId>
   <artifactId>modeldesignparent-lite</artifactId>
   <version>1.0.0</version>
   <packaging>pom</packaging>

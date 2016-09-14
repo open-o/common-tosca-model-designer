@@ -18,13 +18,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.openo.orchestrator.modeldesignparent</groupId>
+    <groupId>org.openo.common-tosca.modeldesignparent</groupId>
     <artifactId>modeldesignparent-lite</artifactId>
     <version>1.0.0</version>
     <relativePath>../modeldesignparent-lite</relativePath>
   </parent>
 
-  <groupId>org.openo.orchestrator.modeldesignparent</groupId>
+  <groupId>org.openo.common-tosca.modeldesignparent</groupId>
   <artifactId>modeldesignparent</artifactId>
   <packaging>pom</packaging>
   <name>modeldesignparent</name> 

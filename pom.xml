@@ -21,14 +21,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>org.openo.orchestrator.modeldesignparent</groupId>
+      <groupId>org.openo.common-tosca.modeldesignparent</groupId>
       <artifactId>modeldesignparent</artifactId>
       <version>1.0.0</version>
       <relativePath>modeldesign-parent/modeldesignparent</relativePath>
     </parent>  
 
 
-    <groupId>org.openo.orchestrator.modeldesign</groupId>
+    <groupId>org.openo.common-tosca.modeldesign</groupId>
     <artifactId>modeldesign-root</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>modeldesign-root</name>    
