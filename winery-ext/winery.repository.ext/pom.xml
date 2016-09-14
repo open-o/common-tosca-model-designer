@@ -140,6 +140,7 @@
             <type>war</type>
         </dependency>
 
+		<!--
         <dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
@@ -152,14 +153,15 @@
                 </exclusion>
             </exclusions>
         </dependency>
-<!--         <dependency>
+		-->
+        <dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
             <version>${opentosca.winery.version}</version>
             <type>jar</type>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/winery.jar</systemPath>
-        </dependency> -->
+        </dependency>
 
         <!--ext impl provider by class dir so that it can override the original jar-->
         <dependency>

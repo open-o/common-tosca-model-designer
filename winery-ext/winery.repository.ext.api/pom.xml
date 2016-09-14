@@ -79,23 +79,23 @@
             <scope>provided</scope>
         </dependency>
 		
-<!-- 		<dependency>
+		<dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
             <version>${opentosca.winery.version}</version>
             <type>jar</type>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/winery.jar</systemPath>
-        </dependency> -->
+            <systemPath>${project.basedir}/../winery.repository.ext/lib/winery.jar</systemPath>
+        </dependency> 
 
-        <dependency>
+        <!--dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
             <version>${opentosca.winery.version}</version>
             <classifier>classes</classifier>
             <scope>provided</scope>
             <optional>true</optional>            
-        </dependency>
+        </dependency-->
 		
 
 

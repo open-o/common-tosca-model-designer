@@ -93,28 +93,27 @@
             <version>${opentosca.winery.version}</version>
             <type>war</type>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.topologymodeler</artifactId>
             <version>${opentosca.winery.version}</version>
             <classifier>classes</classifier>
-            <!--only provider jar ,so classes dir can override the jar ,if exist same class -->
             <exclusions>
                 <exclusion>
                 <groupId>*</groupId>
                 <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency-->
 
-<!--         <dependency>
+		<dependency>
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.topologymodeler</artifactId>
             <version>${opentosca.winery.version}</version>
             <type>jar</type>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/winery-topologymodeler.jar</systemPath>
-        </dependency> -->
+			<systemPath>${project.basedir}/../winery.repository.ext/lib/winery-topologymodeler.jar</systemPath>
+        </dependency>
 
 
     </dependencies>
