@@ -18,4 +18,4 @@
 
 Main_JAR=modeldesign.jar
 APP_INFO="model-design"
-httpPort=8088
+httpPort=8202
