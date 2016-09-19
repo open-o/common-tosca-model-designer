@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.common.ModelUtilities;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TGroupTemplate;
 import org.eclipse.winery.model.tosca.TTarget;
 import org.eclipse.winery.repository.resources.entitytemplates.TEntityTemplatesResource;
@@ -95,7 +96,9 @@ public class GroupTemplatesResource extends
             String templateNS = ((ServiceTemplateResource) this.res).getNamespace().getDecoded();
             String propNS = templateNS + "/propertiesdefinition/winery";
             Element propRootElement = ModelUtilities.buildPropertiesElement(properties, propNS);
-            group.getAny().add(propRootElement);
+            TEntityTemplate.Properties templateProps = new TEntityTemplate.Properties();
+            templateProps.setAny(propRootElement);
+            group.setProperties(templateProps);
         }
         return group;
     }
