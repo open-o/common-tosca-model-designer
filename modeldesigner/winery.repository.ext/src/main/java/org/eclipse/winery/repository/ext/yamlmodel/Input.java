@@ -25,7 +25,7 @@ public class Input extends YAMLElement {
   private String defaultValue = "";
   private boolean required = false;
   private List<Map<String, Object>> constraints = new ArrayList<Map<String, Object>>();
-  private String entry_schema;
+  private EntrySchema entry_schema;
 
   public String getType() {
     return this.type;
@@ -65,12 +65,14 @@ public class Input extends YAMLElement {
     this.required = required;
   }
 
-  public String getEntry_schema() {
+  public EntrySchema getEntry_schema() {
     return entry_schema;
   }
 
-  public void setEntry_schema(String entry_schema) {
-    this.entry_schema = entry_schema;
+  public void setEntry_schema(EntrySchema entry_schema) {
+    if (entry_schema != null) {
+      this.entry_schema = entry_schema;
+    }
   }
 
 }

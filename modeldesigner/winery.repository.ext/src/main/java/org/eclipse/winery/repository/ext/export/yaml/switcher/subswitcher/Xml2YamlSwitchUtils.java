@@ -19,11 +19,7 @@
 
 package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+
 
 import org.eclipse.winery.common.PropertyTagUtil;
 import org.eclipse.winery.common.propertydefinitionkv.Constraint;
@@ -34,10 +30,19 @@ import org.eclipse.winery.model.tosca.TBoolean;
 import org.eclipse.winery.model.tosca.TDocumentation;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
+import org.eclipse.winery.repository.ext.yamlmodel.EntrySchema;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
+import javax.xml.namespace.QName;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,8 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.xml.namespace.QName;
 
 public class Xml2YamlSwitchUtils {
   /**
@@ -172,13 +175,27 @@ public class Xml2YamlSwitchUtils {
       ArrayList<Map<String, Object>> yconstraints = new ArrayList<>();
       if (null != constraint.getValidValue()) {
         Map<String, Object> validValues = new HashMap<>();
-        validValues.put("valid_values", constraint.getValidValue().split(","));
+        validValues.put("valid_values", trim(constraint.getValidValue().split(",")));
         yconstraints.add(validValues);
       }
       yproperty.setConstraints(yconstraints);
     }
 
     return yproperty;
+  }
+  
+
+  /**
+   * @param split
+   * @return
+   */
+  private static String[] trim(String[] split) {
+
+    String[] tmps = new String[split.length];
+    for (int i = 0; i < split.length; i++) {
+      tmps[i] = split[i].trim();
+    }
+    return tmps;
   }
 
   /**
@@ -250,7 +267,7 @@ public class Xml2YamlSwitchUtils {
    * @param type
    * @return
    */
-  public static String convert2YamlEntrySchema(String type) {
+  public static EntrySchema convert2YamlEntrySchema(String type) {
     if (type == null || type.indexOf("_") <= 0) {
       return null;
     }
@@ -260,7 +277,7 @@ public class Xml2YamlSwitchUtils {
       return null;
     }
     
-    return types[1];
+    return new EntrySchema(types[1]);
   }
 
   /**
@@ -298,7 +315,7 @@ public class Xml2YamlSwitchUtils {
           String propertyValue = child.getTextContent();
           if (propertyValue == null || propertyValue.trim().isEmpty()
               || propertyValue.trim().equalsIgnoreCase("null")) {
-            continue; // 空值、无效值 Property 不导出。
+            continue;
           }
 
           if (propertyValue.startsWith("[") && propertyValue.endsWith("]")) {
@@ -338,8 +355,12 @@ public class Xml2YamlSwitchUtils {
       }
 
       if (jsonArray.get(i) instanceof JsonObject) {
-        Map<String, Object> map = parseMapValue((JsonObject) jsonArray.get(i));
-        list.add(map);
+        list.add(parseMapValue((JsonObject) jsonArray.get(i)));
+        continue;
+      }
+      
+      if (jsonArray.get(i) instanceof JsonArray) {
+        list.add(parseListValue((JsonArray) jsonArray.get(i)));
         continue;
       }
     }
@@ -357,9 +378,14 @@ public class Xml2YamlSwitchUtils {
         map.put(next.getKey(), next.getValue().getAsString());
         continue;
       }
-
+      
       if (next.getValue() instanceof JsonObject) {
         map.put(next.getKey(), parseMapValue((JsonObject) next.getValue()));
+        continue;
+      }
+      
+      if (next.getValue() instanceof JsonArray) {
+        map.put(next.getKey(), parseListValue((JsonArray) next.getValue()));
         continue;
       }
     }
