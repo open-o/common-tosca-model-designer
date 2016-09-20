@@ -57,14 +57,8 @@ public class ImportXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         if (yImport == null || yImport.equals("") || yImport.startsWith("..")) {
             return null;
         }
-
-        // if (yImport.endsWith(".tosca")) {
-        // yImport = yImport.substring(0, yImport.length() - 6);
-        // }
-        //
-        // return yImport + ".yml";
-
-        return yImport.replaceFirst(".tosca$", ".yml");
+        
+        return yImport.replaceFirst(".tosca$", ".yaml");
     }
 
 }

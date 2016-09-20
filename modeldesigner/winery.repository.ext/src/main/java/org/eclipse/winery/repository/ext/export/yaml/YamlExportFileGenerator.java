@@ -242,14 +242,10 @@ public class YamlExportFileGenerator extends ExportFileGenerator {
     }
 
     throw new ExportCommonException("Unrecognized Node.");
-    // String yamlFileName = definition.getId() + ".yml";
-    // return yamlFileName.replaceFirst("^winery-defs-for_",
-    // "").replaceFirst(
-    // "-", "__");
   }
 
   private String buildYamlFileName(String id, String namespace) {
     return NamespacesResource.getPrefix(namespace) + "__" + (new XMLId(id, false)).getEncoded()
-        + ".yml";
+        + ".yaml";
   }
 }

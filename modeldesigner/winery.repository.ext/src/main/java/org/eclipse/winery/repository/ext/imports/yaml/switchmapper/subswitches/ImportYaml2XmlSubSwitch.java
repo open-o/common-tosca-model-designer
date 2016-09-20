@@ -77,7 +77,7 @@ public class ImportYaml2XmlSubSwitch extends AbstractYaml2XmlSubSwitch {
             return null;
         }
 
-        return yImport.replaceFirst(".yml$", ".tosca");
+        return yImport.replaceFirst(".yaml$", ".tosca");
     }
 
 }

@@ -78,7 +78,7 @@ public class YamlDefinitionGenerator extends DefinitionGenerator {
 
     private String getServiceTemplateName(String filename) {
         int startIndex = filename.indexOf("__");
-        int endIndex = filename.indexOf(".yml");
+        int endIndex = filename.indexOf(".yaml");
         if (startIndex != -1 && endIndex != -1) {
             return filename.substring(startIndex + 2, endIndex);
         }
