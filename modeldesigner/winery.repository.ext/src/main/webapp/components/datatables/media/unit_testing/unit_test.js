@@ -1,18 +1,25 @@
 /*
- * Copyright 2016 [ZTE] and others.
+ * File:        unit_test.js
+ * Version:     0.0.1
+ * CVS:         $Id$
+ * Description: Unit test framework
+ * Author:      Allan Jardine (www.sprymedia.co.uk)
+ * Created:     Sun Mar  8 22:02:49 GMT 2009
+ * Modified:    $Date$ by $Author$
+ * Language:    Javascript
+ * License:     GPL v2 or BSD 3 point style
+ * Project:     DataTables
+ * Contact:     allan.jardine@sprymedia.co.uk
+ * 
+ * Copyright 2009 Allan Jardine, all rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Description:
+ * This is a javascript library suitable for use as a unit testing framework. Employing a queuing
+ * mechanisim to take account of async events in javascript, this library will communicates with
+ * a controller frame (to report individual test status).
+ * 
  */
+
 
 var oTest = {
 	/* Block further tests from occuring - might be end of tests or due to async wait */
