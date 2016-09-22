@@ -342,7 +342,11 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     }
 
     Requirement yrequirement = new Requirement();
-    yrequirement.setNode_filter(buildNodeFilter(trequirement));
+    NodeFilter nodeFilter = buildNodeFilter(trequirement);
+    if (nodeFilter == null) {
+      return null;
+    }
+    yrequirement.setNode_filter(nodeFilter);
 
     return yrequirement;
   }
@@ -353,6 +357,9 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     CapabilityFilter capabilityFilter = new CapabilityFilter();
     Map<String, Object> yproperties =
         Xml2YamlSwitchUtils.convertTProperties(trequirement.getProperties());
+    if (yproperties == null || yproperties.isEmpty()) {
+      return null;
+    }
     List<Map<String, Object>> ypropertyFilter = Xml2YamlSwitchUtils.convertMap2ListMap(yproperties);
     capabilityFilter.setProperties(ypropertyFilter);
 
