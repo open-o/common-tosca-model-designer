@@ -827,7 +827,7 @@ $(function() {
 		var delVnffgTableData = function(id) {
 			$.ajax({
 				type: "DELETE",
-				url: vnffgInfo.url + id + "/",
+				url: vnffgInfo.url + id + "/groupandtargets/",
 				success: function(resp) {
 					initTable();
 				}

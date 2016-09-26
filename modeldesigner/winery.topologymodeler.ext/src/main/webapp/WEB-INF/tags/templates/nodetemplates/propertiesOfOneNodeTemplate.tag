@@ -250,14 +250,14 @@
 					select.append(option);
 				});
 
-				if(!value) {
+				if(nodeTemplateId && !value) {
 					//没有值，默认为第一个，把值更新到propertiesContainer中
 					updatePropertyDataToContainer(nodeTemplateId, name, options[0]);
 				}
 				return select;
 			}
 
-			var generateProperties = function(id, propertiesTrs) {
+			var generateProperties = function(id, propertiesTrs, nodeTemplateId) {
 				var propertyInfo = $("#" + id);
 				propertyInfo.children().remove();
 			
@@ -313,13 +313,13 @@
 
 					if(validValue) { //枚举类型
 						var options = validValue.split(",");
-						var select = generateSelectHtml(id, options, name, value, disabledAttr);
+						var select = generateSelectHtml(nodeTemplateId, options, name, value, disabledAttr);
 						fixedDiv.append(select);
 					} else {
 						switch(type) {  //type不同，输入方式不同
 							case "xsd:boolean" :
-								var options = ["true", "false"];
-								var select = generateSelectHtml(id, options, name, value, disabledAttr);
+								var options = ["", "true", "false"];
+								var select = generateSelectHtml(nodeTemplateId, options, name, value, disabledAttr);
 								fixedDiv.append(select);
 								break;
 							case "xsd:integer" :
@@ -365,7 +365,7 @@
 				});
 			}
 
-			generateProperties("propertiesContent", propertiesTrs);
+			generateProperties("propertiesContent", propertiesTrs, id);
 
 			//初始化json editor
 			var initEditor = function(editorId, options) {

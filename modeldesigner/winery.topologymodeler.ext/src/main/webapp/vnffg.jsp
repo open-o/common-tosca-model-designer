@@ -1,6 +1,6 @@
 <%--
 
-    Copyright 2016 [ZTE] and others.
+    Copyright 2016 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -345,6 +345,7 @@ style="display:none"></iframe>
 <script type="text/javascript" src="components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.js"></script>
 <script type="text/javascript" src="components/jquery.i18n/jquery.i18n.properties-1.0.9.js"></script>
 
+
 <script type="text/javascript" src="js/winery-common.js"></script>
 <script type="text/javascript" src="js/winery-topologymodeler.js"></script>
 <script type="text/javascript" src="js/winery-i18n.js"></script>
@@ -550,7 +551,7 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 
 <div id="winery">
 	<ncnt:propertiesOfOneNodeTemplate repositoryURL="<%=repositoryURL%>" palette="true"/>
-	<ncrt:propertiesOfOneRelationshipTemplate relationshipTypes="<%=relationshipTypes%>" repositoryURL="<%=repositoryURL%>"/>
+	<ncrt:propertiesOfOneNfpRelationshipTemplate relationshipTypes="<%=relationshipTypes%>" repositoryURL="<%=repositoryURL%>"/>
 	<%-- add boundaryDefinitions in paas --%>
 	<bdf:boundaryDefinitions serviceTemplateURL="<%=serviceTemplateURL%>" 
 	serviceTemplateName="<%=serviceTemplateName%>" ns="<%=ns%>" palette="true"/>

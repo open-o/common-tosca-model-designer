@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 [ZTE] and others.
+ * Copyright 2016 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
  	function goBack(url) {
 		url = url + "?edit";	
  		if(vnffgConstants.PARAM_TYPE) {
@@ -451,9 +450,13 @@
 
 	function editNfpAttri() {
 		if(vnffgConstants.CURRENT_PATH_ID) {
-			var nodeTemplate = $("#" + vnffgConstants.CURRENT_PATH_ID);
-			fillInformationSection(nodeTemplate);
-			showViewOnTheRight(nodeTemplate.attr("id"));
+			winery.events.fire(winery.events.name.command.UNSELECT_ALL_NODETEMPLATES);
+			$("#" + vnffgConstants.CURRENT_PATH_ID).addClass("selected");
+			winery.events.fire(winery.events.name.SELECTION_CHANGED);
+
+			// var nodeTemplate = $("#" + vnffgConstants.CURRENT_PATH_ID);
+			// fillInformationSection(nodeTemplate);
+			// showViewOnTheRight(nodeTemplate.attr("id"));
 		} else {
 			vShowError("please select nfp first", "error");
 		}
@@ -534,22 +537,28 @@
 
 
 	function savePathProperties(successFunc) {
-		// 先让属性加载到 propertiesContent 属性页面中, 避免在界面点解了节点后，这里保存的数据变成了节点的数据
-		editNfpAttri();
+		// // 先让属性加载到 propertiesContent 属性页面中, 避免在界面点解了节点后，这里保存的数据变成了节点的数据
+		// editNfpAttri();
 
 		var properties = {};
 
-		$("#propertiesContent select").each(function(index, element) {
-			var name = $(element).attr("name");
-			var val = $(element).val();
-			properties[name] = val;
+		$("#" + vnffgConstants.CURRENT_PATH_ID + " .propertiesContainer div[name='Properties']  tr").each(function(index, element) {
+			var key = $(element).find(".KVPropertyKey").text();
+			var value = $(element).find(".KVPropertyValue").text();
+			properties[key] = value;
 		});
 
-		$("#propertiesContent input").each(function(index, element) {
-			var name = $(element).attr("name");
-			var val = $(element).val();
-			properties[name] = val;
-		});
+		// $("#propertiesContent select").each(function(index, element) {
+		// 	var name = $(element).attr("name");
+		// 	var val = $(element).val();
+		// 	properties[name] = val;
+		// });
+
+		// $("#propertiesContent input").each(function(index, element) {
+		// 	var name = $(element).attr("name");
+		// 	var val = $(element).val();
+		// 	properties[name] = val;
+		// });
 
 		REQ.saveNodeTemplateProperties(properties, successFunc);
 	}
@@ -671,8 +680,23 @@
 			requirements[requirements.length] = sourceRequirement;
 		});
 
+		// remove duplicate cps
+		var result = [];
+		$.each(requirements, function(index, requirement) {
+			if(index == 0) {
+				result[0] = requirement;
+			} else {
+				var preRequirement = result[result.length-1];
+				if(preRequirement.node == requirement.node && preRequirement.capability == requirement.capability) {
+					// duplicate cp， in and out from the same cp skip
+				} else {
+					result[result.length] = requirement;
+				}
+			}
+		});
 
-		return requirements;
+
+		return result;
 	}
 
 	
@@ -760,9 +784,17 @@
 	function connectPath(nodeTemplate) {
 		if(nodeTemplate.requirements && nodeTemplate.requirements.requirement) {
 			var requirements = nodeTemplate.requirements.requirement;
-			for(var index=0, len=requirements.length; index<len; index=index+2) {
-				var label = index/2 + 1;
-				connectNode(requirements[index], requirements[index + 1], "" + label);
+			var label = 1;
+			for(var index=0, len=requirements.length; index<len; index++) {
+				if(index == 0) {
+
+				} else {
+					if(requirements[index-1].otherAttributes.node != requirements[index].otherAttributes.node) {
+						connectNode(requirements[index-1], requirements[index], "" + label);
+						label = label + 1;
+					}
+				}
+				
 			}
 		}
 	}
@@ -794,7 +826,7 @@
 
 			var sourceReq = source.otherAttributes.capability;
 			if(sourceReq) {
-				var elements = $('#' + sourceId + ' .requirements .name:contains("' + sourceReq + '")');
+				var elements = $('#' + sourceId + ' .capabilities .name:contains("' + sourceReq + '")');
 				$.each(elements, function(index, element) {
 					if(sourceReq == $(element).text()) {
 						var sourceReqId = $(element).siblings(".id").text();
@@ -878,6 +910,7 @@
 			resData.dependent_virtual_link = "[" + vlNameArray.join() + "]";
 			resData.constituent_vnfs = "[" + vnfArray.join() + "]";
 			resData.connection_point = "[" + cpArray.join() + "]";
+			resData.number_of_endpoints = cpArray.length;
 
 			REQ.saveVnffgProperties(resData);
 		};

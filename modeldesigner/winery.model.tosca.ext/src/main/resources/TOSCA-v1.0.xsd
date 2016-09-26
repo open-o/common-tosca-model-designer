@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016 [ZTE] and others.
+    Copyright 2016 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
     limitations under the License.
 
 -->
-
 <xs:schema targetNamespace="http://docs.oasis-open.org/tosca/ns/2011/12"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	xmlns="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:xs="http://www.w3.org/2001/XMLSchema">
