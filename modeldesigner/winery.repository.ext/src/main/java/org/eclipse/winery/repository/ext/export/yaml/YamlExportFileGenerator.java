@@ -58,10 +58,10 @@ public class YamlExportFileGenerator extends ExportFileGenerator {
    * winery.model.tosca.Definitions, java.io.OutputStream)
    */
   @Override
-  public DefinitionResultInfo[] makeFile(Definitions definition, OutputStream out) {
+  public DefinitionResultInfo[] makeFile(Definitions definitions, OutputStream out) {
     logger.info("makeFile begin.");
     try {
-      List<DefinitionResultInfo> result = makeModelFile(definition, out);
+      List<DefinitionResultInfo> result = makeModelFiles(out, definitions);
       logger.info("makeFile success.");
       return result.toArray(new DefinitionResultInfo[result.size()]);
     } catch (IOException e) {
@@ -83,48 +83,47 @@ public class YamlExportFileGenerator extends ExportFileGenerator {
     }
   }
 
-  private List<DefinitionResultInfo> makeModelFile(Definitions definition, OutputStream out)
+  private List<DefinitionResultInfo> makeModelFiles(OutputStream out, Definitions definitions)
       throws IOException, ExportCommonException {
-
-    List<DefinitionResultInfo> defResultInfos = new ArrayList<DefinitionResultInfo>();
-
-    Xml2YamlSwitch switcher = new Xml2YamlSwitch(definition);
+    Xml2YamlSwitch switcher = new Xml2YamlSwitch(definitions);
     ServiceTemplate st = switcher.convert();
 
-    writeDataTypes(definition, out, st, defResultInfos);
+    // DataTypes
+    List<DefinitionResultInfo> defResultInfos = new ArrayList<>();
+    defResultInfos.addAll(writeDataTypes(out, st, Utils.isServiceTemplateDefinition(definitions)));
 
-    writeDefinitions(definition, out, defResultInfos, st);
+    // Service Template
+    String yamlFilePath = buildYamlFilePath(definitions);
+    defResultInfos.add(writeFile(out, st, yamlFilePath, Utils.isServiceTemplateDefinition(definitions)));
 
     return defResultInfos;
   }
 
-  private void writeDefinitions(Definitions definition, OutputStream out,
-      List<DefinitionResultInfo> defResultInfos, ServiceTemplate st) throws ExportCommonException,
-      IOException {
-    String yamlFileName = buildYamlFileName(definition);
-    String yamlFullFileName = "Definitions/" + yamlFileName;
-    DefinitionResultInfo result = writeFile(definition, yamlFullFileName, st, out);
-    defResultInfos.add(result);
+  private String buildYamlFilePath(Definitions definitions) throws ExportCommonException {
+    return "Definitions/" + buildYamlFileName(definitions);
   }
 
-  private void writeDataTypes(Definitions definition, OutputStream out, ServiceTemplate st,
-      List<DefinitionResultInfo> defResultInfos) throws IOException, ExportCommonException {
+  private List<DefinitionResultInfo> writeDataTypes(OutputStream out, ServiceTemplate st, boolean isServiceTemplateDefinition)
+      throws IOException, ExportCommonException {
     Map<String, DataType> data_types = st.getData_types();
     if (data_types.isEmpty()) {
-      return;
+      return new ArrayList<>();
     }
+    
+    List<DefinitionResultInfo> defResultInfos = new ArrayList<>();
     String namespace = st.getTosca_default_namespace();
     for (Iterator<Entry<String, DataType>> it = data_types.entrySet().iterator(); it.hasNext();) {
       Entry<String, DataType> dataType = it.next();
-      String yamlFullFileName = buildYamlFullFileName(dataType.getKey(), namespace);
-      if (!isDupicate(yamlFullFileName)) {
+      String yamlFilePath = "Definitions/" + buildYamlFileName(dataType.getKey(), namespace);
+      if (!isDupicate(yamlFilePath)) {
         ServiceTemplate serviceTemplate = buildST4DataType(dataType, namespace);
-        DefinitionResultInfo result = writeFile(definition, yamlFullFileName, serviceTemplate, out);
-        defResultInfos.add(result);
+        defResultInfos.add(writeFile(out, serviceTemplate, yamlFilePath, isServiceTemplateDefinition));
       }
-      st.getImports().add(yamlFullFileName);
+      st.getImports().add(yamlFilePath);
       it.remove();
     }
+    
+    return defResultInfos;
   }
 
   private ServiceTemplate buildST4DataType(Entry<String, DataType> dataType, String namespace) {
@@ -135,22 +134,33 @@ public class YamlExportFileGenerator extends ExportFileGenerator {
     return serviceTemplate;
   }
 
-  private DefinitionResultInfo writeFile(Definitions definition, String yamlFullFileName,
-      ServiceTemplate st, OutputStream out) throws IOException, ExportCommonException {
-    createEntry((ArchiveOutputStream) out, yamlFullFileName);
-    String checksum = write2OutputStreamWithoutTags(st, out);
-    if (!Utils.isServiceTemplateDefinition(definition)) {
-      checksum = "";
-    }
-    logger.info("makeFile end. yamlFileName = " + yamlFullFileName);
+  private DefinitionResultInfo writeFile(OutputStream out, ServiceTemplate st,
+      String yamlFilePath, boolean isServiceTemplateDefinition) throws IOException, ExportCommonException {
+    createEntry((ArchiveOutputStream) out, yamlFilePath);
+    
+    String strServiceTemplate = convert2StrServiceTemplateWithoutTags(st);
+    write2OutputStream(strServiceTemplate, out);
+    logger.info("makeFile end. yamlFileName = " + yamlFilePath);
+    
     DefinitionResultInfo result = new DefinitionResultInfo();
-    result.setFileFullName(yamlFullFileName);
-    result.setFileChecksum(checksum);
+    result.setFileFullName(yamlFilePath);
+    result.setFileChecksum(buidCheckSum(out, strServiceTemplate, isServiceTemplateDefinition));
     return result;
   }
+  
+  private static String convert2StrServiceTemplateWithoutTags(ServiceTemplate st) throws ExportCommonException {
+    String strServiceTemplate = YamlBeansUtils.convertToYamlStr(st);
+    // yamlStr = yamlStr.replaceAll("defaultValue:", "default:");
+    return strServiceTemplate.replaceAll("!.+\n", "\n");
+  }
 
-  private String buildYamlFullFileName(String name, String namespace) {
-    return "Definitions/" + buildYamlFileName(name, namespace);
+  private String buidCheckSum(OutputStream out, String strServiceTemplate, boolean isServiceTemplateDefinition)
+      throws ExportCommonException {
+    if (isServiceTemplateDefinition) {
+      return MD5Util.md5(strServiceTemplate);
+    } else {
+      return "";
+    }
   }
 
   private boolean isDupicate(String fullName) {
@@ -162,68 +172,19 @@ public class YamlExportFileGenerator extends ExportFileGenerator {
     return false;
   }
 
-  private static String write2OutputStreamWithoutTags(ServiceTemplate st, OutputStream out)
+  private static void write2OutputStream(String strServiceTemplate, OutputStream out)
       throws ExportCommonException {
-    String yamlStr = YamlBeansUtils.convertToYamlStr(st);
-    yamlStr = yamlStr.replaceAll("!.+\n", "\n");
-    // yamlStr = yamlStr.replaceAll("defaultValue:", "default:");
     try {
       OutputStreamWriter osWriter = new OutputStreamWriter(out);
-      osWriter.write(yamlStr);
+      osWriter.write(strServiceTemplate);
       osWriter.flush();
-      return MD5Util.md5(yamlStr);
     } catch (IOException e) {
       throw new ExportCommonException("Write to file failed.", e);
     }
   }
 
-  // public static void main(String[] args) throws FileNotFoundException,
-  // ExportCommonException {
-  // ServiceTemplate st = new ServiceTemplate();
-  // Info info1 = new Info("hunter", "22");
-  // Info info2 = new Info("alex", "11");
-  // st.getDsl_definitions().put("hunter", info1);
-  // st.getDsl_definitions().put("alex", info2);
-  //
-  // st.getMetadata().put("hunter_m", info1);
-  // st.getMetadata().put("alex_m", info2);
-  //
-  // FileOutputStream out = new FileOutputStream("E:\\1.yml");
-  // write2OutputStreamWithoutTags(st, out);
-  // }
-  //
-  // public static class Info {
-  // String name;
-  // String age;
-  //
-  // public Info() {
-  // }
-  //
-  // public Info(String name, String age) {
-  // super();
-  // this.name = name;
-  // this.age = age;
-  // }
-  //
-  // public String getName() {
-  // return name;
-  // }
-  //
-  // public void setName(String name) {
-  // this.name = name;
-  // }
-  //
-  // public String getAge() {
-  // return age;
-  // }
-  //
-  // public void setAge(String age) {
-  // this.age = age;
-  // }
-  // }
-
-  private String buildYamlFileName(Definitions definition) throws ExportCommonException {
-    List<?> tNodeList = definition.getServiceTemplateOrNodeTypeOrNodeTypeImplementation();
+  private String buildYamlFileName(Definitions definitions) throws ExportCommonException {
+    List<?> tNodeList = definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation();
     if (tNodeList == null || tNodeList.isEmpty()) {
       throw new ExportCommonException("ServiceTemplateOrNodeTypeOrNodeTypeImplementation is empty.");
     }
