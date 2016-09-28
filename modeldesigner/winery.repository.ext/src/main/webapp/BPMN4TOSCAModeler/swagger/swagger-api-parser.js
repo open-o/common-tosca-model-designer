@@ -30,35 +30,27 @@ var SwaggerApiParser = function (url, callback) {
                             if (operation.parameters && operation.parameters.length > 0) {
                                 for (var k = 0; k < operation.parameters.length; k++) {
                                     var param = operation.parameters[k];
-                                    if (param.in == "path" || param.in == "query") {
-                                        inputParams.push({"name": param.name, "in": param.in, "type": param.type});
+                                    if ('sampleJSON' in param && param.sampleJSON != undefined) {
+                                        inputParams.push({"name": param.name, "in": param.in, "type": "Object", "sample": param.sampleJSON});
                                         continue;
                                     }
                                     
-                                    if (param.in == "body") {
-                                        if(param.sampleJSON != undefined) {
-                                            var input = JSON.parse(param.sampleJSON);
-                                            for (var attrName in input) {
-                                                inputParams.push({"name": attrName, "in": param.in, "type": input[attrName]});
-                                            }
-                                            continue;
-                                        } 
-                                        
+                                    if ('type' in param) {
+                                        sample = '{"' + param.name + '":"' + param.type + '"}';
+                                        inputParams.push({"name": param.name, "in": param.in, "type": param.type, "sample": sample});
+                                        continue;
                                     }
+                                    
+                                    inputParams.push({"name": param.name, "in": param.in, "type": "", "sample": ""});
                                 }
                             }
                             
                             var outputParams = [];
                             if (operation.successResponse) {
-                                var successResponse = operation.successResponse[200] || operation.successResponse[201];
-                                if (successResponse && successResponse.definition && successResponse.definition.properties) {
-                                    for (var attrName1 in successResponse.definition.properties) {
-                                        if (successResponse.definition.properties[attrName1]) {
-                                            outputParams.push({"name": attrName1, "type": successResponse.definition.properties[attrName1].type});
-                                        } else {
-                                            outputParams.push({"name": attrName1, "type": "string"});
-                                        }
-                                    }
+                                var response = operation.successResponse[200] || operation.successResponse[201];
+                                if (response && response.definition) {
+                                    sample = SwConvert2JsonSample(response.definition, swclient.definitions);
+                                    outputParams.push({"name": "response", "type": response.definition.type, "sample": sample});
                                 }
                             }
 
@@ -82,8 +74,38 @@ var SwaggerApiParser = function (url, callback) {
                 }
             }
             
+            console.debug(restInfoArray);
             callback(restInfoArray);
         }
     });
 }
 
+var SwConvert2JsonSample = function (definition, definitions) {
+    if (!('type' in definition)) {
+        return '""';
+    }
+
+    if (definition.type == 'array' && 'items' in definition) {
+        ref = definition.items.$ref;
+        if (ref) {
+            tmps = ref.split('/');
+            return '[' + SwConvert2JsonSample(definitions[tmps[tmps.length-1]], definitions) + ']';
+        }
+
+        return '[' + definition.items.type + ']';
+    }
+
+    if (definition.type == 'object' && 'properties' in definition) {
+        sample = '{';
+        for (var attrName in definition.properties) {
+            sample += '"' + attrName + '": ' + SwConvert2JsonSample(definition.properties[attrName], definitions) + ', ';
+        }
+        if (sample.length > 2) {
+            sample = sample.substring(0, sample.length-2);
+        }
+        sample += '}';
+        return sample;
+    }
+
+    return '"' + definition.type + '"';
+}
