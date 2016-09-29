@@ -15,10 +15,6 @@
  */
 package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
-
-import java.util.List;
-import java.util.Map.Entry;
-
 import org.eclipse.winery.model.tosca.TParameter;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
@@ -26,6 +22,10 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.Xml2YamlSwitch;
 import org.eclipse.winery.repository.ext.yamlmodel.Input;
 import org.eclipse.winery.repository.ext.yamlmodel.Plan;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class PlansXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
       // description
       yplan.setDescription(Xml2YamlSwitchUtils.convert2Description(tPlan.getDocumentation()));
       // reference
-      yplan.setReference(tPlan.getPlanModelReference().getReference());
+      yplan.setReference(buildReference(tPlan));
       // planLanguage
       yplan.setPlanLanguage(validataPlanLanguage(tPlan.getPlanLanguage()));
       // inputs
@@ -88,6 +88,15 @@ public class PlansXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
 
       
       return Xml2YamlSwitchUtils.buildEntry(tPlan.getName(), yplan);
+    }
+
+    private String buildReference(TPlan tPlan) {
+      String tReference = tPlan.getPlanModelReference().getReference();
+      if (tReference == null) {
+        return "";
+      }
+      String[] tmps = tReference.split("[\\/]");
+      return "plan" + File.separator + tmps[tmps.length-1];
     }
 
     /**
