@@ -35,6 +35,7 @@ import org.eclipse.winery.repository.resources.admin.NamespacesResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -88,12 +89,38 @@ public class YamlExportFileGenerator extends ExportFileGenerator {
     List<DefinitionResultInfo> defResultInfos = new ArrayList<>();
 //    // DataTypes
 //    defResultInfos.addAll(writeDataTypes(out, st, Utils.isServiceTemplateDefinition(definitions)));
+    
+    // plan to an Alone file
+    DefinitionResultInfo dr = savePlanServiceTemplate2AloneFile(out, st);
+    if (dr != null) defResultInfos.add(dr);
 
     // Service Template
+    ServiceTemplate restServiceTemplate = buildRestServiceTemplate(st);
     String yamlFilePath = buildYamlFilePath(definitions);
-    defResultInfos.add(writeFile(out, st, yamlFilePath, Utils.isServiceTemplateDefinition(definitions)));
+    defResultInfos.add(writeFile(out, restServiceTemplate, yamlFilePath, Utils.isServiceTemplateDefinition(definitions)));
 
     return defResultInfos;
+  }
+
+  private DefinitionResultInfo savePlanServiceTemplate2AloneFile(OutputStream out,
+      ServiceTemplate st) throws IOException, ExportCommonException {
+    if (st.getPlans().isEmpty()) {
+      return null;
+    }
+    
+    String yamlFilePath = "Definitions" + File.separator + "plans.yaml";
+    return writeFile(out, buildPlanServiceTemplate(st), yamlFilePath, false);
+  }
+
+  private ServiceTemplate buildPlanServiceTemplate(ServiceTemplate st) {
+    ServiceTemplate tmp = new ServiceTemplate();
+    tmp.setPlans(st.getPlans());
+    return tmp;
+  }
+
+  private ServiceTemplate buildRestServiceTemplate(ServiceTemplate st) {
+    st.getPlans().clear();
+    return st;
   }
 
   private String buildYamlFilePath(Definitions definitions) throws ExportCommonException {
