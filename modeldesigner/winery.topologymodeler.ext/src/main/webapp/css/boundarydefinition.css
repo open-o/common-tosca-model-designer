@@ -60,13 +60,17 @@ div.propertiesView {
 
 #boundaryDefinition .menuContainerHead label {
 	font-size: 13px;
+	width: 50px;
 }
 
-.menuContainerHead .desc-input {
+#boundaryDefinition .menuContainerHead .desc-input {
 	margin-left: 5px;
-	width: 150px;
+	width: 200px;
 	display: inline;
-	height: 25px;
+}
+
+#boundaryDefinition .menuContainerHead .item-group {
+	margin-bottom: 10px;
 }
 
 /* 表格删除按钮样式 */

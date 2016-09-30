@@ -346,10 +346,34 @@ define(
 		function saveBoundaryMetaDataParam() {
 			var metaDataTableData = $("#boundaryMetaDataTable").dataTable().fnGetData();
 			var metaDataURL = serviceTemplateURL + "/boundarydefinitions/properties/metadata/list";
+
+			handleSpecialMetaData(metaDataTableData);
+
 			var metaDataParam = {
 				metadatas: metaDataTableData
 			}
 			saveBoundaryDefinitionsData(metaDataURL, metaDataParam);
+		}
+
+		/**
+		 * handle special metadata, such as csarType,csarVersion,csarProvider
+		 * @param  {[type]} metaDatas [description]
+		 * @return {[type]}           [description]
+		 */
+		function handleSpecialMetaData(metaDatas) {
+			function addMetaData(key) {
+				var metaData = {
+					key : key,
+					value : $("#boundaryDefinition .menuContainerHead").find("." + key).val()
+				}
+				metaDatas.push(metaData);
+			}
+
+			addMetaData("csarType");
+			addMetaData("csarVersion");
+			addMetaData("csarProvider");
+
+			return metaDatas;
 		}
 
 		/**
