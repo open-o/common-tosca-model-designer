@@ -92,12 +92,12 @@ public class YamlExportFileGenerator extends ExportFileGenerator {
     
     // plan to an Alone file
     DefinitionResultInfo dr = savePlanServiceTemplate2AloneFile(out, st);
-    if (dr != null) defResultInfos.add(dr);
-
     // Service Template
     ServiceTemplate restServiceTemplate = buildRestServiceTemplate(st);
     String yamlFilePath = buildYamlFilePath(definitions);
     defResultInfos.add(writeFile(out, restServiceTemplate, yamlFilePath, Utils.isServiceTemplateDefinition(definitions)));
+    
+    if (dr != null) defResultInfos.add(dr);
 
     return defResultInfos;
   }
