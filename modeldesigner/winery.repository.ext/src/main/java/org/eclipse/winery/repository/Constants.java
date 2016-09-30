@@ -86,4 +86,7 @@ public class Constants {
     public static final String REQUIREMENT_EXT_NODE = "node";
     public static final String REQUIREMENT_EXT_CAPABILITY = "capability";
     public static final String REQUIREMENT_EXT_RELATIONSHIP = "relationship";
+    
+    public static final String IP = "ip";
+    public static final String PORT = "port";
 }

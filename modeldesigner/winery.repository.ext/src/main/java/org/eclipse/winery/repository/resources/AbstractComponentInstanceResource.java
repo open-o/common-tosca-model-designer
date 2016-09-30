@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import org.eclipse.winery.common.ids.definitions.TOSCAComponentId;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.TExtensibleElements;
 import org.eclipse.winery.model.tosca.TImport;
+import org.eclipse.winery.repository.Constants;
 import org.eclipse.winery.repository.JAXBSupport;
 import org.eclipse.winery.repository.Utils;
 import org.eclipse.winery.repository.backend.BackendUtils;
@@ -92,484 +94,488 @@ import com.sun.jersey.api.view.Viewable;
  * a relationship type
  */
 public abstract class AbstractComponentInstanceResource implements
-        Comparable<AbstractComponentInstanceResource>, IPersistable {
+    Comparable<AbstractComponentInstanceResource>, IPersistable {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(AbstractComponentInstanceResource.class);
+  private static final Logger logger = LoggerFactory
+      .getLogger(AbstractComponentInstanceResource.class);
 
-    protected final TOSCAComponentId id;
+  protected final TOSCAComponentId id;
 
-    private final RepositoryFileReference ref;
+  private final RepositoryFileReference ref;
 
-    // the object representing the data of this resource
-    private Definitions definitions = null;
+  // the object representing the data of this resource
+  private Definitions definitions = null;
 
-    // shortcut for this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
-    protected TExtensibleElements element = null;
+  // shortcut for this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
+  protected TExtensibleElements element = null;
 
 
-    /**
-     * Instantiates the resource. Assumes that the resource should exist (assured by the caller)
-     * 
-     * The caller should <em>not</em> create the resource by other ways. E.g., by instantiating this
-     * resource and then adding data.
-     */
-    public AbstractComponentInstanceResource(TOSCAComponentId id) {
-        this.id = id;
+  /**
+   * Instantiates the resource. Assumes that the resource should exist (assured by the caller)
+   * 
+   * The caller should <em>not</em> create the resource by other ways. E.g., by instantiating this
+   * resource and then adding data.
+   */
+  public AbstractComponentInstanceResource(TOSCAComponentId id) {
+    this.id = id;
 
-        // the resource itself exists
-        assert (Repository.INSTANCE.exists(id));
+    // the resource itself exists
+    assert (Repository.INSTANCE.exists(id));
 
-        // the data file might not exist
-        this.ref = BackendUtils.getRefOfDefinitions(id);
-        if (Repository.INSTANCE.exists(this.ref)) {
-            this.load();
-        } else {
-            this.createNew();
-        }
+    // the data file might not exist
+    this.ref = BackendUtils.getRefOfDefinitions(id);
+    if (Repository.INSTANCE.exists(this.ref)) {
+      this.load();
+    } else {
+      this.createNew();
+    }
+  }
+
+  /**
+   * Convenience method for getId().getNamespace()
+   */
+  public final Namespace getNamespace() {
+    return this.id.getNamespace();
+  }
+
+  /**
+   * Convenience method for getId().getXmlId()
+   */
+  public final XMLId getXmlId() {
+    return this.id.getXmlId();
+  }
+
+  /**
+   * Convenience method for getId().getQName();
+   * 
+   * @return the QName associated with this resource
+   */
+  public final QName getQName() {
+    return this.getId().getQName();
+  }
+
+  /**
+   * Returns the id associated with this resource
+   */
+  public final TOSCAComponentId getId() {
+    return this.id;
+  }
+
+  /**
+   * called from AbstractComponentResource
+   */
+  @DELETE
+  public final Response onDelete(
+      @QueryParam(value = "delSubstitutableNodeType") boolean delSubstitutableNodeType) {
+    deletePreProcess(delSubstitutableNodeType);
+    Response res = BackendUtils.delete(this.id);
+    deletePostProcess();
+    return res;
+  }
+
+  protected void deletePreProcess(boolean delSubstitutableNodeType) {
+
+  }
+
+  protected void deletePostProcess() {
+
+  }
+
+  @Override
+  public final int compareTo(AbstractComponentInstanceResource o) {
+    return this.id.compareTo(o.id);
+  }
+
+  @Override
+  public final boolean equals(Object o) {
+    if (o instanceof String) {
+      throw new IllegalStateException();
+    } else if (o instanceof AbstractComponentInstanceResource) {
+      if (o.getClass().equals(this.getClass())) {
+        // only compare if the two objects are from the same class
+        return ((AbstractComponentInstanceResource) o).getId().equals(this.getId());
+      } else {
+        throw new IllegalStateException();
+      }
+    } else {
+      throw new IllegalStateException();
+    }
+  }
+
+  @Override
+  public final int hashCode() {
+    return this.getId().hashCode();
+  }
+
+  @GET
+  @Path("id")
+  public String getTOSCAId() {
+    return this.id.getXmlId().getDecoded();
+  }
+
+  @PUT
+  @Path("id")
+  public Response putId(@FormParam("id") String id) {
+    // this renames the entity type resource
+    // TODO: implement rename functionality
+    return Response.serverError().entity("not yet implemented").build();
+  }
+
+  /**
+   * Main page
+   */
+  // @Produces(MediaType.TEXT_HTML) // not true because of ?csar leads to send
+  // a csar. We nevertheless have to annotate that to be able to get a JSON
+  // representation required for the file upload (in {@link
+  // ArtifactTemplateResource})
+  //
+  // we cannot issue a request expecting content-type application/zip as it is
+  // not possible to offer the result in a "save-as"-dialog:
+  // http://stackoverflow.com/questions/7464665/ajax-response-content-disposition-attachment
+  @GET
+  @Produces(MediaType.TEXT_HTML)
+  public final Response getHTML(@QueryParam(value = "definitions") String definitions, @QueryParam(
+      value = "csar") String csar, @QueryParam(value = "exportType") String exportType,
+      @Context UriInfo uriInfo) {
+    if (!Repository.INSTANCE.exists(this.id)) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+    if (definitions != null) {
+      return Utils.getDefinitionsOfSelectedResource(this, uriInfo.getBaseUri(), null);
+    } else if (csar != null) {
+      return this.getCSAR(exportType);
+    } else {
+      String type = Utils.getTypeForInstance(this.getClass());
+      String viewableName =
+          "/jsp/" + Utils.getIntermediateLocationStringForType(type, "/") + "/"
+              + type.toLowerCase() + ".jsp";
+      Viewable viewable = new Viewable(viewableName, this);
+
+      return Response.ok().entity(viewable).build();
+
+      // we can't do the following as the GET request from the browser
+      // cannot set the accept header properly
+      // "vary: accept" header has to be set as we may also return a THOR
+      // on the same URL
+      // return Response.ok().header(HttpHeaders.VARY,
+      // HttpHeaders.ACCEPT).entity(viewable).build();
+    }
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public final Response getCSARDeploy(@QueryParam(value = "deploy") String deploy, @QueryParam(
+      value = "deployType") String deployType, @Context UriInfo uriInfo) {
+    if (!Repository.INSTANCE.exists(this.id)) {
+      return Response.status(Status.NOT_FOUND).build();
+    } else if (deployType != null) {
+      Map<String, Object> map = buildExtMap(uriInfo);
+      return Utils.getZipDeployResource(this, deployType, map);
+    } else if (deploy != null) {
+      return Utils.getCSARDeployResource(this);
+    } else {
+      String type = Utils.getTypeForInstance(this.getClass());
+
+      String viewableName =
+          "/jsp/" + Utils.getIntermediateLocationStringForType(type, "/") + "/"
+              + type.toLowerCase() + ".jsp";
+      Viewable viewable = new Viewable(viewableName, this);
+
+      return Response.ok().entity(viewable).build();
     }
 
-    /**
-     * Convenience method for getId().getNamespace()
-     */
-    public final Namespace getNamespace() {
-        return this.id.getNamespace();
+  }
+
+  private Map<String, Object> buildExtMap(UriInfo uriInfo) {
+    Map<String, Object> extMap = new HashMap<String, Object>();
+    URI repositoryURI = uriInfo.getBaseUri();
+    extMap.put(Constants.IP, repositoryURI.getHost());
+    extMap.put(Constants.PORT, repositoryURI.getPort());
+    return extMap;
+  }
+
+  @GET
+  @Produces(MimeTypes.MIMETYPE_ZIP)
+  public final Response getCSAR(String exportType) {
+    if (exportType != null) {
+      return getZip();
+    }
+    if (!Repository.INSTANCE.exists(this.id)) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+    return Utils.getCSARofSelectedResource(this);
+  }
+
+  public final Response getZip() {
+    if (!Repository.INSTANCE.exists(this.id)) {
+      return Response.status(Status.NOT_FOUND).build();
+    }
+    return Utils.getZipOfSelectedResource(this);
+  }
+
+  /**
+   * Returns the definitions of this resource. Includes required imports of other definitions
+   * 
+   * @param csar used because plan generator's GET request lands here
+   */
+  @GET
+  @Produces({MimeTypes.MIMETYPE_TOSCA_DEFINITIONS, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  public Response getDefinitionsAsResponse(@QueryParam(value = "csar") String csar) {
+    if (!Repository.INSTANCE.exists(this.id)) {
+      return Response.status(Status.NOT_FOUND).build();
     }
 
-    /**
-     * Convenience method for getId().getXmlId()
-     */
-    public final XMLId getXmlId() {
-        return this.id.getXmlId();
+    if (csar != null) {
+      return Utils.getCSARofSelectedResource(this);
     }
 
-    /**
-     * Convenience method for getId().getQName();
-     * 
-     * @return the QName associated with this resource
-     */
-    public final QName getQName() {
-        return this.getId().getQName();
-    }
+    StreamingOutput so = new StreamingOutput() {
 
-    /**
-     * Returns the id associated with this resource
-     */
-    public final TOSCAComponentId getId() {
-        return this.id;
-    }
-
-    /**
-     * called from AbstractComponentResource
-     */
-    @DELETE
-    public final Response onDelete(
-            @QueryParam(value = "delSubstitutableNodeType") boolean delSubstitutableNodeType) {
-        deletePreProcess(delSubstitutableNodeType);
-        Response res = BackendUtils.delete(this.id);
-        deletePostProcess();
-        return res;
-    }
-
-    protected void deletePreProcess(boolean delSubstitutableNodeType) {
-
-    }
-
-    protected void deletePostProcess() {
-
-    }
-
-    @Override
-    public final int compareTo(AbstractComponentInstanceResource o) {
-        return this.id.compareTo(o.id);
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (o instanceof String) {
-            throw new IllegalStateException();
-        } else if (o instanceof AbstractComponentInstanceResource) {
-            if (o.getClass().equals(this.getClass())) {
-                // only compare if the two objects are from the same class
-                return ((AbstractComponentInstanceResource) o).getId().equals(this.getId());
-            } else {
-                throw new IllegalStateException();
-            }
-        } else {
-            throw new IllegalStateException();
-        }
-    }
-
-    @Override
-    public final int hashCode() {
-        return this.getId().hashCode();
-    }
-
-    @GET
-    @Path("id")
-    public String getTOSCAId() {
-        return this.id.getXmlId().getDecoded();
-    }
-
-    @PUT
-    @Path("id")
-    public Response putId(@FormParam("id") String id) {
-        // this renames the entity type resource
-        // TODO: implement rename functionality
-        return Response.serverError().entity("not yet implemented").build();
-    }
-
-    /**
-     * Main page
-     */
-    // @Produces(MediaType.TEXT_HTML) // not true because of ?csar leads to send
-    // a csar. We nevertheless have to annotate that to be able to get a JSON
-    // representation required for the file upload (in {@link
-    // ArtifactTemplateResource})
-    //
-    // we cannot issue a request expecting content-type application/zip as it is
-    // not possible to offer the result in a "save-as"-dialog:
-    // http://stackoverflow.com/questions/7464665/ajax-response-content-disposition-attachment
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    public final Response getHTML(@QueryParam(value = "definitions") String definitions,
-            @QueryParam(value = "csar") String csar,
-            @QueryParam(value = "exportType") String exportType, @Context UriInfo uriInfo) {
-        if (!Repository.INSTANCE.exists(this.id)) {
-            return Response.status(Status.NOT_FOUND).build();
-        }
-        if (definitions != null) {
-            return Utils.getDefinitionsOfSelectedResource(this, uriInfo.getBaseUri(), null);
-        } else if (csar != null) {
-            return this.getCSAR(exportType);
-        } else {
-            String type = Utils.getTypeForInstance(this.getClass());
-            String viewableName =
-                    "/jsp/" + Utils.getIntermediateLocationStringForType(type, "/") + "/"
-                            + type.toLowerCase() + ".jsp";
-            Viewable viewable = new Viewable(viewableName, this);
-
-            return Response.ok().entity(viewable).build();
-
-            // we can't do the following as the GET request from the browser
-            // cannot set the accept header properly
-            // "vary: accept" header has to be set as we may also return a THOR
-            // on the same URL
-            // return Response.ok().header(HttpHeaders.VARY,
-            // HttpHeaders.ACCEPT).entity(viewable).build();
-        }
-    }
-
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public final Response getCSARDeploy(@QueryParam(value = "deploy") String deploy, @QueryParam(
-            value = "deployType") String deployType) {
-        if (!Repository.INSTANCE.exists(this.id)) {
-            return Response.status(Status.NOT_FOUND).build();
-        } else if (deployType != null) {
-            return Utils.getZipDeployResource(this, deployType);
-        } else if (deploy != null) {
-            return Utils.getCSARDeployResource(this);
-        } else {
-            String type = Utils.getTypeForInstance(this.getClass());
-
-            String viewableName =
-                    "/jsp/" + Utils.getIntermediateLocationStringForType(type, "/") + "/"
-                            + type.toLowerCase() + ".jsp";
-            Viewable viewable = new Viewable(viewableName, this);
-
-            return Response.ok().entity(viewable).build();
-        }
-
-    }
-
-    @GET
-    @Produces(MimeTypes.MIMETYPE_ZIP)
-    public final Response getCSAR(String exportType) {
-        if (exportType != null) {
-            return getZip();
-        }
-        if (!Repository.INSTANCE.exists(this.id)) {
-            return Response.status(Status.NOT_FOUND).build();
-        }
-        return Utils.getCSARofSelectedResource(this);
-    }
-
-    public final Response getZip() {
-        if (!Repository.INSTANCE.exists(this.id)) {
-            return Response.status(Status.NOT_FOUND).build();
-        }
-        return Utils.getZipOfSelectedResource(this);
-    }
-
-    /**
-     * Returns the definitions of this resource. Includes required imports of other definitions
-     * 
-     * @param csar used because plan generator's GET request lands here
-     */
-    @GET
-    @Produces({MimeTypes.MIMETYPE_TOSCA_DEFINITIONS, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    public Response getDefinitionsAsResponse(@QueryParam(value = "csar") String csar) {
-        if (!Repository.INSTANCE.exists(this.id)) {
-            return Response.status(Status.NOT_FOUND).build();
-        }
-
-        if (csar != null) {
-            return Utils.getCSARofSelectedResource(this);
-        }
-
-        StreamingOutput so = new StreamingOutput() {
-
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                TOSCAExportUtil exporter = new TOSCAExportUtil();
-                // we include everything related
-                Map<String, Object> conf = new HashMap<>();
-                try {
-                    exporter.exportTOSCA(AbstractComponentInstanceResource.this.id, output, conf,
-                            null);
-                } catch (JAXBException e) {
-                    throw new WebApplicationException(e);
-                }
-            }
-        };
-        return Response.ok().type(MediaType.TEXT_XML).entity(so).build();
-    }
-
-    /**
-     * @throws IllegalStateException if an IOException occurred. We opted not to propagate the
-     *         IOException directly as this exception occurs seldom and is a not an exception to be
-     *         treated by all callers in the prototype.
-     */
-    private void load() {
+      @Override
+      public void write(OutputStream output) throws IOException, WebApplicationException {
+        TOSCAExportUtil exporter = new TOSCAExportUtil();
+        // we include everything related
+        Map<String, Object> conf = new HashMap<>();
         try {
-            InputStream is = Repository.INSTANCE.newInputStream(this.ref);
-            Unmarshaller u = JAXBSupport.createUnmarshaller();
-            this.definitions = (Definitions) u.unmarshal(is);
-        } catch (Exception e) {
-            AbstractComponentInstanceResource.logger.error("Could not read content from file "
-                    + this.ref, e);
-            throw new IllegalStateException(e);
-        }
-        try {
-            this.element =
-                    this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
-        } catch (IndexOutOfBoundsException e) {
-            if (this instanceof GenericImportResource) {
-                // everything allright:
-                // ImportResource is a quick hack using 99% of the functionality offered here
-                // As only 1% has to be "quick hacked", we do that instead of a clean design
-                // Clean design: Introduce a class between this and
-                // AbstractComponentInstanceResource, where this class and ImportResource inhertis
-                // from
-                // A clean design introducing a super class AbstractDefinitionsBackedResource does
-                // not work, as we currently also support PropertiesBackedResources and such a super
-                // class would required multi-inheritance
-            } else {
-                throw new IllegalStateException(
-                        "Wrong storage format: No ServiceTemplateOrNodeTypeOrNodeTypeImplementation found.");
-            }
-        }
-    }
-
-    @Override
-    public void persist() throws IOException {
-        BackendUtils.persist(this.definitions, this.ref, MediaTypes.MEDIATYPE_TOSCA_DEFINITIONS);
-    }
-
-    /**
-     * Creates a new instance of the object represented by this resource
-     */
-    private void createNew() {
-        this.definitions = BackendUtils.createWrapperDefinitions(this.getId());
-
-        // create empty element
-        this.element = this.createNewElement();
-
-        // add the element to the definitions
-        this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().add(this.element);
-
-        // copy ns + id
-        this.copyIdToFields();
-
-        // ensure that the definitions is persisted. Ensures that export works.
-        BackendUtils.persist(this);
-    }
-
-    /**
-     * Creates an empty instance of an Element.
-     * 
-     * The implementors do <em>not</em>have to copy the ns and the id to the appropriate fields.
-     * 
-     * we have two implementation possibilities:
-     * <ul>
-     * <li>a) each subclass implements this method and returns the appropriate object</li>
-     * <li>b) we use java reflection to invoke the right constructor as done in the resources</li>
-     * </ul>
-     * We opted for a) to increase readability of the code
-     */
-    protected abstract TExtensibleElements createNewElement();
-
-    /**
-     * Copies the current id of the resource to the appropriate fields in the element.
-     * 
-     * For instance, the id is put in the "name" field for EntityTypes
-     * 
-     * We opted for a separate method from createNewElement to enable renaming of the object
-     */
-    protected abstract void copyIdToFields();
-
-    /**
-     * Returns the Element belonging to this resource. As Java does not allow overriding returned
-     * classes, we expect the caller to either cast right or to use "getXY" defined by each
-     * subclass, where XY is the concrete type
-     * 
-     * Shortcut for getDefinitions().getServiceTemplateOrNodeTypeOrNodeTypeImplementation ().get(0);
-     * 
-     * @return TCapabilityType|...
-     */
-    public TExtensibleElements getElement() {
-        return this.element;
-    }
-
-    /**
-     * @return the reference to the internal list of imports. Can be changed if some imports are
-     *         required or should be removed
-     * @throws IllegalStateException if definitions was not loaded or not initialized
-     */
-    protected List<TImport> getImport() {
-        if (this.definitions == null) {
-            throw new IllegalStateException("Trying to access uninitalized definitions object");
-        }
-        return this.definitions.getImport();
-    }
-
-    /**
-     * Returns an XML representation of the definitions
-     * 
-     * We return the complete definitions to allow the user changes to it, such as adding imports,
-     * etc.
-     */
-    public String getDefinitionsAsXMLString() {
-        StringWriter w = new StringWriter();
-        Marshaller m = JAXBSupport.createMarshaller(true);
-        try {
-            m.marshal(this.definitions, w);
+          exporter.exportTOSCA(AbstractComponentInstanceResource.this.id, output, conf, null);
         } catch (JAXBException e) {
-            AbstractComponentInstanceResource.logger.error("Could not marshal definitions", e);
-            throw new IllegalStateException(e);
+          throw new WebApplicationException(e);
         }
-        String res = w.toString();
-        return res;
+      }
+    };
+    return Response.ok().type(MediaType.TEXT_XML).entity(so).build();
+  }
+
+  /**
+   * @throws IllegalStateException if an IOException occurred. We opted not to propagate the
+   *         IOException directly as this exception occurs seldom and is a not an exception to be
+   *         treated by all callers in the prototype.
+   */
+  private void load() {
+    try {
+      InputStream is = Repository.INSTANCE.newInputStream(this.ref);
+      Unmarshaller u = JAXBSupport.createUnmarshaller();
+      this.definitions = (Definitions) u.unmarshal(is);
+    } catch (Exception e) {
+      AbstractComponentInstanceResource.logger.error(
+          "Could not read content from file " + this.ref, e);
+      throw new IllegalStateException(e);
     }
-
-    /**
-     * @return the reference to the internal Definitions object
-     */
-    public Definitions getDefinitions() {
-        return this.definitions;
+    try {
+      this.element = this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
+    } catch (IndexOutOfBoundsException e) {
+      if (this instanceof GenericImportResource) {
+        // everything allright:
+        // ImportResource is a quick hack using 99% of the functionality offered here
+        // As only 1% has to be "quick hacked", we do that instead of a clean design
+        // Clean design: Introduce a class between this and
+        // AbstractComponentInstanceResource, where this class and ImportResource inhertis
+        // from
+        // A clean design introducing a super class AbstractDefinitionsBackedResource does
+        // not work, as we currently also support PropertiesBackedResources and such a super
+        // class would required multi-inheritance
+      } else {
+        throw new IllegalStateException(
+            "Wrong storage format: No ServiceTemplateOrNodeTypeOrNodeTypeImplementation found.");
+      }
     }
+  }
 
-    @PUT
-    @Consumes({MimeTypes.MIMETYPE_TOSCA_DEFINITIONS, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    public Response updateDefinitions(InputStream requestBodyStream) {
-        Unmarshaller u;
-        Definitions defs;
-        Document doc;
-        final StringBuilder sb = new StringBuilder();
-        try {
-            DocumentBuilder db = TOSCADocumentBuilderFactory.INSTANCE.getTOSCADocumentBuilder();
-            db.setErrorHandler(new ErrorHandler() {
+  @Override
+  public void persist() throws IOException {
+    BackendUtils.persist(this.definitions, this.ref, MediaTypes.MEDIATYPE_TOSCA_DEFINITIONS);
+  }
 
-                @Override
-                public void warning(SAXParseException exception) throws SAXException {
-                    // we don't care
-                }
+  /**
+   * Creates a new instance of the object represented by this resource
+   */
+  private void createNew() {
+    this.definitions = BackendUtils.createWrapperDefinitions(this.getId());
 
-                @Override
-                public void fatalError(SAXParseException exception) throws SAXException {
-                    sb.append("Fatal Error: ");
-                    sb.append(exception.getMessage());
-                    sb.append("\n");
-                }
+    // create empty element
+    this.element = this.createNewElement();
 
-                @Override
-                public void error(SAXParseException exception) throws SAXException {
-                    sb.append("Fatal Error: ");
-                    sb.append(exception.getMessage());
-                    sb.append("\n");
-                }
-            });
-            doc = db.parse(requestBodyStream);
-            if (sb.length() > 0) {
-                // some error happened
-                // doc is not null, because the parser parses even if it is not XSD conforming
-                return Response.status(Status.BAD_REQUEST).entity(sb.toString()).build();
-            }
-        } catch (SAXException | IOException e) {
-            AbstractComponentInstanceResource.logger.debug("Could not parse XML", e);
-            return Utils.getResponseForException(e);
+    // add the element to the definitions
+    this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().add(this.element);
+
+    // copy ns + id
+    this.copyIdToFields();
+
+    // ensure that the definitions is persisted. Ensures that export works.
+    BackendUtils.persist(this);
+  }
+
+  /**
+   * Creates an empty instance of an Element.
+   * 
+   * The implementors do <em>not</em>have to copy the ns and the id to the appropriate fields.
+   * 
+   * we have two implementation possibilities:
+   * <ul>
+   * <li>a) each subclass implements this method and returns the appropriate object</li>
+   * <li>b) we use java reflection to invoke the right constructor as done in the resources</li>
+   * </ul>
+   * We opted for a) to increase readability of the code
+   */
+  protected abstract TExtensibleElements createNewElement();
+
+  /**
+   * Copies the current id of the resource to the appropriate fields in the element.
+   * 
+   * For instance, the id is put in the "name" field for EntityTypes
+   * 
+   * We opted for a separate method from createNewElement to enable renaming of the object
+   */
+  protected abstract void copyIdToFields();
+
+  /**
+   * Returns the Element belonging to this resource. As Java does not allow overriding returned
+   * classes, we expect the caller to either cast right or to use "getXY" defined by each subclass,
+   * where XY is the concrete type
+   * 
+   * Shortcut for getDefinitions().getServiceTemplateOrNodeTypeOrNodeTypeImplementation ().get(0);
+   * 
+   * @return TCapabilityType|...
+   */
+  public TExtensibleElements getElement() {
+    return this.element;
+  }
+
+  /**
+   * @return the reference to the internal list of imports. Can be changed if some imports are
+   *         required or should be removed
+   * @throws IllegalStateException if definitions was not loaded or not initialized
+   */
+  protected List<TImport> getImport() {
+    if (this.definitions == null) {
+      throw new IllegalStateException("Trying to access uninitalized definitions object");
+    }
+    return this.definitions.getImport();
+  }
+
+  /**
+   * Returns an XML representation of the definitions
+   * 
+   * We return the complete definitions to allow the user changes to it, such as adding imports,
+   * etc.
+   */
+  public String getDefinitionsAsXMLString() {
+    StringWriter w = new StringWriter();
+    Marshaller m = JAXBSupport.createMarshaller(true);
+    try {
+      m.marshal(this.definitions, w);
+    } catch (JAXBException e) {
+      AbstractComponentInstanceResource.logger.error("Could not marshal definitions", e);
+      throw new IllegalStateException(e);
+    }
+    String res = w.toString();
+    return res;
+  }
+
+  /**
+   * @return the reference to the internal Definitions object
+   */
+  public Definitions getDefinitions() {
+    return this.definitions;
+  }
+
+  @PUT
+  @Consumes({MimeTypes.MIMETYPE_TOSCA_DEFINITIONS, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  public Response updateDefinitions(InputStream requestBodyStream) {
+    Unmarshaller u;
+    Definitions defs;
+    Document doc;
+    final StringBuilder sb = new StringBuilder();
+    try {
+      DocumentBuilder db = TOSCADocumentBuilderFactory.INSTANCE.getTOSCADocumentBuilder();
+      db.setErrorHandler(new ErrorHandler() {
+
+        @Override
+        public void warning(SAXParseException exception) throws SAXException {
+          // we don't care
         }
-        try {
-            u = JAXBSupport.createUnmarshaller();
-            defs = (Definitions) u.unmarshal(doc);
-        } catch (JAXBException e) {
-            AbstractComponentInstanceResource.logger.debug(
-                    "Could not unmarshal from request body stream", e);
-            return Utils.getResponseForException(e);
+
+        @Override
+        public void fatalError(SAXParseException exception) throws SAXException {
+          sb.append("Fatal Error: ");
+          sb.append(exception.getMessage());
+          sb.append("\n");
         }
 
-        // initial validity check
-
-        // we allow changing the target namespace and the id
-        // This allows for inserting arbitrary definitions XML
-        // if (!this.definitions.getTargetNamespace().equals(this.id.getNamespace().getDecoded())) {
-        // return
-        // Response.status(Status.BAD_REQUEST).entity("Changing of the namespace is not supported").build();
-        // }
-        // this.definitions.setTargetNamespace(this.id.getNamespace().getDecoded());
-
-        // TODO: check the provided definitions for validity
-
-        TExtensibleElements tExtensibleElements =
-                defs.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
-        if (!tExtensibleElements.getClass().equals(this.createNewElement().getClass())) {
-            return Response
-                    .status(Status.BAD_REQUEST)
-                    .entity("First type in Definitions is not matching the type modeled by this resource")
-                    .build();
+        @Override
+        public void error(SAXParseException exception) throws SAXException {
+          sb.append("Fatal Error: ");
+          sb.append(exception.getMessage());
+          sb.append("\n");
         }
-
-        this.definitions = defs;
-
-        // replace existing element by retrieved data
-        this.element =
-                this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
-
-        // ensure that ids did not change
-        // TODO: future work: raise error if user changed id or namespace
-        this.copyIdToFields();
-
-        return BackendUtils.persist(this);
+      });
+      doc = db.parse(requestBodyStream);
+      if (sb.length() > 0) {
+        // some error happened
+        // doc is not null, because the parser parses even if it is not XSD conforming
+        return Response.status(Status.BAD_REQUEST).entity(sb.toString()).build();
+      }
+    } catch (SAXException | IOException e) {
+      AbstractComponentInstanceResource.logger.debug("Could not parse XML", e);
+      return Utils.getResponseForException(e);
+    }
+    try {
+      u = JAXBSupport.createUnmarshaller();
+      defs = (Definitions) u.unmarshal(doc);
+    } catch (JAXBException e) {
+      AbstractComponentInstanceResource.logger.debug(
+          "Could not unmarshal from request body stream", e);
+      return Utils.getResponseForException(e);
     }
 
-    @GET
-    @Path("xml/")
-    @Produces(MediaType.TEXT_HTML)
-    public Response getXML() {
-        Viewable viewable = new Viewable("/jsp/xmlSource.jsp", this);
-        return Response.ok().entity(viewable).build();
+    // initial validity check
+
+    // we allow changing the target namespace and the id
+    // This allows for inserting arbitrary definitions XML
+    // if (!this.definitions.getTargetNamespace().equals(this.id.getNamespace().getDecoded())) {
+    // return
+    // Response.status(Status.BAD_REQUEST).entity("Changing of the namespace is not supported").build();
+    // }
+    // this.definitions.setTargetNamespace(this.id.getNamespace().getDecoded());
+
+    // TODO: check the provided definitions for validity
+
+    TExtensibleElements tExtensibleElements =
+        defs.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
+    if (!tExtensibleElements.getClass().equals(this.createNewElement().getClass())) {
+      return Response.status(Status.BAD_REQUEST)
+          .entity("First type in Definitions is not matching the type modeled by this resource")
+          .build();
     }
 
-    @Path("documentation/")
-    public DocumentationsResource getDocumentationsResource() {
-        return new DocumentationsResource(this, this.getElement().getDocumentation());
-    }
+    this.definitions = defs;
 
-    @Path("tags/")
-    public final TagsResource getTags() {
-        return new TagsResource(this.id);
-    }
+    // replace existing element by retrieved data
+    this.element = this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
+
+    // ensure that ids did not change
+    // TODO: future work: raise error if user changed id or namespace
+    this.copyIdToFields();
+
+    return BackendUtils.persist(this);
+  }
+
+  @GET
+  @Path("xml/")
+  @Produces(MediaType.TEXT_HTML)
+  public Response getXML() {
+    Viewable viewable = new Viewable("/jsp/xmlSource.jsp", this);
+    return Response.ok().entity(viewable).build();
+  }
+
+  @Path("documentation/")
+  public DocumentationsResource getDocumentationsResource() {
+    return new DocumentationsResource(this, this.getElement().getDocumentation());
+  }
+
+  @Path("tags/")
+  public final TagsResource getTags() {
+    return new TagsResource(this.id);
+  }
 
 }

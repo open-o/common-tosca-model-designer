@@ -273,7 +273,7 @@ public class Utils {
 
   public static Response getCSARDeployResource(final AbstractComponentInstanceResource resource) {
     final CSARExporter exporter = new CSARExporter();
-    List<String> strResponse = null;
+    List<com.sun.jersey.api.client.ClientResponse.Status> strResponse = null;
     String jsonRes = "[{\"result\":\"fail\"}]";
 
     try {
@@ -306,7 +306,7 @@ public class Utils {
       strResponse = client.deployCSAR(fileName);
       Utils.logger.trace("send and deploy CSAR finish! strResponse=" + strResponse.toString());
 
-      jsonRes = "[{\"result\":\"" + strResponse.get(0) + "\"}]";
+      jsonRes = "[{\"result\":\"" + strResponse.get(0).toString() + "\"}]";
 
       // when deploy finish,delete dir
       filePath.delete();
@@ -319,7 +319,7 @@ public class Utils {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static Response getZipDeployResource(final AbstractComponentInstanceResource resource,
-      String deployType) {
+      String deployType, Map<String, Object> extMap) {
     final ZipExporter exporter = new ZipExporter();
     String jsonRes = "[{\"result\":\"fail\"}]";
     FileOutputStream writeFile = null;
@@ -360,7 +360,7 @@ public class Utils {
         try {
           RepositoryUploadService impl = implClass.newInstance();
           if (impl.getScope().equals(deployType)) {
-            initRepositoryUploadService(impl, resource);
+            initRepositoryUploadService(impl, resource, extMap);
             isSuccess = impl.publish(fileName);
             if (!isSuccess) {
               Utils.logger.error(implClass.toString() + "publish file failed");
@@ -395,9 +395,10 @@ public class Utils {
   }
 
   private static void initRepositoryUploadService(RepositoryUploadService impl,
-      AbstractComponentInstanceResource resource) {
-    impl.setDesc(getDesc(resource));
+      AbstractComponentInstanceResource resource, Map<String, Object> extMap) {
     impl.setPackageType(getPackageType(resource));
+    impl.addExtInfo("desc", getDesc(resource));
+    impl.addExtInfos(extMap);
   }
 
   private static String getPackageType(AbstractComponentInstanceResource resource) {

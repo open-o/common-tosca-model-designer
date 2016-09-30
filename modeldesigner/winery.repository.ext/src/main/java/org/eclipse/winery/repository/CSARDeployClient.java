@@ -42,195 +42,200 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 /**
  * Copyright 2016 openo <br>
  * <br>
- * Customized version of original ContainerClient by Markus to be used in a WAR
- * Frontend for winery.
+ * Customized version of original ContainerClient by Markus to be used in a WAR Frontend for winery.
  * 
  * @author Markus Fischer - donghu@raisecom.com
  * 
  */
 public class CSARDeployClient {
 
-	private static final XLogger logger = XLoggerFactory.getXLogger(CSARDeployClient.class);
-	
-	public static URI BASEURI;
-	private Client client;
+  private static final XLogger logger = XLoggerFactory.getXLogger(CSARDeployClient.class);
 
-	// Singleton Pattern
-	private static final CSARDeployClient INSTANCE = new CSARDeployClient();
+  public static URI BASEURI;
+  private Client client;
 
-	public static CSARDeployClient getInstance() {
-		return CSARDeployClient.INSTANCE;
-	}
+  // Singleton Pattern
+  private static final CSARDeployClient INSTANCE = new CSARDeployClient();
 
-	/**
-	 * To decode a encoded URL back to original
-	 * 
-	 * @param encodedURL
-	 *            as String
-	 * @return decoded URL
-	 */
-	public static String URLdecode(String encodedURL) {
+  public static CSARDeployClient getInstance() {
+    return CSARDeployClient.INSTANCE;
+  }
 
-		try {
-			return URLDecoder.decode(encodedURL, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException();
-		}
-	}
+  /**
+   * To decode a encoded URL back to original
+   * 
+   * @param encodedURL as String
+   * @return decoded URL
+   */
+  public static String URLdecode(String encodedURL) {
 
-	/**
-	 * To Encode a URL
-	 * 
-	 * @param url
-	 *            as String
-	 * @return encoded URL
-	 */
-	public static String URLencode(String url) {
+    try {
+      return URLDecoder.decode(encodedURL, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException();
+    }
+  }
 
-		try {
-			return URLEncoder.encode(url, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException();
-		}
-	}
+  /**
+   * To Encode a URL
+   * 
+   * @param url as String
+   * @return encoded URL
+   */
+  public static String URLencode(String url) {
 
-	/**
-	 * Constructor
-	 */
-	private CSARDeployClient() {
+    try {
+      return URLEncoder.encode(url, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException();
+    }
+  }
 
-		ClientConfig config = new DefaultClientConfig();
-		this.client = Client.create(config);
-		this.client.setChunkedEncodingSize(1024);
-	}
-	
-	/**
-	 * Constructor
-	 */
-	public CSARDeployClient(String host, String port) {
+  /**
+   * Constructor
+   */
+  private CSARDeployClient() {
 
-		ClientConfig config = new DefaultClientConfig();
-		this.client = Client.create(config);
-		this.client.setChunkedEncodingSize(1024);
+    ClientConfig config = new DefaultClientConfig();
+    this.client = Client.create(config);
+    this.client.setChunkedEncodingSize(1024);
+  }
 
-		// We assume that the OpenTOSC container is running on port 1337 on the
-		// same machine as the GUI Backend.
-		// TODO Move Container API port and path information to e.g. external
-		// properties file, should not be fixed in the code.
-		CSARDeployClient.BASEURI = UriBuilder.fromUri(
-				"http://" + host + ":"+ port +"/api/nsoc/v1/").build();
+  /**
+   * Constructor
+   */
+  public CSARDeployClient(String host, String port) {
 
-	}
+    ClientConfig config = new DefaultClientConfig();
+    this.client = Client.create(config);
+    this.client.setChunkedEncodingSize(1024);
 
+    // We assume that the OpenTOSC container is running on port 1337 on the
+    // same machine as the GUI Backend.
+    // TODO Move Container API port and path information to e.g. external
+    // properties file, should not be fixed in the code.
+    CSARDeployClient.BASEURI =
+        UriBuilder.fromUri("http://" + host + ":" + port + "/api/nsoc/v1/").build();
 
-	public void destroy() {
+  }
 
-		this.client.destroy();
-	}
+  public CSARDeployClient(String host, String port, String url) {
 
+    ClientConfig config = new DefaultClientConfig();
+    this.client = Client.create(config);
+    this.client.setChunkedEncodingSize(1024);
 
-	/**
-	 * Provides a WebResource to send requests to the ContainerBaseUri
-	 * 
-	 * @return WebResource
-	 */
-	private WebResource getBaseService() {
+    // We assume that the OpenTOSC container is running on port 1337 on the
+    // same machine as the GUI Backend.
+    // TODO Move Container API port and path information to e.g. external
+    // properties file, should not be fixed in the code.
+    CSARDeployClient.BASEURI = UriBuilder.fromUri("http://" + host + ":" + port + url).build();
 
-		return this.client.resource(CSARDeployClient.BASEURI);
-	}
+  }
 
-	/**
-	 * Returns the String between to Quotes. Input: "anything", Output:anything
-	 * 
-	 * @param s
-	 * @return String
-	 */
-	public String getBetweenQuotes(String s) {
-
-		int first = s.indexOf("\"") + 1;
-		int last = s.lastIndexOf("\"");
-		return s.substring(first, last);
-	}
+  public void destroy() {
+    this.client.destroy();
+  }
 
 
-	/**
-	 * DebugMethod to print a Array of Strings
-	 * 
-	 * @param subStrings
-	 */
-	public void printStringArray(String[] subStrings) {
+  /**
+   * Provides a WebResource to send requests to the ContainerBaseUri
+   * 
+   * @return WebResource
+   */
+  private WebResource getBaseService() {
 
-		for (String sub : subStrings) {
-			CSARDeployClient.logger.trace(sub);
-		}
-	}
+    return this.client.resource(CSARDeployClient.BASEURI);
+  }
 
-	public List<String> deployCSAR(String absoluteFilePath) {
+  /**
+   * Returns the String between to Quotes. Input: "anything", Output:anything
+   * 
+   * @param s
+   * @return String
+   */
+  public String getBetweenQuotes(String s) {
 
-		List<String> result = new ArrayList<String>();
+    int first = s.indexOf("\"") + 1;
+    int last = s.lastIndexOf("\"");
+    return s.substring(first, last);
+  }
 
-		CSARDeployClient.logger.trace("Trying to upload ThorFile from: "
-				+ absoluteFilePath);
 
-		File file = new File(absoluteFilePath);
+  /**
+   * DebugMethod to print a Array of Strings
+   * 
+   * @param subStrings
+   */
+  public void printStringArray(String[] subStrings) {
 
-		if (!file.exists()) {
-			CSARDeployClient.logger.trace("Error: file does not exist.");
-			result.add("Error: file does not exist.");
-			return result;
-		}
+    for (String sub : subStrings) {
+      CSARDeployClient.logger.trace(sub);
+    }
+  }
 
-		CSARDeployClient.logger.trace("Size of the file to upload: "
-				+ file.getTotalSpace());
+  public List<Status> deployCSAR(String absoluteFilePath) {
 
-		ClientResponse resp = null;
-		FormDataMultiPart multiPart = new FormDataMultiPart();
+    List<Status> result = new ArrayList<Status>();
 
-		FormDataContentDisposition.FormDataContentDispositionBuilder dispositionBuilder = FormDataContentDisposition
-				.name("file");
-		dispositionBuilder.fileName(file.getName());
-		dispositionBuilder.size(file.getTotalSpace());
+    CSARDeployClient.logger.trace("Trying to upload ThorFile from: " + absoluteFilePath);
 
-		FormDataContentDisposition formDataContentDisposition = dispositionBuilder
-				.build();
+    File file = new File(absoluteFilePath);
 
-		multiPart.bodyPart(new FormDataBodyPart("file", file,
-				MediaType.APPLICATION_OCTET_STREAM_TYPE)
-				.contentDisposition(formDataContentDisposition));
+    if (!file.exists()) {
+      CSARDeployClient.logger.trace("Error: file does not exist.");
+      result.add(Status.fromStatusCode(404));
+      return result;
+    }
 
-		resp = this.getBaseService().path("csars")
-				.type(MediaType.MULTIPART_FORM_DATA_TYPE)
-				.post(ClientResponse.class, multiPart);
-		
-		CSARDeployClient.logger.trace("ClientResponse string: "
-				+ resp.getClientResponseStatus().toString());
-		
-		// when deploy finish,delete temp file
-		file.delete();
+    CSARDeployClient.logger.trace("Size of the file to upload: " + file.getTotalSpace());
 
-		result.add(resp.getClientResponseStatus().toString());
+    ClientResponse resp = null;
+    FormDataMultiPart multiPart = new FormDataMultiPart();
 
-		return result;
-	}
+    FormDataContentDisposition.FormDataContentDispositionBuilder dispositionBuilder =
+        FormDataContentDisposition.name("file");
+    dispositionBuilder.fileName(file.getName());
+    dispositionBuilder.size(file.getTotalSpace());
 
-	public List<String> uploadCSARDueURL(String urlToUpload) {
-		
-		CSARDeployClient.logger.trace("Try to send the URL to the ContainerAPI: " + CSARDeployClient.URLencode(urlToUpload));
-		
-		ArrayList<String> result = new ArrayList<String>();
+    FormDataContentDisposition formDataContentDisposition = dispositionBuilder.build();
 
-		ClientResponse resp = this.getBaseService().path("csars").queryParam("url", urlToUpload)
-				.post(ClientResponse.class);
+    multiPart.bodyPart(new FormDataBodyPart("file", file, MediaType.APPLICATION_OCTET_STREAM_TYPE)
+        .contentDisposition(formDataContentDisposition));
 
-		if (!resp.getClientResponseStatus().equals(Status.OK)) {
-			CSARDeployClient.logger.trace("Error occurred while uploading CSAR from URL "
-					+ urlToUpload + ", Server returned: "
-					+ resp.getClientResponseStatus());
-			result.add("Invocation Error, Server returned: "
-					+ resp.getClientResponseStatus());
-		} else {
-			result.add("Created");
-		}
-		return result;
-	}
+    resp =
+        this.getBaseService().path("csars").type(MediaType.MULTIPART_FORM_DATA_TYPE)
+            .post(ClientResponse.class, multiPart);
+
+    CSARDeployClient.logger.trace("ClientResponse string: "
+        + resp.getClientResponseStatus().toString());
+
+    // when deploy finish,delete temp file
+    file.delete();
+
+    result.add(resp.getClientResponseStatus());
+
+    return result;
+  }
+
+  public List<String> uploadCSARDueURL(String urlToUpload) {
+
+    CSARDeployClient.logger.trace("Try to send the URL to the ContainerAPI: "
+        + CSARDeployClient.URLencode(urlToUpload));
+
+    ArrayList<String> result = new ArrayList<String>();
+
+    ClientResponse resp =
+        this.getBaseService().path("csars").queryParam("url", urlToUpload)
+            .post(ClientResponse.class);
+
+    if (!resp.getClientResponseStatus().equals(Status.OK)) {
+      CSARDeployClient.logger.trace("Error occurred while uploading CSAR from URL " + urlToUpload
+          + ", Server returned: " + resp.getClientResponseStatus());
+      result.add("Invocation Error, Server returned: " + resp.getClientResponseStatus());
+    } else {
+      result.add("Created");
+    }
+    return result;
+  }
 }
