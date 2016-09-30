@@ -1,5 +1,4 @@
 <!--
-
     Copyright 2016 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -353,6 +352,14 @@
                     </query>
                 </from>
                 #end
+            #elseif( $paramType == "OBJECT" )
+                <from>
+                    <literal>$taskQueryData.getValue()</literal>
+                </from>
+            #elseif( $taskQueryData.getValue() )
+                <from>
+                    <literal>$taskQueryData.getValue()</literal>
+                </from>
             #else
                 <from>
                     <literal></literal>
@@ -361,12 +368,21 @@
                 <to variable="temp"/>
             </copy>
             
+            #if( $paramType == "OBJECT" )
             <copy>
                 <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                <![CDATA[concat(substring-before($request,'bpelvalue_$taskInputData.getName()'), $temp, substring-after($request,'bpelvalue_$taskInputData.getName()'))]]>
+                <![CDATA[concat(substring-before($request,'"$taskInputData.getName()"'), $temp, substring-after($request,'"$taskInputData.getName()"'))]]>
                 </from>
                 <to variable="request"></to>
             </copy>
+            #else
+            <copy>
+                <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                <![CDATA[concat(substring-before($request,'$taskInputData.getName()'), $temp, substring-after($request,'$taskInputData.getName()'))]]>
+                </from>
+                <to variable="request"></to>
+            </copy>
+            #end
         #end
             
     #else
