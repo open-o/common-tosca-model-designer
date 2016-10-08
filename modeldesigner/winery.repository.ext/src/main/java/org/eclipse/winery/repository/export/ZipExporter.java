@@ -182,7 +182,7 @@ public class ZipExporter {
     // if we export a ServiceTemplate, data for the self-service portal might exist
     if (entryId instanceof ServiceTemplateId) {
       this.addSelfServiceMetaData((ServiceTemplateId) entryId, refMap);
-      addCsarMeta((ServiceTemplateId) entryId,zos);
+      addCsarMeta((ServiceTemplateId) entryId, zos);
     }
 
     // write custom file
@@ -231,12 +231,39 @@ public class ZipExporter {
         }
       }
       zos.closeArchiveEntry();
+
+      // add plan files/artifact templantes to yaml folder
+      if (archivePath.contains("plans")) {
+        addPlan2Zip(archivePath, ref, zos);
+      }
+      // TODO artifact templates
     }
 
     this.addNamespacePrefixes(zos);
 
     zos.finish();
     zos.close();
+  }
+
+  private void addPlan2Zip(String archivePath, RepositoryFileReference ref, ArchiveOutputStream zos)
+      throws IOException {
+
+    if (archivePath.endsWith(".bpmn4tosca") || archivePath.endsWith("file.json")) {
+      // TODO converted when create json file
+    } else if (archivePath.endsWith(".zip")) {
+      ArchiveEntry archiveEntry = new ZipArchiveEntry("plan/" + ref.getFileName());
+      zos.putArchiveEntry(archiveEntry);
+      copyFile(ref, zos);
+      zos.closeArchiveEntry();
+    }
+  }
+
+  private void copyFile(RepositoryFileReference ref, ArchiveOutputStream zos) {
+    try (InputStream is = Repository.INSTANCE.newInputStream(ref)) {
+      IOUtils.copy(is, zos);
+    } catch (Exception e) {
+      ZipExporter.logger.error("Could not copy file content to ZIP outputstream", e);
+    }
   }
 
   private ArrayList<CustomFileResultInfo> exportCustomFiles(ServiceTemplateId templateId,
@@ -382,15 +409,18 @@ public class ZipExporter {
       }
     }
   }
-  
-  private void addCsarMeta(ServiceTemplateId entryId, ArchiveOutputStream out) throws IOException{
+
+  private void addCsarMeta(ServiceTemplateId entryId, ArchiveOutputStream out) throws IOException {
     AbstractComponentInstanceResource res =
-            AbstractComponentsResource.getComponentInstaceResource(entryId);
+        AbstractComponentsResource.getComponentInstaceResource(entryId);
     Definitions entryDefinitions = res.getDefinitions();
-    TServiceTemplate  serviceTemplate = (TServiceTemplate) entryDefinitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation().get(0);
+    TServiceTemplate serviceTemplate =
+        (TServiceTemplate) entryDefinitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()
+            .get(0);
     out.putArchiveEntry(new ZipArchiveEntry("csar.meta"));
     BoundaryPropertyDefinition boundaryPropertyDefinition =
-            BoundaryPropertyUtil.getBoundaryPropertyDefinition(serviceTemplate.getBoundaryDefinitions().getProperties().getAny());
+        BoundaryPropertyUtil.getBoundaryPropertyDefinition(serviceTemplate.getBoundaryDefinitions()
+            .getProperties().getAny());
     StringBuffer buffer = new StringBuffer();
     buffer.append("Type:");
     buffer.append(boundaryPropertyDefinition.getMetaData("csarType"));
@@ -399,16 +429,16 @@ public class ZipExporter {
     buffer.append("Version:");
     buffer.append(boundaryPropertyDefinition.getMetaData("csarVersion"));
     buffer.append("\n");
-    
+
     buffer.append("Provider:");
     buffer.append(boundaryPropertyDefinition.getMetaData("csarProvider"));
     buffer.append("\n");
-    
+
     PrintWriter pw = new PrintWriter(out);
     pw.println(buffer.toString());
     pw.flush();
     out.closeArchiveEntry();
-}
+  }
 
   private void addManifest(TOSCAComponentId id, Collection<String> definitionNames,
       Map<RepositoryFileReference, String> refMap, ArchiveOutputStream out) throws IOException {
