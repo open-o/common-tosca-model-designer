@@ -15,27 +15,33 @@
  */
 package org.eclipse.winery.repository.ext.repository;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public abstract class RepositoryUploadService {
 
-    public static final String DEFAULT = "nfv";
+  public static final String DEFAULT = "nfv";
 
-    protected String packageType;
+  protected String packageType;
 
-    protected String desc;
+  protected Map<String, Object> extMap = new HashMap<String, Object>();
 
-    abstract public boolean publish(String filePath);
+  abstract public boolean publish(String filePath);
 
-    public String getScope() {
-        return DEFAULT;
-    }
+  public String getScope() {
+    return DEFAULT;
+  }
 
-    public void setPackageType(String packageType) {
-        this.packageType = packageType;
-    }
+  public void setPackageType(String packageType) {
+    this.packageType = packageType;
+  }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
+  public void addExtInfo(String key, Object value) {
+    extMap.put(key, value);
+  }
 
+  public void addExtInfos(Map<String, Object> extInfos) {
+    extMap.putAll(extInfos);
+  }
 }
