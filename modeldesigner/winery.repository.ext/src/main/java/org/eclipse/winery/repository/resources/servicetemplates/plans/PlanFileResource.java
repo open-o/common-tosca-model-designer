@@ -106,6 +106,7 @@ public class PlanFileResource {
     // Really store it
     try {
       Repository.INSTANCE.putContentToFile(ref, uploadedInputStream, body.getMediaType());
+      this.convert();//temporary treatment, for now only support bpel, bpmn4tosca2bpel
     } catch (IOException e1) {
       return Response.status(Status.INTERNAL_SERVER_ERROR)
           .entity("Could not store plan. " + e1.getMessage()).build();
