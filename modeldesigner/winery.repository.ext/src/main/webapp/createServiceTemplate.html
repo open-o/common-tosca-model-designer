@@ -54,6 +54,29 @@
                         <input  maxlength="50" type="text" class="form-control" name="name" id="name"/>
                         <!-- <label class="nameHints">"0-9" "a-z" "A-Z" 开头和结尾只能是字母或者数字</label> -->
                     </div>
+                    <div class="form-item">
+                        <div class="control-label">
+                            <span class="name" id="winery-createTemplate-csarType" name_i18n="winery_i18n"></span>
+                        </div>
+                        <select class="form-control m-b" id="csarType">
+                            <option>GSAR</option>
+                            <option>SSAR</option>
+                            <option>NSAR</option>
+                            <option>NFAR</option>
+                        </select>  
+                    </div>
+                    <div class="form-item">
+                        <div class="control-label">
+                            <span class="name" id="winery-createTemplate-csarVersion" name_i18n="winery_i18n"></span>
+                        </div>
+                        <input  maxlength="50" type="text" class="form-control" name="csarVersion" id="csarVersion"/>  
+                    </div>
+                    <div class="form-item">
+                        <div class="control-label">
+                            <span class="name" id="winery-createTemplate-csarProvider" name_i18n="winery_i18n"></span>
+                        </div>
+                        <input  maxlength="50" type="text" class="form-control" name="csarProvider" id="csarProvider"/>   
+                    </div>
 
                     <div class="form-item" hidden>
                         <div class="control-label">
@@ -325,6 +348,22 @@
                                 metaData.metadatas.push(data);
                             }
                         });
+
+                        var csarType = {
+                            key: "csarType",
+                            value: $("#csarType").val()
+                        }
+                        var csarVersion = {
+                            key: "csarVersion",
+                            value: $("#csarVersion").val()
+                        }
+                        var csarProvider = {
+                            key: "csarProvider",
+                            value: $("#csarProvider").val()
+                        }
+                        metaData.metadatas.push(csarType);
+                        metaData.metadatas.push(csarVersion);
+                        metaData.metadatas.push(csarProvider);
 
                         var metaDataURL = "/winery/servicetemplates/" + nodeTemplateNamespace 
                                 + "/" + nodeTemplateName + "/boundarydefinitions/properties/metadata/list";

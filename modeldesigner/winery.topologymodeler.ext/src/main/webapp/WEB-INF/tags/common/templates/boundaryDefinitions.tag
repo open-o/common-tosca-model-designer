@@ -30,9 +30,28 @@
 			<h4 style="display:inline"><%=serviceTemplateName%></h4>
 			<button id="closeBoundaryBtn" type="button" class="close">&times;</button>
 			<div class="menuContainerHead">
-				<label id="winery-boundary-template-desc" name_i18n="winery_i18n"></label>
-				<input class="form-control desc-input" type="text" name="description" 
-					<c:if test="${!palette}">disabled</c:if>/>
+				<div class="item-group">
+					<label id="winery-boundary-template-desc" name_i18n="winery_i18n"></label>
+					<input class="form-control desc-input description" type="text"
+						<c:if test="${!palette}">disabled</c:if>/>
+				</div>
+				<div class="item-group">
+					<label id="winery-boundary-template-csarType" name_i18n="winery_i18n"></label>
+					<select class="form-control desc-input csarType" <c:if test="${!palette}">disabled</c:if>>
+                        <option>GSAR</option>
+                        <option>SSAR</option>
+                        <option>NSAR</option>
+                        <option>NFAR</option>
+                    </select>
+				</div>
+				<div class="item-group">
+					<label id="winery-boundary-template-csarVersion" name_i18n="winery_i18n"></label>
+					<input type="text" class="form-control desc-input csarVersion" <c:if test="${!palette}">disabled</c:if>/>
+				</div>
+				<div class="item-group">
+					<label id="winery-boundary-template-csarProvider" name_i18n="winery_i18n"></label>
+					<input type="text" class="form-control desc-input csarProvider" <c:if test="${!palette}">disabled</c:if>/>
+				</div>
 			</div>
 		</div>
 		<ul class="nav title-list">
@@ -573,7 +592,7 @@ $(function() {
 			dataType : "json",
 			success : function(resp) {
 				if(resp && resp.documentation) {
-					$("#boundaryDefinition .menuContainerHead input").val(resp.documentation);
+					$("#boundaryDefinition .menuContainerHead .description").val(resp.documentation);
 				}
 			}
 		});
@@ -1092,7 +1111,25 @@ $(function() {
 			]
 		}
 
-		initTable(metaInfo);
+		//not display csarType
+		var afterInit = function() {
+			var table = $("#" + metaInfo.id).dataTable();
+			var data = table.fnGetNodes();
+			$.each(data, function(index, trElem){
+				var key = $(trElem.cells[0]).text();
+				var value = $(trElem.cells[2]).text() || "";
+				switch(key) {
+					case "csarType":
+					case "csarVersion":
+					case "csarProvider":
+						$("#boundaryDefinition").find("." + key).val(value);
+						table.fnDeleteRow(trElem);
+						break;
+				}
+			});
+		}
+
+		initTable(metaInfo, afterInit);
 		//add metadata param
 		$("#addMetaDataBtn").click(function(e) {
 			e.preventDefault();
