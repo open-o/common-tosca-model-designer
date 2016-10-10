@@ -11,6 +11,9 @@
  *    Oliver Kopp - initial API and implementation and/or initial documentation
  *    Yves Schubert - switch to bootstrap 3
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 <%@tag description="Global Wrapper" pageEncoding="UTF-8"%>
 

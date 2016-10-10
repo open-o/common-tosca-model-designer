@@ -554,7 +554,7 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 		<button class="zte-btn zte-white" onclick="doLayout();">
 			<span id="winery-toolbar-btn-layout" name_i18n="winery_i18n"></span>
 		</button>
-		<a class="zte-btn zte-white" id="deployCSARbtn" href="<%=topologyTemplateURL%>../?deploy&deployType=nfv" target="_blank">
+		<a class="zte-btn zte-white" id="deployCSARbtn" href="<%=topologyTemplateURL%>../?deploy&deployType=openo" target="_blank">
 			<span id="winery-toolbar-btn-publish" name_i18n="winery_i18n"></span>
 		</a>
 		<a class="zte-btn zte-white" id="exportCSARbtn" href="<%=topologyTemplateURL%>../?csar&exportType">

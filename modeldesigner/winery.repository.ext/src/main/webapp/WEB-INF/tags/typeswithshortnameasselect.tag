@@ -10,6 +10,9 @@
  * Contributors:
  *    Oliver Kopp - initial API and implementation and/or initial documentation
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 <%@tag description="Renders pairs of types with shortname as select element" pageEncoding="UTF-8"%>
 

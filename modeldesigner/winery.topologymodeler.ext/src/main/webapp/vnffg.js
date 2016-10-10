@@ -1063,7 +1063,7 @@
     	vnffgConstants.NODETEMPLATE_VL = [];
     	$.each(nodeTemplates, function(index, nodeTemplate) {
     		// TODO 判断VL 方式待修改
-    		if(nodeTemplate.type == "tosca.nodes.nfv.ext.zte.VL") {
+    		if(nodeTemplate.type.indexOf(".VL") != -1) {
     			vnffgConstants.NODETEMPLATE_VL[vnffgConstants.NODETEMPLATE_VL.length] = nodeTemplate;
     		}
     	});

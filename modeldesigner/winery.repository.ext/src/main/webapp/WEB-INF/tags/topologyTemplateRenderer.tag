@@ -11,6 +11,9 @@
  *    Pascal Hirmer - skeletton for topology rendering
  *    Oliver Kopp - converted to .tag and integrated in the repository
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 <%@tag description="Renders a toplogytemplate. This tag is used to render a topology template readonly. The topoology modeler does the rendering on itself." pageEncoding="UTF-8" %>
 

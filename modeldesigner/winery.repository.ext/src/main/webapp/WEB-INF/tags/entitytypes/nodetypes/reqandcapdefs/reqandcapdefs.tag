@@ -11,6 +11,9 @@
  *    Oliver Kopp - initial API and implementation and/or initial documentation
  *    Yves Schubert - switch to bootstrap 3, integration with spinnerwithinphty
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/myDefCss.css" />

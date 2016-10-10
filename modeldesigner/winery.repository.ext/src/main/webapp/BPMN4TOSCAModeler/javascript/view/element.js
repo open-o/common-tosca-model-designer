@@ -158,7 +158,14 @@
 				});
 			});
 			this.on("add_connection", function(event){
-				this.model.addConnection(Backbone.$(event.target.el).attr("id"));
+				if(this.model.id === Backbone.$(event.target.el).attr("id")){
+					_.each(jsPlumb.getConnections({target: this.$el.attr("id")}), function(targetConnection){
+						jsPlumb.detach(targetConnection);
+					});
+
+				}else{
+					this.model.addConnection(Backbone.$(event.target.el).attr("id"));
+				}
 			}, this);
 			this.on("remove_connection", function(event){
 				this.model.removeConnection(Backbone.$(event.target.el).attr("id"));

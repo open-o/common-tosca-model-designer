@@ -10,6 +10,9 @@
  * Contributors:
  *    Oliver Kopp - initial API and implementation and/or initial documentation
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 <!-- basic idea by http://stackoverflow.com/a/3257426/873282 -->
 <%@tag description="submenu" pageEncoding="UTF-8"%>

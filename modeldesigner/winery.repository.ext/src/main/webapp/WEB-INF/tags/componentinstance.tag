@@ -10,6 +10,9 @@
  * Contributors:
  *    Oliver Kopp - initial API and implementation and/or initial documentation
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 <%@tag description="Wrapper for resources, which are backed by definitions and thus offer an XML div" pageEncoding="UTF-8"%>
 

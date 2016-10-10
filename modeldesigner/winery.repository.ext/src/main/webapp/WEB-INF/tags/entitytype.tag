@@ -10,6 +10,9 @@
  * Contributors:
  *    Oliver Kopp - initial API and implementation and/or initial documentation
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 <%@tag description="Wrapper for instances of entity types" pageEncoding="UTF-8"%>
 

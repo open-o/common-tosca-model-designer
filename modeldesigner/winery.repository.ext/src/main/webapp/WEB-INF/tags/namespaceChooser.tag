@@ -10,6 +10,9 @@
  * Contributors:
  *    Oliver Kopp - initial API and implementation and/or initial documentation
  *******************************************************************************/
+/*
+ * Modifications Copyright 2016 ZTE Corporation.
+ */
 --%>
 <%@tag description="places a bootstrap form control to chooose a namespace. A new namespace can be created" pageEncoding="UTF-8"%>
 
