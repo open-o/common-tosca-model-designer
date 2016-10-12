@@ -31,7 +31,7 @@
             <div  class="addDevSer-content">
                 <form  id="serviceForm" role="form"> 
                     <input type="hidden" value="" name="namespace" id="namespace">
-                    <div class="form-item">
+                    <div class="form-item" id="createType_div">
                         <div class="control-label">
                             <span class="name" id="winery-createTemplate-type" name_i18n="winery_i18n"></span>
                         </div>
@@ -40,7 +40,7 @@
                             <option value="copy" id="winery-createTemplate-type-copy" name_i18n="winery_i18n"></option>
                         </select>  
                     </div>
-                    <div class="form-item">
+                    <div class="form-item" id="inheritNodetypeSelect_div">
                         <div class="control-label">
                             <span class="name" id="winery-createTemplate-basic" name_i18n="winery_i18n"></span>
                         </div>
@@ -56,6 +56,7 @@
                     </div>
                     <div class="form-item">
                         <div class="control-label">
+                        	<span class="required" aria-required="true">*</span>
                             <span class="name" id="winery-createTemplate-csarType" name_i18n="winery_i18n"></span>
                         </div>
                         <select class="form-control m-b" id="csarType">
@@ -67,12 +68,14 @@
                     </div>
                     <div class="form-item">
                         <div class="control-label">
+                        	<span class="required" aria-required="true">*</span>
                             <span class="name" id="winery-createTemplate-csarVersion" name_i18n="winery_i18n"></span>
                         </div>
                         <input  maxlength="50" type="text" class="form-control" name="csarVersion" id="csarVersion"/>  
                     </div>
                     <div class="form-item">
                         <div class="control-label">
+                        	<span class="required" aria-required="true">*</span>
                             <span class="name" id="winery-createTemplate-csarProvider" name_i18n="winery_i18n"></span>
                         </div>
                         <input  maxlength="50" type="text" class="form-control" name="csarProvider" id="csarProvider"/>   
@@ -127,15 +130,26 @@
             var serviceType = getQueryString("type");   
             var namespace;
 
-            if(serviceType == null) serviceType="vnf";
-            if(serviceType == "vnf"){
-                $(".serviceType").text($.i18n.prop("winery-createTemplate-title-vnf"));
-                namespace = "http://www.zte.com.cn/tosca/nfv/vnf";
-            } else{
-                $(".serviceType").text($.i18n.prop("winery-createTemplate-title-ns"));
-                namespace = "http://www.zte.com.cn/tosca/nfv/ns";
+            switch(serviceType) {
+                case "ns":
+                	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-ns"));
+                	namespace = "http://www.zte.com.cn/tosca/nfv/ns";
+                	break;
+                case "sdn":
+                	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-sdn"));
+                	namespace = "http://www.open-o.org/tosca/sdn/ns";
+                	break;
+                case "gso":
+                	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-gso"));
+                	$("#createType_div").hide();
+                	$("#inheritNodetypeSelect_div").hide();
+                	namespace = "http://www.open-o.org/tosca/gso";
+                	break;
+                default:
+                	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-vnf"));
+                	namespace = "http://www.zte.com.cn/tosca/nfv/vnf";
             }
-            $("#namespace").val(namespace);
+            $("#namespace").val(namespace);            
 
             $("#createType").change(function(){
                 var createType = $(this).val();
@@ -169,21 +183,11 @@
                         changeNodetype();
                     }
                 });
-            });
-
-            $("#createType").trigger('change');
+            }).trigger('change');
 
             $("#inheritNodetypeSelect").change(function(){ 
                 changeNodetype();
-            }); 
-
-            //名称输入事件，同步名称到nodetype名称
-            /*$("#name").keyup(function(){
-                var name = $(this).val();
-                var inheritNodetype = $("#inheritNodetypeSelect").find("option:selected").text()+".";
-                var nodetypeName = inheritNodetype + name;
-                $("#nodetype").val(nodetypeName);
-            });*/
+            });
 
             $("#saveBtn").click(function(){
                 $(this).addClass("disabled").attr("disabled", true);
@@ -191,27 +195,21 @@
                     $(this).removeClass("disabled").attr("disabled", false);
                     return false;
                 }
-                /*
-                var nodetype = $("#nodetype").val();
-                if(!nodetype){
-                    var selectNodetype = $("#inheritNodetypeSelect").find("option:selected").text();
-
-                    if(nodetype.indexOf(selectNodetype) == -1){
-                        alert("nodetype输入格式有误");
-                        return false;
-                    }
-                }*/
-
-                var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
+                
                 var name = $("#name").val();
                 var nodetype = $("#nodetype").val();
                 $("#nodetype").val(nodetype + name);
+                
+                var data = {
+                	name: $("#name").val(),
+                	namespace: namespace
+                }
 
                 //创建servicetemplates
                 $.ajax({
                     type: "POST",
                     async: false,
-                    data: form.serialize(),
+                    data: data,
                     url:"/winery/servicetemplates/",
                     dataType: "text",
                     error: function(jqXHR, textStatus, errorThrown) {                    
@@ -223,19 +221,46 @@
                         $("#saveBtn").removeClass("disabled").attr("disabled", false);
                     },
                     success : function(resp) {
-                        var createType = $("#createType").val();
-                        if(createType == "inherit") {
-                            var nodeTypeName = $("#nodetype").val();
-                            var nodeTypeObj = {
-                                "namespace" : namespace,
-                                "name" : nodeTypeName
-                            }
-                            //保存substitutableNodeType
-                            saveSubstitutableNodeType(nodeTypeObj, namespace_encode, name);
-                        } 
-                        initialServiceTemplateInfo(createType, name, namespace_encode);
+                    	var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
+                    	if(serviceType != "gso") {
+	                        var createType = $("#createType").val();
+	                        if(createType == "inherit") {
+	                            var nodeTypeName = $("#nodetype").val();
+	                            var nodeTypeObj = {
+	                                "namespace" : namespace,
+	                                "name" : nodeTypeName
+	                            }
+	                            //保存substitutableNodeType
+	                            saveSubstitutableNodeType(nodeTypeObj, namespace_encode, name);
+	                        } 
+                    	} else {
+                    		var metaData = {
+	                            metadatas : []
+		                    }
+	
+	                        var csarType = {
+	                            key: "csarType",
+	                            value: $("#csarType").val()
+	                        }
+	                        var csarVersion = {
+	                            key: "csarVersion",
+	                            value: $("#csarVersion").val()
+	                        }
+	                        var csarProvider = {
+	                            key: "csarProvider",
+	                            value: $("#csarProvider").val()
+	                        }
+	                        metaData.metadatas.push(csarType);
+	                        metaData.metadatas.push(csarVersion);
+	                        metaData.metadatas.push(csarProvider);
+	
+	                        var metaDataURL = "/winery/servicetemplates/" + namespace_encode 
+	                                + "/" + name + "/boundarydefinitions/properties/metadata/list";
+	                        addServiceTemplateBoundaryData(metaDataURL, metaData);
+                    	}
+                    	initialServiceTemplateInfo(createType, name, namespace_encode);
                     }
-                });           
+                });
             });
 
             //保存substitutableNodeType
@@ -436,11 +461,23 @@
                     },
                     nodetype:{
                         maxlength:50
+                    },
+                    csarVersion:{
+                    	required: true
+                    },
+                    csarProvider:{
+                    	required: true
                     }
                 },
                 messages: {        
                     name:{
                         required: $.i18n.prop("winery-property-validate-name-required")
+                    },
+                    csarVersion:{
+                    	required: $.i18n.prop("winery-property-validate-csarVersion-required")
+                    },
+                    csarProvider:{
+                    	required: $.i18n.prop("winery-property-validate-csarProvider-required")
                     }
                 },
                 errorPlacement: function (error, element) { // render error placement for each input type

@@ -10,5 +10,17 @@
 		"name_en": "Create VNFD",
 		"type": "vnf",
 		"url": "createServiceTemplate.html?type=vnf"
+	},
+	{
+		"name_zh": "创建SDN",
+		"name_en": "Create SDN",
+		"type": "sdn",
+		"url": "createServiceTemplate.html?type=sdn"
+	},
+	{
+		"name_zh": "创建GSO",
+		"name_en": "Create GSO",
+		"type": "gso",
+		"url": "createServiceTemplate.html?type=gso"
 	}
 ]
