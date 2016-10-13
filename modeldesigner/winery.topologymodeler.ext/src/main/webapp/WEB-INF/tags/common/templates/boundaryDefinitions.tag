@@ -70,7 +70,7 @@
 		      		<span id="winery-boundary-tab-reqAndCap" name_i18n="winery_i18n"></span>
 		      	</a>
 		   	</li>
-		   	<li>
+		   	<li style="display:none;">
 		      	<a href="#boundaryScript" data-toggle="tab" class="tab-multi">
 		      		<span id="winery-boundary-tab-script" name_i18n="winery_i18n"></span>
 		      	</a>
@@ -1172,10 +1172,10 @@ $(function() {
 	});
 
 	var namespace = "${ns}";
-	if(namespace.indexOf("ns") > -1) {
-		//ns template does not show script tab, vnf template does not show vnffg tab
-		$("#boundaryDefinition").find('a[href="#boundaryScript"]').parent().hide();
+	if(namespace == "http://www.zte.com.cn/tosca/nfv/ns") {		
 		$("#boundaryDefinition").find('a[href="#boundaryVnffg"]').parent().show();
+	} else if(namespace == "http://www.zte.com.cn/tosca/nfv/vnf") {
+		$("#boundaryDefinition").find('a[href="#boundaryScript"]').parent().show();
 	}
 
 	function initValidate(formId, rules) {
