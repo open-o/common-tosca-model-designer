@@ -638,7 +638,7 @@ define(
 		 * @return {[type]} [description]
 		 */
 		function validate() {
-			return validateNodeTemplateProperties() && validateServiceTemplateMetaData();
+			return validateNodeTemplateProperties() && validateServiceTemplateMetaData() && validateSpecialMetaData();
 		}
 
 		/**
@@ -682,6 +682,18 @@ define(
 				}
 			}
 			return true;
+		}
+		
+		function validateSpecialMetaData() {
+			function validate(key) {
+				var value = $("#boundaryDefinition .menuContainerHead").find("." + key).val();
+				if(!value) {
+					vShowError($.i18n.prop("winery-property-validate-"+ key +"-required", key));
+					return false;
+				}
+				return true;
+			}
+			return validate("csarType") && validate("csarVersion") && validate("csarProvider");
 		}
 	}
 );
