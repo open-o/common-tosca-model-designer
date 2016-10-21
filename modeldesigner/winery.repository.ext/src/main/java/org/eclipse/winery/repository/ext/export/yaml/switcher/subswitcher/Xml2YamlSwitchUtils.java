@@ -298,6 +298,9 @@ public class Xml2YamlSwitchUtils {
    * @return .
    */
   public static Map<String, Object> convert2Properties(Object tproperties) {
+  	if (null == tproperties) {
+  		return null;
+  	}
     if (tproperties.getClass().getName()
         .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")
         || tproperties.getClass().getName().equals("org.apache.xerces.dom.ElementNSImpl")) {
