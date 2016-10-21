@@ -21,8 +21,8 @@ import javax.ws.rs.core.Response.Status.Family;
 
 import org.eclipse.winery.repository.CSARDeployClient;
 import org.eclipse.winery.repository.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -32,7 +32,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class CsarPublisher4Openo extends RepositoryUploadService {
 
-  private static final Logger logger = LoggerFactory.getLogger(CsarPublisher4Openo.class);
+  private static final XLogger logger = XLoggerFactory.getXLogger(CsarPublisher4Openo.class);
   private static final String DEPLOY_TYPE_OPENO = "openo";
 
   private CSARDeployClient client;
@@ -55,9 +55,12 @@ public class CsarPublisher4Openo extends RepositoryUploadService {
 
   private void init() {
     if (null == client) {
-      client =
-          new CSARDeployClient((String) extMap.get(Constants.IP),
-              (String) extMap.get(Constants.PORT), "/openoapi/catalog/v1/csars");
+      logger.info("init client");
+      String host = (String) extMap.get(Constants.IP);
+      int port = (int) extMap.get(Constants.PORT);
+      port = port == -1 ? 80 : port;
+      client = new CSARDeployClient(host, String.valueOf(port), "/openoapi/catalog/v1/csars");
+      logger.info("init client finished! ip:{} port:{}", host, port);
     }
   }
 

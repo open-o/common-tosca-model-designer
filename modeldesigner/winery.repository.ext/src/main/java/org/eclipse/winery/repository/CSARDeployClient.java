@@ -115,7 +115,7 @@ public class CSARDeployClient {
     // TODO Move Container API port and path information to e.g. external
     // properties file, should not be fixed in the code.
     CSARDeployClient.BASEURI =
-        UriBuilder.fromUri("http://" + host + ":" + port + "/api/nsoc/v1/").build();
+        UriBuilder.fromUri("http://" + host + ":" + port + "/api/nsoc/v1/csars").build();
 
   }
 
@@ -204,7 +204,7 @@ public class CSARDeployClient {
         .contentDisposition(formDataContentDisposition));
 
     resp =
-        this.getBaseService().path("csars").type(MediaType.MULTIPART_FORM_DATA_TYPE)
+        this.getBaseService().type(MediaType.MULTIPART_FORM_DATA_TYPE)
             .post(ClientResponse.class, multiPart);
 
     CSARDeployClient.logger.trace("ClientResponse string: "
@@ -226,7 +226,7 @@ public class CSARDeployClient {
     ArrayList<String> result = new ArrayList<String>();
 
     ClientResponse resp =
-        this.getBaseService().path("csars").queryParam("url", urlToUpload)
+        this.getBaseService().queryParam("url", urlToUpload)
             .post(ClientResponse.class);
 
     if (!resp.getClientResponseStatus().equals(Status.OK)) {
