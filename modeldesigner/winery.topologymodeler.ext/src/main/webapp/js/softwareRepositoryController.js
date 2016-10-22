@@ -39,6 +39,8 @@ var vm = avalon
 		baseUrl: "",
 		addBtnName: $.i18n.prop("winery-softwareRepository-btn-add"),
 		nsInfoArray: [],
+		sdnInfoArray: [],
+		gsoInfoArray: [],
 		vnfInfoArray: [],
 		servicesInfoArray: [],
 		serviceletsInfoArray: [],
@@ -46,6 +48,8 @@ var vm = avalon
 		tab: {
 			ifVNF: false,
 			ifNS: false,
+			ifSDN: false,
+			ifGSO: false,
 			ifServices: false,
 			ifMicroservices: false,
 			ifServicelets: false
@@ -64,7 +68,17 @@ var vm = avalon
 				success: function(resp) {
 					if (resp["http://www.zte.com.cn/tosca/nfv/ns"] != null) {
 						vm.tab.ifNS = true;
-						vm.nsInfoArray = resp["http://www.zte.com.cn/tosca/nfv/ns"]
+						vm.nsInfoArray = resp["http://www.zte.com.cn/tosca/nfv/ns"];
+					}
+						
+					if (resp["http://www.open-o.org/tosca/sdn/ns"] != null) {
+						vm.tab.ifSDN = true;
+						vm.sdnInfoArray = resp["http://www.open-o.org/tosca/sdn/ns"];
+					}
+						
+					if (resp["http://www.open-o.org/tosca/gso"] != null) {
+						vm.tab.ifGSO = true;
+						vm.gsoInfoArray = resp["http://www.open-o.org/tosca/gso"] || [];
 					}
 
 					if (resp["http://www.zte.com.cn/tosca/nfv/vnf"] != null) {
@@ -121,14 +135,15 @@ var vm = avalon
 		},
 		queryTemplate: function(tableId, type) {
 			var checkedDatas = softwareRepositoryUtil.getTableCheckedData(tableId);
-			var idStr = checkedDatas.toString();
+			var idStr = checkedDatas.ids.toString();
+			var projects = checkedDatas.projects.toString();
 
 			if(!idStr) {
 				alert($.i18n.prop("winery-softwareRepository-message-select"));
 				return;
 			}
 
-			var queryTemplateByIdUrl = vm.baseUrl + "/API/templates/" + idStr + "?type=" + type;
+			var queryTemplateByIdUrl = vm.baseUrl + "/API/templates/" + idStr + "?type=" + type + "&namespace=" + projects;
 			$.ajax({
 				"type": 'GET',
 				"url": queryTemplateByIdUrl,

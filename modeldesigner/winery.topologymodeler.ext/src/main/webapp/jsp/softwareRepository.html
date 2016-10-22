@@ -50,11 +50,17 @@
         			<li ms-visible="vm.tab.ifNS">
         		      	<a href="#nsTab" data-toggle="tab">NS</a>
         		   	</li>
+        		   	<li ms-visible="vm.tab.ifSDN">
+        		      	<a href="#sdnTab" data-toggle="tab">SDN</a>
+        		   	</li>
+        		   	<li ms-visible="vm.tab.ifGSO">
+        		      	<a href="#gsoTab" data-toggle="tab">GSO</a>
+        		   	</li>
         		   	<li ms-visible="vm.tab.ifServices">
         		      	<a href="#servicesTab" data-toggle="tab">VNFC</a>
         		   	</li>
         		   	<li ms-visible="vm.tab.ifServicelets">
-        		      	<a href="#serviceletsTab" data-toggle="tab">Servicelets</a>
+        		      	<a href="#serviceletsTab" data-toggle="tab">Images</a>
         		   	</li>
         		   	<li ms-visible="vm.tab.ifMicroservices">
         		      	<a href="#microservicesTab" data-toggle="tab">Microservices</a>
@@ -146,6 +152,62 @@
                             </tbody>
                         </table>
                     </div> 
+                    <div class="tab-pane fade" id="sdnTab">
+                        <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('sdnTable','http://www.open-o.org/tosca/sdn/ns')">
+                                <i class="fa fa-plus-circle"></i> {{addBtnName}}
+                            </button>
+                        </div>
+                        <table class="zte-table table-hover " id="sdnTable">
+                            <thead>
+                                <tr>
+                                    <th><span id="winery-softwareRepository-table-index" name_i18n="winery_i18n"></span></th> 
+                                    <th><span id="winery-softwareRepository-table-name" name_i18n="winery_i18n"></span></th>
+                                    <th><span id="winery-softwareRepository-table-desc" name_i18n="winery_i18n"></span></th>                                        
+                                    <th><span id="winery-table-operation" name_i18n="winery_i18n"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody ms-each-sdn="sdnInfoArray">
+                                <tr>                                          
+                                    <td ms-text="$index+1"></td>
+                                    <td ms-text="sdn.name"></td>
+                                    <td ms-text="sdn.description"></td>                                           
+                                    <td>
+                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(vnf.id,'http://www.zte.com.cn/tosca/nfv/vnf')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
+                                        <input type="checkbox" ms-value="sdn.id"/>
+                                    </td>                                      
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="gsoTab">
+                        <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('gsoTable','http://www.open-o.org/tosca/gso')">
+                                <i class="fa fa-plus-circle"></i> {{addBtnName}}
+                            </button>
+                        </div>
+                        <table class="zte-table table-hover " id="gsoTable">
+                            <thead>
+                                <tr>
+                                    <th><span id="winery-softwareRepository-table-index" name_i18n="winery_i18n"></span></th> 
+                                    <th><span id="winery-softwareRepository-table-name" name_i18n="winery_i18n"></span></th>
+                                    <th><span id="winery-softwareRepository-table-desc" name_i18n="winery_i18n"></span></th>                                        
+                                    <th><span id="winery-table-operation" name_i18n="winery_i18n"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody ms-each-gso="gsoInfoArray">
+                                <tr>                                          
+                                    <td ms-text="$index+1"></td>
+                                    <td ms-text="gso.name"></td>
+                                    <td ms-text="gso.description"></td>                                           
+                                    <td>
+                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(vnf.id,'http://www.zte.com.cn/tosca/nfv/vnf')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
+                                        <input type="checkbox" ms-value="gso.id"/>
+                                    </td>                                      
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div>
                     <div class="tab-pane fade " id="serviceletsTab">
                         <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
                             <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('serviceletsTable','servicelets')">
@@ -168,7 +230,7 @@
                                     <td ms-text="servicelet.description"></td>
                                     <td>
                                         <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(servicelet.id,'servicelets')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
-                                        <input type="checkbox" ms-value="servicelet.id"/>
+                                        <input type="checkbox" ms-value="servicelet.id" ms-data-project="servicelet.project"/>
                                     </td>                                      
                                 </tr> 
                             </tbody>
@@ -196,7 +258,7 @@
                                     <td ms-text="microservice.description"></td>
                                     <td>
                                         <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(microservice.id,'microservices')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
-                                        <input type="checkbox" ms-value="microservice.id"/>
+                                        <input type="checkbox" ms-value="microservice.id" ms-data-project="microservice.project"/>
                                     </td>                                      
                                 </tr>                                                               
                             </tbody>

@@ -121,7 +121,7 @@ function saveComplexPropertiesFromDivToXMLWriter(properties, w, writeNamespaceDe
 		var xmlProperties = contentDiv.children("textarea.properties_xml");
 		if (xmlProperties.length == 0) {
 			// K/V properties -> winery special: XSD defined at node type
-
+			
 			var elementName = contentDiv.children("span.elementName").text();
 			var namespace = contentDiv.children("span.namespace").text();
 
@@ -129,25 +129,28 @@ function saveComplexPropertiesFromDivToXMLWriter(properties, w, writeNamespaceDe
 			if (writeNamespaceDeclaration){
 				w.writeAttributeString("xmlns", "<%=Namespaces.TOSCA_NAMESPACE%>");
 			}
-			w.writeStartElement(elementName);
-			w.writeAttributeString("xmlns", namespace);
-			contentDiv.children("table").children("tbody").children("tr").each(function() {
-				var keyEl = $(this).children("td:first-child");
-				var key = keyEl.text();
-				var valueEl = keyEl.next().children("a");
-				var value;
-				if (valueEl.hasClass("editable-empty")) {
-					value = "";
-				} else {
-					value = valueEl.text();
-					value = value.replace(/\]\]>/g, "]]]]><![CDATA[>");
-					value = "<![CDATA[" + value + "]]>";
-				}
-				w.writeStartElement(key);
-				w.writeString(value);
+			
+			if(contentDiv.length) {
+				w.writeStartElement(elementName);
+				w.writeAttributeString("xmlns", namespace);
+				contentDiv.children("table").children("tbody").children("tr").each(function() {
+					var keyEl = $(this).children("td:first-child");
+					var key = keyEl.text();
+					var valueEl = keyEl.next().children("a");
+					var value;
+					if (valueEl.hasClass("editable-empty")) {
+						value = "";
+					} else {
+						value = valueEl.text();
+						value = value.replace(/\]\]>/g, "]]]]><![CDATA[>");
+						value = "<![CDATA[" + value + "]]>";
+					}
+					w.writeStartElement(key);
+					w.writeString(value);
+					w.writeEndElement();
+				});
 				w.writeEndElement();
-			});
-			w.writeEndElement();
+			}
 			// close "Properties"
 			w.writeEndElement();
 		} else {

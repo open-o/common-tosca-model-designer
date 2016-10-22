@@ -360,7 +360,7 @@
 				$.each(needValidateProperties, function(index, validator){
 					$("#" + validator.name).on("keyup", function(){
 						//only digits can be entered
-						this.value = this.value.replace(/[^\d]+/, "");
+						//this.value = this.value.replace(/[^\d]+/, "");
 					});
 				});
 			}
