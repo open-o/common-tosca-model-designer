@@ -15,91 +15,51 @@
  */
 package org.eclipse.winery.repository.ext.yamlmodel;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * @author Sebi
+ * @author 10090474
+ *
  */
 public class AttributeDefinition extends YAMLElement {
-	private String type = "";
-	private String defaultValue = "";
-    private String status = "supported";
-	private Map<String, String> entry_schema = new HashMap<String, String>();
+  private String type = "";
+  private String defaultValue = "";
+  private String status = "supported";
+  private EntrySchema entry_schema;
 
-	public String getType() {
-		return this.type;
-	}
+  public String getType() {
+    return this.type;
+  }
 
-	public void setType(String type) {
-		if (type != null) {
-			this.type = type;
-		}
-	}
-
-	public String getDefault() {
-		return this.defaultValue;
-	}
-
-	public void setDefault(String defaultValue) {
-		if (defaultValue != null) {
-			this.defaultValue = defaultValue;
-		}
-	}
-
-    public String getStatus() {
-        return status;
+  public void setType(String type) {
+    if (type != null) {
+      this.type = type;
     }
+  }
 
-    public void setStatus(String status) {
-        this.status = status;
+  public String getDefault() {
+    return this.defaultValue;
+  }
+
+  public void setDefault(String defaultValue) {
+    if (defaultValue != null) {
+      this.defaultValue = defaultValue;
     }
+  }
 
-    public Map<String, String> getEntry_schema() {
-		return this.entry_schema;
-	}
+  public String getStatus() {
+    return status;
+  }
 
-	public void setEntry_schema(Map<String, String> entry_schema) {
-		this.entry_schema = entry_schema;
-	}
+  public void setStatus(String status) {
+    this.status = status;
+  }
+  
+  public EntrySchema getEntry_schema() {
+    return entry_schema;
+  }
+  
+  public void setEntry_schema(EntrySchema entry_schema) {
+    this.entry_schema = entry_schema;
+  }
 
-    // @Override
-    // public boolean equals(Object o) {
-    // if (this == o) {
-    // return true;
-    // }
-    // if (o == null || getClass() != o.getClass()) {
-    // return false;
-    // }
-    // if (!super.equals(o)) {
-    // return false;
-    // }
-    //
-    // final AttributeDefinition that = (AttributeDefinition) o;
-    //
-    // if (this.required != that.required) {
-    // return false;
-    // }
-    // if (!this.constraints.equals(that.constraints)) {
-    // return false;
-    // }
-    // if (!this.defaultValue.equals(that.defaultValue)) {
-    // return false;
-    // }
-    // if (!this.type.equals(that.type)) {
-    // return false;
-    // }
-    //
-    // return true;
-    // }
-    //
-    // @Override
-    // public int hashCode() {
-    // int result = super.hashCode();
-    // result = 31 * result + this.type.hashCode();
-    // result = 31 * result + this.defaultValue.hashCode();
-    // result = 31 * result + (this.required ? 1 : 0);
-    // result = 31 * result + this.constraints.hashCode();
-    // return result;
-    // }
 }

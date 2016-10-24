@@ -36,6 +36,7 @@ import org.eclipse.winery.model.tosca.TOperation;
 import org.eclipse.winery.model.tosca.TRequirementType;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
+import org.eclipse.winery.repository.ext.common.CommonConst;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.IYaml2XmlSubSwitch;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.Yaml2XmlSwitch;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.typemapper.ElementType;
@@ -72,7 +73,8 @@ public abstract class AbstractYaml2XmlSubSwitch implements IYaml2XmlSubSwitch {
      */
     public AbstractYaml2XmlSubSwitch(Yaml2XmlSwitch parentSwitch) {
         this.parent = parentSwitch;
-        this.namespaceUtil = new NamespaceUtil(getServiceTemplate().getTosca_default_namespace());
+//        this.namespaceUtil = new NamespaceUtil(getServiceTemplate().getTosca_default_namespace());
+        this.namespaceUtil = new NamespaceUtil(CommonConst.TOSCA_NS);
         this.typeMapperUtil = new TypeMapperUtil(this.namespaceUtil);
         this.propertiesParserUtil = new PropertiesParserUtil(this.parent,
                 getServiceTemplate());

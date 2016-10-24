@@ -35,12 +35,15 @@ import org.eclipse.winery.repository.ext.export.yaml.ExportCommonException;
 import org.eclipse.winery.repository.ext.yamlmodel.ArtifactType;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.Capability;
+import org.eclipse.winery.repository.ext.yamlmodel.CapabilityDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.CapabilityType;
+import org.eclipse.winery.repository.ext.yamlmodel.DataType;
 import org.eclipse.winery.repository.ext.yamlmodel.Group;
 import org.eclipse.winery.repository.ext.yamlmodel.Input;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
 import org.eclipse.winery.repository.ext.yamlmodel.Output;
+import org.eclipse.winery.repository.ext.yamlmodel.Plan;
 import org.eclipse.winery.repository.ext.yamlmodel.PolicyTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.PolicyType;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
@@ -70,7 +73,7 @@ public class YamlBeansUtils {
         YamlWriter writer = new YamlWriter(output);
         writer.getConfig().writeConfig.setWriteRootTags(false);
         writer.getConfig().writeConfig.setWriteRootElementTags(false);
-        // writer.getConfig().writeConfig.setAutoAnchor(false);
+        writer.getConfig().writeConfig.setAutoAnchor(false);
         writer.getConfig().writeConfig.setIndentSize(2);
         setPropertyDefaultType(writer.getConfig());
 
@@ -94,17 +97,24 @@ public class YamlBeansUtils {
      */
     public static void setPropertyDefaultType(YamlConfig config) {
         config.setPropertyElementType(ServiceTemplate.class, "artifact_types", ArtifactType.class);
-        config.setPropertyElementType(ServiceTemplate.class, "capability_types",
-                CapabilityType.class);
-        config.setPropertyElementType(ServiceTemplate.class, "relationship_types",
-                RelationshipType.class);
+        config.setPropertyElementType(ServiceTemplate.class, "data_types", DataType.class);
+        config.setPropertyElementType(ServiceTemplate.class, "capability_types", CapabilityType.class);
+        config.setPropertyElementType(ServiceTemplate.class, "relationship_types", RelationshipType.class);
         config.setPropertyElementType(ServiceTemplate.class, "node_types", NodeType.class);
-
+        config.setPropertyElementType(ServiceTemplate.class, "policy_types", PolicyType.class);
+        config.setPropertyElementType(ServiceTemplate.class, "policies", PolicyTemplate.class);
+        config.setPropertyElementType(ServiceTemplate.class, "plans", Plan.class);
+        
         config.setPropertyElementType(NodeType.class, "properties", PropertyDefinition.class);
         config.setPropertyElementType(NodeType.class, "attributes", AttributeDefinition.class);
+//        config.setPropertyElementType(NodeType.class, "requirements", RequirementDefinition.class);
+//        config.setPropertyElementType(NodeType.class, "requirements", (new HashMap<String, RequirementDefinition>()).getClass());
+        config.setPropertyElementType(NodeType.class, "capabilities", CapabilityDefinition.class);
+        
         config.setPropertyElementType(CapabilityType.class, "properties", PropertyDefinition.class);
-        config.setPropertyElementType(RelationshipType.class, "properties",
-                PropertyDefinition.class);
+        config.setPropertyElementType(RelationshipType.class, "properties", PropertyDefinition.class);
+        
+        config.setPropertyElementType(PolicyType.class, "properties", PropertyDefinition.class);
 
         config.setPropertyElementType(TopologyTemplate.class, "inputs", Input.class);
         config.setPropertyElementType(TopologyTemplate.class, "node_templates", NodeTemplate.class);
@@ -112,13 +122,6 @@ public class YamlBeansUtils {
         config.setPropertyElementType(TopologyTemplate.class, "outputs", Output.class);
 
         config.setPropertyElementType(NodeTemplate.class, "capabilities", Capability.class);
-        config.setPropertyElementType(ServiceTemplate.class, "policy_types", PolicyType.class);
-        config.setPropertyElementType(PolicyType.class, "properties", PropertyDefinition.class);
-        config.setPropertyElementType(ServiceTemplate.class, "policies", PolicyTemplate.class);
-        // config.setPropertyElementType(NodeTemplate.class, "requirements",
-        // (new HashMap<String, Requirement>()).getClass());
-        // config.setPropertyDefaultType(NodeTemplate.class, "requirements",
-        // Requirement.class);
 
         // config.setPropertyElementType(NodeFilter.class, "capabilities",
         // (new HashMap<String, CapabilityFilter>()).getClass());

@@ -64,7 +64,7 @@ public class Xml2YamlSwitch {
    */
   public ServiceTemplate convert() {
     this.serviceTemplate.setTosca_definitions_version("tosca_simple_yaml_1_0");
-    this.serviceTemplate.setTosca_default_namespace(this.getDefinitions().getTargetNamespace());
+//    this.serviceTemplate.setTosca_default_namespace(this.getDefinitions().getTargetNamespace());
 
     IXml2YamlSubSwitch[] subSwitches = { new ImportXml2YamlSubSwitch(this),
         new MetaDatasXml2YamlSubSwitch(this),
@@ -82,7 +82,9 @@ public class Xml2YamlSwitch {
     for (IXml2YamlSubSwitch subSwitch : subSwitches) {
       subSwitch.process();
     }
-
+    
+    PositionNamespaceHelper.getInstance().addNamespace(this.serviceTemplate, this.getDefinitions().getTargetNamespace());
+    
     return this.serviceTemplate;
   }
 

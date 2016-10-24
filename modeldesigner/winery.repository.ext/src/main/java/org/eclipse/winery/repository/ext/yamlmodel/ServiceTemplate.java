@@ -37,7 +37,7 @@ public class ServiceTemplate extends YAMLElement {
   private TopologyTemplate topology_template;
   private Map<String, Plan> plans = new HashMap<>();
 
-  private String tosca_default_namespace = "";
+//  private String tosca_default_namespace = "";
   private String template_name = "";
   private String template_author = "";
   private String template_version = "";
@@ -126,15 +126,15 @@ public void setPlans(Map<String, Plan> plans) {
       return this.tosca_definitions_version;
   }
 
-  public void setTosca_default_namespace(String tosca_default_namespace) {
-      if (tosca_default_namespace != null) {
-          this.tosca_default_namespace = tosca_default_namespace;
-      }
-  }
-
-  public String getTosca_default_namespace() {
-      return this.tosca_default_namespace;
-  }
+//  public void setTosca_default_namespace(String tosca_default_namespace) {
+//      if (tosca_default_namespace != null) {
+//          this.tosca_default_namespace = tosca_default_namespace;
+//      }
+//  }
+//
+//  public String getTosca_default_namespace() {
+//      return this.tosca_default_namespace;
+//  }
 
   public void setTemplate_name(String template_name) {
       if (template_name != null) {

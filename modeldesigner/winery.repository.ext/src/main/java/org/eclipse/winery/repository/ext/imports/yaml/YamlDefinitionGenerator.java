@@ -23,7 +23,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.repository.ext.imports.custom.DefinitionGenerator;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.Yaml2XmlSwitch;
@@ -41,8 +40,7 @@ import com.esotericsoftware.yamlbeans.YamlReader;
  * 
  */
 public class YamlDefinitionGenerator extends DefinitionGenerator {
-    private static final Logger logger = LoggerFactory
-            .getLogger(YamlDefinitionGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(YamlDefinitionGenerator.class);
 
     /*
      * (non-Javadoc)
@@ -69,11 +67,13 @@ public class YamlDefinitionGenerator extends DefinitionGenerator {
 
         ServiceTemplate st = readServiceTemplateFromFile(path);
         st.setTemplate_name(getServiceTemplateName(path.toFile().getName()));
-        Yaml2XmlSwitch switcher = new Yaml2XmlSwitch(st);
-        Definitions definitions = switcher.convert();
-
-        logger.info("makeDefinitions end. path = " + path);
-        return definitions;
+        try{
+          Yaml2XmlSwitch switcher = new Yaml2XmlSwitch(st);
+          return switcher.convert();
+        } catch (Exception e) {
+          logger.error("Convert yaml model to xml model failed.", e);
+          return null;
+        }
     }
 
     private String getServiceTemplateName(String filename) {

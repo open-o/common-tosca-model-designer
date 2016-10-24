@@ -18,41 +18,71 @@
  */
 package org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.eclipse.winery.model.tosca.TEntityType;
+import org.eclipse.winery.model.tosca.TEntityType.DerivedFrom;
+
 
 /**
  *
  */
 public class Yaml2XmlTypeMapper {
-    private static Map<String, String> y2tNodeTypeMap = new HashMap<>();
-    static {
-        y2tNodeTypeMap.put("tosca.nodes.Root", "RootNodeType");
-        y2tNodeTypeMap.put("tosca.nodes.Compute", "Server");
-        y2tNodeTypeMap.put("tosca.nodes.SoftwareComponent", "OperatingSystem");
-        y2tNodeTypeMap.put("tosca.nodes.WebServer", "WebServer");
-        y2tNodeTypeMap.put("tosca.nodes.WebApplication", "WebApplication");
-        y2tNodeTypeMap.put("tosca.nodes.DBMS", "DBMS");
-        y2tNodeTypeMap.put("tosca.nodes.Database", "Database");
-        y2tNodeTypeMap.put("tosca.nodes.DBMS.MySQL", "MySQL");
-        y2tNodeTypeMap.put("tosca.nodes.Database.MySQL", "MySQLDatabase");
-        y2tNodeTypeMap.put("tosca.nodes.WebServer.Apache", "ApacheWebServer");
+    /**
+     * @param yNodeType
+     * @return
+     */
+    public static String mappingNodeType(String yNodeType) {
+        if (yNodeType == null || yNodeType.equals("tosca.nodes.Root")) {
+            return null;
+        }
+
+        return yNodeType;
     }
 
     /**
-     * @param tNodeType
+     * @param yCapabilityType
      * @return
      */
-    public static String mappingNodeType(String tNodeType) {
-        if (tNodeType == null) {
-            return "tosca.nodes.Root";
+    public static String mappingCapabilityType(String yCapabilityType) {
+        if (yCapabilityType == null || yCapabilityType.equalsIgnoreCase("tosca.capabilities.Root")) {
+            return null;
         }
 
-        if (y2tNodeTypeMap.containsKey(tNodeType)) {
-            return y2tNodeTypeMap.get(tNodeType);
+        return yCapabilityType;
+    }
+
+    /**
+     * @param yRelationshipType
+     * @return
+     */
+    public static String mappingRelationshipType(String yRelationshipType) {
+        if (yRelationshipType == null || yRelationshipType.equalsIgnoreCase("tosca.relationships.Root")) {
+            return null;
         }
 
-        return tNodeType;
+        return yRelationshipType;
+    }
+
+    /**
+     * @param yGroupType
+     * @return
+     */
+    public static String mappingGroupType(String yGroupType) {
+        return yGroupType;
+    }
+
+    /**
+     * @param namespace
+     * @param derivedFrom 
+     * @return
+     */
+    public static DerivedFrom buildDerivedFrom(String namespace, String derivedFrom) {
+      if (derivedFrom == null) {
+        return null;
+      }
+      
+      TEntityType.DerivedFrom tDerivedFrom = new TEntityType.DerivedFrom();
+      tDerivedFrom.setTypeRef(Yaml2XmlDataHelper.newQName(namespace, derivedFrom));
+      return tDerivedFrom;
     }
 
 }

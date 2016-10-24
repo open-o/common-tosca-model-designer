@@ -59,9 +59,9 @@ public class GroupTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         GroupType yType = new GroupType();
         // derived_from
         if (tType.getDerivedFrom() == null) {
-            yType.setDerived_from(Xml2YamlTypeMapper.mappingNodeType(null));
+            yType.setDerived_from(Xml2YamlTypeMapper.mappingGroupType(null));
         } else {
-            yType.setDerived_from(Xml2YamlTypeMapper.mappingNodeType(Xml2YamlSwitchUtils
+            yType.setDerived_from(Xml2YamlTypeMapper.mappingGroupType(Xml2YamlSwitchUtils
                     .getNamefromQName(tType.getDerivedFrom().getTypeRef())));
         }
         // description

@@ -21,11 +21,11 @@ import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.Yaml2XmlSwitc
 
 public class TopologyTemplateYaml2XmlSubSwitch extends
 		AbstractYaml2XmlSubSwitch {
-	private final TServiceTemplate tServiceTemplateInstance;
+	private final TServiceTemplate tServiceTemplate;
 	
-    public TopologyTemplateYaml2XmlSubSwitch(Yaml2XmlSwitch parentSwitch,TServiceTemplate tServiceTemplateInstance) {
+    public TopologyTemplateYaml2XmlSubSwitch(Yaml2XmlSwitch parentSwitch,TServiceTemplate tServiceTemplate) {
         super(parentSwitch);
-        this.tServiceTemplateInstance = tServiceTemplateInstance;
+        this.tServiceTemplate = tServiceTemplate;
     }
     
 	@Override
@@ -34,12 +34,12 @@ public class TopologyTemplateYaml2XmlSubSwitch extends
 		TTopologyTemplate tTopologyTemplate = new TTopologyTemplate();
 			
 		//element-node template
-		new NodeTemplateYaml2XmlSubSwitch(getParent(),tTopologyTemplate).process();
+		new NodeTemplateYaml2XmlSubSwitch(getParent(), tTopologyTemplate).process();
 		
 		//element-relationship template
-		new RelationShipTemplateYaml2XmlSubSwitch(getParent(),tTopologyTemplate).process();
+		new RelationShipTemplateYaml2XmlSubSwitch(getParent(), tTopologyTemplate).process();
 			
-		tServiceTemplateInstance.setTopologyTemplate(tTopologyTemplate);
+		tServiceTemplate.setTopologyTemplate(tTopologyTemplate);
 	}
 
 }
