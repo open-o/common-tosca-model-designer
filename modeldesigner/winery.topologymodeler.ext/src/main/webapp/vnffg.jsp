@@ -77,7 +77,6 @@
 
 <jsp:include page="./jsp/csarDialogs.jsp" />
 
-<%-- 从软件仓库选择nodeTemplate界面 --%>
 <iframe name="template_iframe" id="template_iframe" src="" marginwidth="0" marginheight="0" scrolling="auto" frameborder="0" WIDTH="100%" height="100%" 
 style="display:none"></iframe>
 
@@ -278,7 +277,6 @@ style="display:none"></iframe>
     }; 
 
 
-    /** 比较两个组件是否重叠 **/
     function isOverlap(idOne,idTwo){ 
     	var objOne=$("#"+idOne), 
     	objTwo=$("#"+idTwo), 
@@ -315,7 +313,6 @@ style="display:none"></iframe>
     	    alert(description); 
     } 
     
-    // 生成随机数
     function RndNum(n){
     	var rnd="";
     	for(var i=0;i<n;i++)
@@ -593,7 +590,6 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 		$("#deployCSARbtn").on("click", function(evt)  {
 			var url = $(this).attr("href");
 			dConfirmYesNo("确认发布" + "<%=serviceTemplateName%>" + "到软件仓库?", function(){
-				//先调用保存草稿，完成后再发布
 				require(["winery-topologymodeler-AMD"], function(wt) {
 					wt.saveServiceTemplate();
 					$.get(url, function(data) {
@@ -820,7 +816,7 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 require(["winery-topologymodeler-AMD"], function(wt) {
 	<!-- winery.events.register(winery.events.name.command.SAVE, wt.save); -->
 	wt.setTopologyTemplateURL("<%=topologyTemplateURL%>");
-	//用于新增nodetype
+	//for new nodetype
 	wt.setRepositoryURL("<%=repositoryURL%>"); 
 	wt.setServiceTemplateURL("<%=serviceTemplateURL%>"); 
 	wt.setServiceTemplateNamespace("<%=ns%>");
@@ -1090,7 +1086,7 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 			$(document).off("mousemove", selectionBoxModeMouseMoveFunction);
 			selectionBoxMode = false;
 			
-			// 创建一个DIV层
+			// create a new DIV
 			var width = $("#selectionbox").width();
 			if(width > 100)
 			{
@@ -1107,7 +1103,7 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 					id = temp_id + (count - 1);
 				}
 				
-				// 创建新层并设置ID和样式
+				// create new div, and set id and stlyes
 				var newDiv = $("#selectionbox").clone();
 				newDiv.attr("id", id);
 				newDiv.addClass("div_selectionbox");
@@ -1138,7 +1134,6 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 				newDiv.appendTo($("#editorArea"));
 			}
 
-			// 隐藏选择框
 			$("#selectionbox").hide();
 			
 		} else if (multiDNDmode) {
