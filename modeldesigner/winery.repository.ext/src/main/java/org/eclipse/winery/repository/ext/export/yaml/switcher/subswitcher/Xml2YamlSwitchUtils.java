@@ -21,7 +21,17 @@ package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.namespace.QName;
+
 import org.eclipse.winery.common.PropertyTagUtil;
+import org.eclipse.winery.common.Util;
 import org.eclipse.winery.common.propertydefinitionkv.Constraint;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKV;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKVList;
@@ -29,9 +39,15 @@ import org.eclipse.winery.common.propertydefinitionkv.WinerysPropertiesDefinitio
 import org.eclipse.winery.model.tosca.TBoolean;
 import org.eclipse.winery.model.tosca.TDocumentation;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.repository.ext.export.yaml.switcher.Xml2YamlSwitch;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.EntrySchema;
+import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
+import org.eclipse.winery.repository.resources.entitytypes.nodetypes.NodeTypeResource;
+import org.eclipse.winery.repository.resources.entitytypes.nodetypes.NodeTypesResource;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,15 +57,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-
-import javax.xml.namespace.QName;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class Xml2YamlSwitchUtils {
   /**
@@ -170,18 +177,29 @@ public class Xml2YamlSwitchUtils {
     yproperty.setDefault(pdKv.getValue());
     yproperty.setRequired(Boolean.valueOf(pdKv.getRequired()));
 
-    Constraint constraint = pdKv.getConstraint();
-    if (null != constraint) {
-      ArrayList<Map<String, Object>> yconstraints = new ArrayList<>();
-      if (null != constraint.getValidValue()) {
-        Map<String, Object> validValues = new HashMap<>();
-        validValues.put("valid_values", trim(constraint.getValidValue().split(",")));
-        yconstraints.add(validValues);
-      }
-      yproperty.setConstraints(yconstraints);
-    }
+    List<Map<String, Object>> yconstraints = buildConstraint(pdKv.getConstraint());
+    yproperty.setConstraints(yconstraints);
 
     return yproperty;
+  }
+
+  private static List<Map<String, Object>> buildConstraint(Constraint constraint) {
+    if (null == constraint) {
+      return new ArrayList<>();
+    }
+    
+    List<Map<String, Object>> yConstraint = new ArrayList<>();
+    // valid_values
+    if (null != constraint.getValidValue()) {
+      yConstraint.add(buildValidValuesConstraintPart(constraint));
+    }
+    return yConstraint;
+  }
+
+  private static Map<String, Object> buildValidValuesConstraintPart(Constraint constraint) {
+    Map<String, Object> validValues = new HashMap<>();
+    validValues.put("valid_values", trim(constraint.getValidValue().split(",")));
+    return validValues;
   }
   
 
@@ -190,12 +208,15 @@ public class Xml2YamlSwitchUtils {
    * @return
    */
   private static String[] trim(String[] split) {
-
-    String[] tmps = new String[split.length];
+    List<String> tmpList = new ArrayList<>();
+    String tmp;
     for (int i = 0; i < split.length; i++) {
-      tmps[i] = split[i].trim();
+      tmp = split[i].trim();
+      if (!tmp.isEmpty()) { // filtered the empty string.
+        tmpList.add(tmp);
+      }
     }
-    return tmps;
+    return tmpList.toArray(new String[0]);
   }
 
   /**
@@ -298,9 +319,9 @@ public class Xml2YamlSwitchUtils {
    * @return .
    */
   public static Map<String, Object> convert2Properties(Object tproperties) {
-  	if (null == tproperties) {
-  		return null;
-  	}
+    if (null==tproperties) {
+      return null;
+    }
     if (tproperties.getClass().getName()
         .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")
         || tproperties.getClass().getName().equals("org.apache.xerces.dom.ElementNSImpl")) {
@@ -427,5 +448,29 @@ public class Xml2YamlSwitchUtils {
    */
   public static boolean convert2YamlValue(TBoolean value) {
     return value != null && value.equals(TBoolean.YES);
+  }
+
+  /**
+   * @param tnodeType
+   * @return
+   */
+  public static NodeType convert2YamlNodeType(TNodeType tnodeType) {
+    NodeTypesXml2YamlSubSwitch switcher = new NodeTypesXml2YamlSubSwitch(new Xml2YamlSwitch(null));
+    Entry<String, NodeType> entry = switcher.createNodeType(tnodeType);
+    return entry.getValue();
+  }
+  
+  /**
+   * @param tnodeTemplate .
+   * @return .
+   */
+  public static TNodeType getTNodeType(TNodeTemplate tnodeTemplate) {
+    NodeTypesResource res = new NodeTypesResource();
+    NodeTypeResource nodetypeRes =
+        res.getComponentInstaceResource(
+            Util.URLencode(tnodeTemplate.getType().getNamespaceURI()),
+            tnodeTemplate.getType().getLocalPart());
+    
+    return (TNodeType) nodetypeRes.getEntityType();
   }
 }

@@ -23,11 +23,11 @@ import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.Yaml2XmlSwitc
 
 public class PlansYaml2XmlSubSwitch extends AbstractYaml2XmlSubSwitch {
 
-	private final TServiceTemplate tServiceTemplateInstance;
+	private final TServiceTemplate tServiceTemplate;
 	
-    public PlansYaml2XmlSubSwitch(Yaml2XmlSwitch parentSwitch,TServiceTemplate tServiceTemplateInstance) {
+    public PlansYaml2XmlSubSwitch(Yaml2XmlSwitch parentSwitch,TServiceTemplate tServiceTemplate) {
         super(parentSwitch);
-        this.tServiceTemplateInstance = tServiceTemplateInstance;
+        this.tServiceTemplate = tServiceTemplate;
     }
     
 	@Override

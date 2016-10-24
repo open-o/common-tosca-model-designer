@@ -20,11 +20,11 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.eclipse.winery.model.tosca.TDocumentation;
 import org.eclipse.winery.repository.ext.common.CommonConst;
+import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.CapabilityTypesYaml2XmlSubSwitch;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.ImportYaml2XmlSubSwitch;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.NodeTypeYaml2XmlSubSwitch;
-import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.PolicyTemplateYaml2XmlSubSwitch;
-import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.PolicyTypeYaml2XmlSubSwitch;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.RelationShipTypeYaml2XmlSubSwitch;
+import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.RequirementTypesYaml2XmlSubSwith;
 import org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches.ServiceTemplateYaml2XmlSubSwitch;
 import org.eclipse.winery.repository.ext.yamlmodel.ServiceTemplate;
 
@@ -66,15 +66,16 @@ public class Yaml2XmlSwitch {
 
     public Definitions convert() {
     	
-		if (this.serviceTemplate.getTosca_default_namespace() != null && !this.serviceTemplate.getTosca_default_namespace().isEmpty()) {
-			this.usedNamespace = this.serviceTemplate.getTosca_default_namespace();
-		}
+//		if (this.serviceTemplate.getTosca_default_namespace() != null && !this.serviceTemplate.getTosca_default_namespace().isEmpty()) {
+//			this.usedNamespace = this.serviceTemplate.getTosca_default_namespace();
+//		}
 		
         this.definitions = new Definitions();
         //attribute-id,name,target namespace
 //		this.definitions.setId(Global.unique(Yaml2XmlConst.DEFINITIONS_ID));
 //		this.definitions.setName(Global.unique(Yaml2XmlConst.DEFINITIONS_NAME));
-		this.definitions.setTargetNamespace(this.usedNamespace);
+//		this.definitions.setTargetNamespace(this.usedNamespace);
+		this.definitions.setTargetNamespace(CommonConst.TOSCA_NS);
 		this.definitions.getOtherAttributes().put(new QName("xmlns:" + CommonConst.TOSCA_PREFIX), CommonConst.TOSCA_NS);
 		this.definitions.getOtherAttributes().put(new QName("xmlns:" + CommonConst.WINERY_PREFIX), CommonConst.WINERY_NS);
 		this.definitions.getOtherAttributes().put(new QName("xmlns:" + CommonConst.WINERY_MODEL_PREFIX), CommonConst.WINERY_MODEL_NS);
@@ -92,8 +93,10 @@ public class Yaml2XmlSwitch {
                 new ServiceTemplateYaml2XmlSubSwitch(this),
                 new NodeTypeYaml2XmlSubSwitch(this),
                 new RelationShipTypeYaml2XmlSubSwitch(this),
-                new PolicyTypeYaml2XmlSubSwitch(this),
-                new PolicyTemplateYaml2XmlSubSwitch(this),
+                new CapabilityTypesYaml2XmlSubSwitch(this),
+                new RequirementTypesYaml2XmlSubSwith(this),
+                //new PolicyTypeYaml2XmlSubSwitch(this),
+                //new PolicyTemplateYaml2XmlSubSwitch(this),
         };
         
         for (IYaml2XmlSubSwitch subSwitch : subSwitches) {

@@ -57,9 +57,11 @@ public class ServiceTemplateYaml2XmlSubSwitch extends AbstractYaml2XmlSubSwitch 
         new TopologyTemplateYaml2XmlSubSwitch(getParent(), tServiceTemplate).process();
 
         // elements-Plans-none
+        
+        // Substitution Mappings
+        new SubstitutionMappingsYaml2XmlSubSwitch(getParent(), tServiceTemplate).process();
 
-        getDefinitions().getServiceTemplateOrNodeTypeOrNodeTypeImplementation().add(
-                tServiceTemplate);
+        getDefinitions().getServiceTemplateOrNodeTypeOrNodeTypeImplementation().add(tServiceTemplate);
     }
 
 }

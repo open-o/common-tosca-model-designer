@@ -89,8 +89,8 @@ public class RelationshipTypesYaml2XmlSubSwitch extends AbstractYaml2XmlSubSwitc
             // result.setPropertiesDefinition(parsePropertiesDefinition(
             // relationshipType.getProperties(), relType.getKey()));
             List<WinerysPropertiesDefinition> any = Yaml2XmlSwitchUtils
-                    .convert2PropertyDefinitions(relationshipType
-                            .getProperties());
+                    .buildWinerysPropertiesDefinitionList(relationshipType.getProperties(),
+                        getParent().getUsedNamespace());
             result.getAny().addAll(any);
         }
 

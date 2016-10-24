@@ -19,43 +19,167 @@
 package org.eclipse.winery.repository.ext.imports.yaml.switchmapper.subswitches;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.xerces.dom.CoreDocumentImpl;
 import org.apache.xerces.dom.ElementNSImpl;
+import org.eclipse.winery.common.PropertyTagUtil;
+import org.eclipse.winery.common.propertydefinitionkv.Constraint;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKV;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKVList;
 import org.eclipse.winery.common.propertydefinitionkv.WinerysPropertiesDefinition;
 import org.eclipse.winery.repository.ext.common.CommonConst;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
+import org.eclipse.winery.repository.ext.yamlmodel.EntrySchema;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
 
 /**
  *
  */
 public class Yaml2XmlSwitchUtils {
-    public static List<WinerysPropertiesDefinition> convert2PropertyDefinitions(
-            Map<String, PropertyDefinition> yPropertyMap) {
-        PropertyDefinitionKVList tpdkvList = new PropertyDefinitionKVList();
-        for (Map.Entry<String, PropertyDefinition> yProperty : yPropertyMap
-                .entrySet()) {
-            String type = convertType(yProperty.getValue().getType());
-            PropertyDefinitionKV tpdkv = new PropertyDefinitionKV(
-                    yProperty.getKey(), type);
-            tpdkvList.add(tpdkv);
-        }
+  public static WinerysPropertiesDefinition buildWinerysPropertiesDefinition(
+      Map<String, PropertyDefinition> propDefs, String namespace) {
+    WinerysPropertiesDefinition wpd = new WinerysPropertiesDefinition();
+    wpd.setElementName(CommonConst.PROPERTIES_LOCALPART);
+    wpd.setNamespace(namespace);
+    
+    PropertyDefinitionKVList pdVList = buildPropertyDefinitionKVList(propDefs);
+    wpd.setPropertyDefinitionKVList(pdVList);
+    return wpd;
+  }
+  
+  public static PropertyDefinitionKVList buildAttributeDefinitionKVList(
+      Map<String, AttributeDefinition> attrDefs) {
+    PropertyDefinitionKVList pdKVList = new PropertyDefinitionKVList();
+    for (Map.Entry<String, AttributeDefinition> entry : attrDefs.entrySet()) {
+        pdKVList.add(buidAttributeDefinitionKV(entry));
+    }
+    return pdKVList;
+  }
+  
+  /**
+   * @param entry
+   * @return
+   */
+  private static PropertyDefinitionKV buidAttributeDefinitionKV(
+      Entry<String, AttributeDefinition> entry) {
+    
+    PropertyDefinitionKV pdKv = new PropertyDefinitionKV();
+    pdKv.setKey(entry.getKey());
+    pdKv.setType(convertType(entry.getValue().getType(), entry.getValue().getEntry_schema()));
+    pdKv.setValue(entry.getValue().getDefault());
+    pdKv.setTag(String.valueOf(PropertyTagUtil.PropertyTag.METATDATA));
+    
+    return pdKv;
+  }
 
-        List<WinerysPropertiesDefinition> tPropertyList = new ArrayList<>();
-        WinerysPropertiesDefinition twpd = new WinerysPropertiesDefinition();
-        twpd.setElementName("Properties");
-        twpd.setPropertyDefinitionKVList(tpdkvList);
-        tPropertyList.add(twpd);
+  private static PropertyDefinitionKVList buildPropertyDefinitionKVList(
+      Map<String, PropertyDefinition> propDefs) {
+    PropertyDefinitionKVList pdKVList = new PropertyDefinitionKVList();
+    for (Map.Entry<String, PropertyDefinition> entry : propDefs.entrySet()) {
+        pdKVList.add(buidPropertyDefinitionKV(entry));
+    }
+    return pdKVList;
+  }
+  
+  private static PropertyDefinitionKV buidPropertyDefinitionKV(Map.Entry<String, PropertyDefinition> entry) {
+    PropertyDefinitionKV pdKv = new PropertyDefinitionKV();
+    pdKv.setKey(entry.getKey());
+    pdKv.setType(convertType(entry.getValue().getType(), entry.getValue().getEntry_schema()));
+    pdKv.setValue(entry.getValue().getDefault());
+    pdKv.setRequired(String.valueOf(entry.getValue().isRequired()));
+    
+    List<Map<String, Object>> yConstraint = entry.getValue().getConstraints();
+    pdKv.setConstraint(buildConstraint(yConstraint));
+    
+    return pdKv;
+  }
 
-        return tPropertyList;
+  private static Constraint buildConstraint(List<Map<String,Object>> yConstraint) {
+    Constraint tConstraint = new Constraint();
+    for (Map<String, Object> constraintPart : yConstraint) {
+      if (constraintPart.containsKey("valid_values")) {
+        tConstraint.setValidValue(buildValidValue(constraintPart));
+        continue;
+      }
+    }
+    
+    return tConstraint;
+  }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static String buildValidValue(Map<String, Object> constraint) {
+    if (constraint.get("valid_values") instanceof Object[]) {
+      return concat((Object[]) constraint.get("valid_values"));
+    }
+    if (constraint.get("valid_values") instanceof List) {
+      List validValues = ((List) constraint.get("valid_values"));
+      return concat(validValues.toArray(new Object[0]));
     }
 
+    return "";
+  }
+  
+    /**
+   * @param values
+   * @return
+   */
+  private static String concat(Object[] values) {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < values.length; i++) {
+      sb.append(values[i]).append(", ");
+    }
+    
+    if (sb.length() > 2) {
+      sb.setLength(sb.length() - 2);
+    }
+
+    return sb.toString();
+  }
+
+    public static List<WinerysPropertiesDefinition> buildWinerysPropertiesDefinitionList(
+            Map<String, PropertyDefinition> propDefs, String namespace) {
+        List<WinerysPropertiesDefinition> tPropertyList = new ArrayList<>();
+        tPropertyList.add(buildWinerysPropertiesDefinition(propDefs, namespace));
+
+        return tPropertyList;
+    }
+    
+    private static final Set<String> BASE_DATA_TYPE_SET = new HashSet<>();
+    static {
+      BASE_DATA_TYPE_SET.add("string");
+      BASE_DATA_TYPE_SET.add("integer");
+      BASE_DATA_TYPE_SET.add("float");
+      BASE_DATA_TYPE_SET.add("boolean");
+      BASE_DATA_TYPE_SET.add("timestamp");
+      BASE_DATA_TYPE_SET.add("null");
+    }
+    
+    private static String convertType(String type, EntrySchema entrySchema) {
+      if (entrySchema == null) {
+        if (BASE_DATA_TYPE_SET.contains(type)) {
+          return "xsd:" + type;
+        } else {
+          return "obj_" + type;
+        }
+      } else {
+        if ("list".equalsIgnoreCase(type)) {
+          return "objlist_" + entrySchema.getType();
+        }
+        
+        if ("map".equalsIgnoreCase(type)) {
+          return "objmap_" + entrySchema.getType();
+        }
+      }
+      
+      return type;
+    }
+
+    
     public static List<WinerysPropertiesDefinition> convert2AttritueDefinitions(
             Map<String, AttributeDefinition> yPropertyMap) {
         PropertyDefinitionKVList tpdkvList = new PropertyDefinitionKVList();
@@ -75,22 +199,7 @@ public class Yaml2XmlSwitchUtils {
 
     }
     
-    /**
-     * @param yProperty
-     * @return
-     */
-    private static String convertType(String type) {
-        if (type == null) {
-            return null;
-        }
 
-        if (type.equals("string") || type.equals("int") || type.equals("float")) {
-            return "xsd:" + type;
-
-        }
-
-        return type;
-    }
 
     public static ElementNSImpl convert2Properties(
             Map<String, Object> yPropertyMap) {

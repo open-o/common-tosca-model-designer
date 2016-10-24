@@ -26,7 +26,7 @@ public class PropertyDefinition extends YAMLElement {
 
   private String type = "";
   private String defaultValue = "";
-  private boolean required = false;
+  private boolean required = true;
   private List<Map<String, Object>> constraints = new ArrayList<>();
   private EntrySchema entry_schema;
 

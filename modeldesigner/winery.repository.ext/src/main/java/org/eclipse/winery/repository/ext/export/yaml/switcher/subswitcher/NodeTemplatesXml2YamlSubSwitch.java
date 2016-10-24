@@ -15,7 +15,14 @@
  */
 package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
-import org.eclipse.winery.common.Util;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.namespace.QName;
+
 import org.eclipse.winery.model.tosca.TCapability;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
@@ -27,6 +34,7 @@ import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.eclipse.winery.repository.Constants;
 import org.eclipse.winery.repository.ext.common.CommonConst;
+import org.eclipse.winery.repository.ext.export.yaml.switcher.PositionNamespaceHelper;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.Xml2YamlSwitch;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.Capability;
@@ -34,18 +42,10 @@ import org.eclipse.winery.repository.ext.yamlmodel.CapabilityFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeTemplatePosition;
+import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.Requirement;
-import org.eclipse.winery.repository.resources.entitytypes.nodetypes.NodeTypeResource;
-import org.eclipse.winery.repository.resources.entitytypes.nodetypes.NodeTypesResource;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.namespace.QName;
+import org.eclipse.winery.repository.ext.yamlmodel.RequirementDefinition;
 
 /**
  * This class supports processing of node templates of a YAML service template.
@@ -55,7 +55,6 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
   public NodeTemplatesXml2YamlSubSwitch(Xml2YamlSwitch parentSwitch) {
     super(parentSwitch);
   }
-
 
   @Override
   public void process() {
@@ -122,126 +121,226 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     ynodeTemplate.setType(Xml2YamlTypeMapper
         .mappingNodeType(Xml2YamlSwitchUtils.getNamefromQName(tnodeTemplate.getType())));
 
+    TNodeType tnodeType = Xml2YamlSwitchUtils.getTNodeType(tnodeTemplate);
+    NodeType ynodeType = Xml2YamlSwitchUtils.convert2YamlNodeType(tnodeType);
+    
     // properties & attributes
-    Map<String, Object> ypropertiesAndAttributes =
+    Map<String, Object> ypropsAndAttrs =
         Xml2YamlSwitchUtils.convertTProperties(tnodeTemplate.getProperties());
-    if (ypropertiesAndAttributes != null && !ypropertiesAndAttributes.isEmpty()) {
-      TNodeType tnodeType = getTNodeType(tnodeTemplate);
-      Map<String, PropertyDefinition> ypropertyDefs =
-          Xml2YamlSwitchUtils.convert2PropertyDefinitions(tnodeType.getAny());
-      Map<String, Object> yproperties = getYProperties(ypropertiesAndAttributes, ypropertyDefs);
+    if (ypropsAndAttrs != null && !ypropsAndAttrs.isEmpty()) {
+      Map<String, Object> yproperties = 
+          getYProperties(ypropsAndAttrs, ynodeType.getProperties());
       ynodeTemplate.setProperties(yproperties);
 
-      Map<String, AttributeDefinition> yattributeDefs =
-          Xml2YamlSwitchUtils.convert2AttributeDefinitions(tnodeType.getAny());
-      Map<String, Object> yattributes = getYAttributes(ypropertiesAndAttributes, yattributeDefs);
+      Map<String, Object> yattributes = 
+          getYAttributes(ypropsAndAttrs, ynodeType.getAttributes());
       ynodeTemplate.setAttributes(yattributes);
     }
 
     // capabilities
     TNodeTemplate.Capabilities tcapabilities = tnodeTemplate.getCapabilities();
     if (tcapabilities != null) {
-      ynodeTemplate.setCapabilities(processCapabilitiesInNodeTemplate(tcapabilities));
+      ynodeTemplate.setCapabilities(processCapabilities(tcapabilities));
     }
 
     // requirement
     TNodeTemplate.Requirements trequirements = tnodeTemplate.getRequirements();
     if (trequirements != null) {
-      List<TRequirement> trequirementList = trequirements.getRequirement();
-      if (trequirementList != null && !trequirementList.isEmpty()) {
-        for (TRequirement trequirement : trequirementList) {
-          Requirement[] yrequirements = buildRequirement(trequirement, tnodeTemplate, rstList);
-          for (Requirement yrequirement: yrequirements) {
-            Map<String, Object> yrequirementMap = new HashMap<>();
-            yrequirementMap.put(trequirement.getName(), yrequirement);
-            ynodeTemplate.getRequirements().add(yrequirementMap);
+      processRequirements(trequirements, tnodeTemplate, rstList, ynodeTemplate);
+      addDefaultRequirementAssignments(ynodeTemplate, ynodeType);
+    }
+
+    // nodetemplate-position
+
+    PositionNamespaceHelper.getInstance().addPosition(
+        tnodeTemplate.getName(), getNodetemplatePosition(tnodeTemplate));
+
+    return Xml2YamlSwitchUtils.buildEntry(tnodeTemplate.getName(), ynodeTemplate);
+  }
+
+  /**
+   * @param ynodeTemplate
+   * @param ynodeType 
+   */
+  private void addDefaultRequirementAssignments(NodeTemplate ynodeTemplate, NodeType ynodeType) {
+    List<Map<String, RequirementDefinition>> requirementDefList = ynodeType.getRequirements();
+    for (Map<String, RequirementDefinition> requirementDef : requirementDefList) {
+      for (Entry<String, RequirementDefinition> reqDef : requirementDef.entrySet()) {
+        String requirementName = reqDef.getKey();
+        if (getRequirementByName(ynodeTemplate, requirementName) == null) {
+          ynodeTemplate.getRequirements().add(
+              buildDefaultRequirementAssignment(requirementName, reqDef.getValue()));
+        }
+      }
+    }
+  }
+
+
+  /**
+   * @param requirementName
+   * @param requirementDef
+   * @return
+   */
+  private Map<String, Object> buildDefaultRequirementAssignment(String requirementName,
+      RequirementDefinition requirementDef) {
+    String node = requirementDef.getNode();
+    if (node == null || node.isEmpty()) {
+      node = "tosca.nodes.Root";
+    }
+    
+    Map<String, Object> requirement = new HashMap<>();
+    requirement.put(requirementName, new Requirement(node));
+    return requirement;
+  }
+
+
+  /**
+   * @param ynodeTemplate
+   * @param requirementName
+   */
+  private Object getRequirementByName(NodeTemplate ynodeTemplate, String requirementName) {
+    if (ynodeTemplate.getRequirements() != null) {
+      for (Map<String, Object> requirement : ynodeTemplate.getRequirements()) {
+        for (Entry<String, Object> req : requirement.entrySet()) {
+          if (req.getKey().equals(requirementName)) {
+            return req.getValue();
           }
         }
       }
     }
-
-    // nodetemplate-position
-    NodeTemplatePosition position = getNodetemplatePosition(tnodeTemplate);
-    ynodeTemplate.setPosition(position);
-
-    return buildEntry(tnodeTemplate.getName(), ynodeTemplate);
+    
+    return null;
   }
 
-    private Requirement[] buildRequirement(TRequirement trequirement, TNodeTemplate tnodeTemplate,
-            ArrayList<TRelationshipTemplate> rstList) {
-        // Extension Relationship
-        if (createExtRrequirement(trequirement) != null) {
-            return new Requirement[]{createExtRrequirement(trequirement)};
-        }
-        // Manual Relationship
-        Requirement[] yrequirements = createRrequirement(tnodeTemplate, trequirement, rstList);
-        if (yrequirements.length > 0) {
-          return yrequirements;
-        }
-        // Auto Relationship
-        if (createFilterRequirement(trequirement) != null) {
-          return new Requirement[]{createFilterRequirement(trequirement)};
-        }
-        return new Requirement[0];
+
+  /**
+   * @param ypropsAndAttrs .
+   * @param yattributeDefs .
+   * @return .
+   */
+  private Map<String, Object> getYAttributes(Map<String, Object> ypropsAndAttrs,
+      Map<String, AttributeDefinition> yattributeDefs) {
+    Map<String, Object> yattributes = new HashMap<>();
+    for (String name : ypropsAndAttrs.keySet()) {
+      if (yattributeDefs.containsKey(name)) {
+        yattributes.put(name, ypropsAndAttrs.get(name));
+      }
+    }
+    return yattributes;
+  }
+
+  /**
+   * @param ypropsAndAttrs .
+   * @param ypropertyDefs .
+   * @return .
+   */ 
+  private Map<String, Object> getYProperties(Map<String, Object> ypropsAndAttrs,
+      Map<String, PropertyDefinition> ypropertyDefs) {
+    Map<String, Object> yproperties = new HashMap<>();
+    for (String name : ypropsAndAttrs.keySet()) {
+      if (ypropertyDefs.containsKey(name)) {
+        yproperties.put(name, ypropsAndAttrs.get(name));
+      }
     }
 
-    private Requirement createExtRrequirement(TRequirement trequirement) {
-        String destNodeName =
-                trequirement.getOtherAttributes().get(new QName(Constants.REQUIREMENT_EXT_NODE));
-        String capability =
-                trequirement.getOtherAttributes().get(
-                        new QName(Constants.REQUIREMENT_EXT_CAPABILITY));
-        // String rsTemplate =
-        // tRequirement.getOtherAttributes().get(
-        // new QName(Constants.REQUIREMENT_EXT_RELATIONSHIP));
-        if (destNodeName == null || destNodeName.isEmpty()) {
-            return null;
-        }
-
-        Requirement yrequirement = new Requirement();
-        yrequirement.setNode(destNodeName);
-        yrequirement.setCapability(capability);
-
-        return yrequirement;
-    }
+    return yproperties;
+  }
+  
+  
+  private void processRequirements(TNodeTemplate.Requirements trequirements, TNodeTemplate tnodeTemplate,
+      ArrayList<TRelationshipTemplate> rstList, NodeTemplate ynodeTemplate) {
+    List<TRequirement> trequirementList = trequirements.getRequirement();
     
-    private Requirement[] createRrequirement(TNodeTemplate tNodeTemplate,
-            TRequirement trequirement, List<TRelationshipTemplate> rstList) {
-      List<Requirement> yrequirementList = new ArrayList<>();
-        if (rstList != null && !rstList.isEmpty()) {
-            for (TRelationshipTemplate rst : rstList){
-                if(isRequirementEqualSourceNode(trequirement, rst)){
-                    TEntityTemplate target  = (TEntityTemplate) rst.getTargetElement().getRef();
-                    // yRequirement.setRelationship(relationshipTemplate.getName());
-                    if (buildRequirement(target) != null) {
-                      yrequirementList.add(buildRequirement(target));
-                    }
-                }
-            }
+    if (trequirementList != null && !trequirementList.isEmpty()) {
+      for (TRequirement trequirement : trequirementList) {
+        Requirement[] yrequirements = buildRequirement(trequirement, tnodeTemplate, rstList);
+        for (Requirement yrequirement: yrequirements) {
+          Map<String, Object> yrequirementMap = new HashMap<>();
+          yrequirementMap.put(trequirement.getName(), yrequirement);
+          
+          ynodeTemplate.getRequirements().add(yrequirementMap);
         }
-
-        return yrequirementList.toArray(new Requirement[0]);
+      }
     }
+  }
+  
+  private Requirement[] buildRequirement(TRequirement trequirement, TNodeTemplate tnodeTemplate,
+      ArrayList<TRelationshipTemplate> rstList) {
+    // Extension Relationship
+    Requirement yRequirement = createExtRrequirement(trequirement);
+    if (yRequirement != null) {
+        return new Requirement[]{yRequirement};
+    }
+    // Manual Relationship
+    Requirement[] yrequirements = createRrequirement(tnodeTemplate, trequirement, rstList);
+    if (yrequirements.length > 0) {
+      return yrequirements;
+    }
+    // Auto Relationship
+    yRequirement = createFilterRequirement(trequirement);
+    if (yRequirement != null) {
+      return new Requirement[]{yRequirement};
+    }
+    return new Requirement[0];
+  }
 
-    private Requirement buildRequirement(TEntityTemplate target) {
-        // when the target is a node
-        if(target instanceof TNodeTemplate){
-            TNodeTemplate nodeTemplate = (TNodeTemplate)target;
-            Requirement yrequirement = new Requirement();
-            yrequirement.setNode(nodeTemplate.getName());
-            return yrequirement;
-        //when the target is a capability
-        }else if(target instanceof TCapability){
-            TCapability capability = (TCapability)target;
-            TNodeTemplate nodeTemplate = findTNodeTemplatByCapability(capability);
-            Requirement yrequirement = new Requirement();
-            yrequirement.setCapability(capability.getName());
-            yrequirement.setNode(nodeTemplate.getName());
-            return yrequirement;
-        }
-
+  private Requirement createExtRrequirement(TRequirement trequirement) {
+    String destNodeName =
+            trequirement.getOtherAttributes().get(new QName(Constants.REQUIREMENT_EXT_NODE));
+    String capability =
+            trequirement.getOtherAttributes().get(
+                    new QName(Constants.REQUIREMENT_EXT_CAPABILITY));
+    // String rsTemplate =
+    // tRequirement.getOtherAttributes().get(
+    // new QName(Constants.REQUIREMENT_EXT_RELATIONSHIP));
+    if (destNodeName == null || destNodeName.isEmpty()) {
         return null;
     }
+
+    Requirement yrequirement = new Requirement();
+    yrequirement.setNode(destNodeName);
+    yrequirement.setCapability(capability);
+
+    return yrequirement;
+  }
+    
+  private Requirement[] createRrequirement(TNodeTemplate tNodeTemplate,
+      TRequirement trequirement, List<TRelationshipTemplate> rstList) {
+    List<Requirement> yrequirementList = new ArrayList<>();
+    if (rstList != null && !rstList.isEmpty()) {
+      for (TRelationshipTemplate rst : rstList){
+        if(isRequirementEqualSourceNode(trequirement, rst)){
+            TEntityTemplate target  = (TEntityTemplate) rst.getTargetElement().getRef();
+            Requirement yrequirement = buildRequirement(target);
+            if (yrequirement != null) {
+              yrequirementList.add(yrequirement);
+            }
+        }
+      }
+    }
+
+    return yrequirementList.toArray(new Requirement[0]);
+  }
+
+  private Requirement buildRequirement(TEntityTemplate target) {
+    // when the target is a node
+    if(target instanceof TNodeTemplate){
+        TNodeTemplate nodeTemplate = (TNodeTemplate)target;
+        Requirement yrequirement = new Requirement();
+        yrequirement.setNode(nodeTemplate.getName());
+        return yrequirement;
+    //when the target is a capability
+    }else if(target instanceof TCapability){
+        TCapability capability = (TCapability)target;
+        TNodeTemplate nodeTemplate = findTNodeTemplatByCapability(capability);
+        Requirement yrequirement = new Requirement();
+        yrequirement.setCapability(capability.getName());
+        yrequirement.setNode(nodeTemplate.getName());
+        return yrequirement;
+    }
+
+    return null;
+  }
 
     private boolean isRequirementEqualSourceNode(TRequirement trequirement, TRelationshipTemplate rst){
     TEntityTemplate source = (TEntityTemplate) rst.getSourceElement().getRef();
@@ -263,72 +362,13 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         Capabilities capabilities = node.getCapabilities();
         if (capabilities != null && capabilities.getCapability() != null) {
           for (TCapability cap : capabilities.getCapability()) {
-                        if(cap.getId().equals(capbility.getId()))
-                            return node;
-                    }
+            if(cap.getId().equals(capbility.getId()))
+              return node;
           }
         }
       }
-        return null;
     }
-
-
-  private NodeTemplatePosition getNodetemplatePosition(TNodeTemplate tnodeTemplate) {
-    NodeTemplatePosition position = new NodeTemplatePosition();
-    for (QName key : tnodeTemplate.getOtherAttributes().keySet()) {
-      if (key.getLocalPart().equals(CommonConst.NODETEMPLATE_POSITIONX_LOCALPART)) {
-        position.setPositionX(tnodeTemplate.getOtherAttributes().get(key));
-      }
-      if (key.getLocalPart().equals(CommonConst.NODETEMPLATE_POSITIONY_LOCALPART)) {
-        position.setPositionY(tnodeTemplate.getOtherAttributes().get(key));
-      }
-    }
-    return position;
-  }
-
-  /**
-   * @param ypropertiesAndAttributes .
-   * @param yattributeDefs .
-   * @return .
-   */
-  private Map<String, Object> getYAttributes(Map<String, Object> ypropertiesAndAttributes,
-      Map<String, AttributeDefinition> yattributeDefs) {
-    Map<String, Object> yattributes = new HashMap<>();
-    for (String name : ypropertiesAndAttributes.keySet()) {
-      if (yattributeDefs.containsKey(name)) {
-        yattributes.put(name, ypropertiesAndAttributes.get(name));
-      }
-    }
-    return yattributes;
-  }
-
-  /**
-   * @param ypropertiesAndAttributes .
-   * @param ypropertyDefs .
-   * @return .
-   */ 
-  private Map<String, Object> getYProperties(Map<String, Object> ypropertiesAndAttributes,
-      Map<String, PropertyDefinition> ypropertyDefs) {
-    Map<String, Object> yproperties = new HashMap<>();
-    for (String name : ypropertiesAndAttributes.keySet()) {
-      if (ypropertyDefs.containsKey(name)) {
-        yproperties.put(name, ypropertiesAndAttributes.get(name));
-      }
-    }
-
-    return yproperties;
-  }
-
-  /**
-   * @param tnodeTemplate .
-   * @return .
-   */
-  private TNodeType getTNodeType(TNodeTemplate tnodeTemplate) {
-    NodeTypesResource res = new NodeTypesResource();
-    NodeTypeResource nodetypeRes =
-        res.getComponentInstaceResource(Util.URLencode(tnodeTemplate.getType().getNamespaceURI()),
-            tnodeTemplate.getType().getLocalPart());
-    return (TNodeType) nodetypeRes.getEntityType();
+    return null;
   }
 
   /**
@@ -340,14 +380,12 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
       return null;
     }
 
-    Requirement yrequirement = new Requirement();
     NodeFilter nodeFilter = buildNodeFilter(trequirement);
     if (nodeFilter == null) {
       return null;
     }
-    yrequirement.setNode_filter(nodeFilter);
 
-    return yrequirement;
+    return new Requirement(nodeFilter);
   }
 
   private NodeFilter buildNodeFilter(TRequirement trequirement) {
@@ -371,25 +409,17 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
   }
 
 
-  private Entry<String, NodeTemplate> buildEntry(String name, NodeTemplate ynodeTemplate) {
-    Map<String, NodeTemplate> map = new HashMap<>();
-    map.put(name, ynodeTemplate);
-
-    return map.entrySet().iterator().next();
-  }
-
   /**
    * @param tcapabilities .
    * @return .
    */
-  private Map<String, Capability> processCapabilitiesInNodeTemplate(Capabilities tcapabilities) {
-
+  private Map<String, Capability> processCapabilities(Capabilities tcapabilities) {
     Map<String, Capability> ycapabilities = new HashMap<>();
     if (tcapabilities.getCapability() != null && !tcapabilities.getCapability().isEmpty()) {
       for (TCapability tcapability : tcapabilities.getCapability()) {
-        Capability ycapability = buildCapability(tcapability);
-        if (ycapability != null) {
-          ycapabilities.put(tcapability.getName(), ycapability);
+        Capability yCapability = buildCapability(tcapability);
+        if(isValidCapability(yCapability)) {
+          ycapabilities.put(tcapability.getName(), yCapability);
         }
       }
     }
@@ -399,75 +429,32 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
   }
 
   /**
+   * @param yCapability
+   * @return
+   */
+  private boolean isValidCapability(Capability yCapability) {
+    return yCapability.getProperties() != null && !yCapability.getProperties().isEmpty();
+  }
+
+  /**
    * @param tcapability .
    * @return .
    */
   private Capability buildCapability(TCapability tcapability) {
-    Map<String, Object> yproperties =
-        Xml2YamlSwitchUtils.convertTProperties(tcapability.getProperties());
-    if (yproperties == null || yproperties.isEmpty()) {
-      return null;
-    }
-
-    return new Capability(yproperties);
+    return new Capability(Xml2YamlSwitchUtils.convertTProperties(tcapability.getProperties()));
   }
-
-  // private void parseRelationshipTemplate(TRelationshipTemplate trt) {
-  // String requirementName = trt.getName();
-  // String relationshipType = Xml2YamlTypeMapper
-  // .mappingRelationshipType(Xml2YamlSwitchUtils
-  // .getNamefromQName(trt.getType()));
-  //
-  // TNodeTemplate sourceNodeTemplate = getNodeTemplateName(trt
-  // .getSourceElement().getRef());
-  // TNodeTemplate targetNodeTemplate = getNodeTemplateName(trt
-  // .getTargetElement().getRef());
-  //
-  // if (sourceNodeTemplateName != null && targetNodeTemplateName != null) {
-  // NodeTemplate ySourceNodeTemplate = getTopology_template()
-  // .getNode_templates().get(sourceNodeTemplateName);
-  //
-  // NodeTemplate yTargetNodeTemplate = getTopology_template()
-  // .getNode_templates().get(targetNodeTemplateName);
-  //
-  // if (ySourceNodeTemplate != null && yTargetNodeTemplate != null) {
-  // ySourceNodeTemplate.getRequirements().add(
-  // buildRequirement(requirementName,
-  // targetNodeTemplateName, relationshipType));
-  // }
-  // }
-  // }
-  //
-  // private Map<String, Object> buildRequirement(String requirementName,
-  // String targetNodeTemplateName, String relationshipType) {
-  // Map<String, Object> yRequirement = new HashMap<>();
-  // yRequirement
-  // .put(requirementName,
-  // buildRequirementObject(targetNodeTemplateName,
-  // relationshipType));
-  // return yRequirement;
-  // }
-  //
-  // private Requirement buildRequirementObject(
-  // String targetNodeTemplateName, String relationshipType) {
-  // Requirement yRequirementObject = new Requirement();
-  //
-  // yRequirementObject.setNode(targetNodeTemplateName);
-  // yRequirementObject.setRelationship(relationshipType);
-  //
-  // return yRequirementObject;
-  // }
-
-  /**
-   * @param object
-   * @return
-   */
-  // private TNodeTemplate getNodeTemplateName(Object object) {
-  // if (object instanceof TNodeTemplate) {
-  // return ((TNodeTemplate) object);
-  // }
-  //
-  // return null;
-  // }
-
+  
+  
+  private NodeTemplatePosition getNodetemplatePosition(TNodeTemplate tnodeTemplate) {
+    NodeTemplatePosition position = new NodeTemplatePosition();
+    for (QName key : tnodeTemplate.getOtherAttributes().keySet()) {
+      if (key.getLocalPart().equals(CommonConst.NODETEMPLATE_POSITIONX_LOCALPART)) {
+        position.setPositionX(tnodeTemplate.getOtherAttributes().get(key));
+      }
+      if (key.getLocalPart().equals(CommonConst.NODETEMPLATE_POSITIONY_LOCALPART)) {
+        position.setPositionY(tnodeTemplate.getOtherAttributes().get(key));
+      }
+    }
+    return position;
+  }
 }

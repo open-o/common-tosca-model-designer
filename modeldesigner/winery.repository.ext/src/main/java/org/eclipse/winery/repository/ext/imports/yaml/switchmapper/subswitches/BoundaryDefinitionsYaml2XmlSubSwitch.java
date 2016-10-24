@@ -27,11 +27,11 @@ import org.eclipse.winery.repository.ext.yamlmodel.Input;
 public class BoundaryDefinitionsYaml2XmlSubSwitch extends
 		AbstractYaml2XmlSubSwitch {
 
-	private final TServiceTemplate tServiceTemplateInstance;
+	private final TServiceTemplate tServiceTemplate;
 	
-    public BoundaryDefinitionsYaml2XmlSubSwitch(Yaml2XmlSwitch parentSwitch,TServiceTemplate tServiceTemplateInstance) {
+    public BoundaryDefinitionsYaml2XmlSubSwitch(Yaml2XmlSwitch parentSwitch,TServiceTemplate tServiceTemplate) {
     	super(parentSwitch);
-    	this.tServiceTemplateInstance = tServiceTemplateInstance; 
+    	this.tServiceTemplate = tServiceTemplate; 
     }
     
 	@Override
@@ -52,7 +52,7 @@ public class BoundaryDefinitionsYaml2XmlSubSwitch extends
 		
 		//elements-Interfaces		
 		
-		tServiceTemplateInstance.setBoundaryDefinitions(tBoundaryDefinitions);
+		tServiceTemplate.setBoundaryDefinitions(tBoundaryDefinitions);
 	}
 	
 	private TBoundaryDefinitions.Properties constructProperties()

@@ -23,6 +23,21 @@ public class Requirement {
     private NodeFilter node_filter;
     private int[] occurrences;
 
+    
+    public Requirement() {
+      super();
+    }
+
+    public Requirement(NodeFilter node_filter) {
+      super();
+      this.node_filter = node_filter;
+    }
+
+    public Requirement(String node) {
+      super();
+      this.node = node;
+    }
+
     public String getNode() {
         return node;
     }

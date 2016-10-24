@@ -37,22 +37,21 @@ public class RelationShipTypeYaml2XmlSubSwitch extends
 
         for (Map.Entry<String, RelationshipType> entry : getServiceTemplate()
                 .getRelationship_types().entrySet()) {
-            String name = entry.getKey();
+            String typeName = Yaml2XmlTypeMapper.mappingRelationshipType(entry.getKey());
             RelationshipType yRelationshipType = entry.getValue();
 
-            if (name == null || name.isEmpty() || yRelationshipType == null) {
+            if (typeName == null || typeName.isEmpty() || yRelationshipType == null) {
                 continue;
             }
 
-            TRelationshipType tRelationshipType = constructRelationship(yRelationshipType, name);
+            TRelationshipType tRelationshipType = constructRelationship(typeName, yRelationshipType);
             getDefinitions().getServiceTemplateOrNodeTypeOrNodeTypeImplementation().add(
                     tRelationshipType);
         }
 
     }
 
-    private TRelationshipType constructRelationship(RelationshipType yRelationshipType,
-            String TypeName) {
+    private TRelationshipType constructRelationship(String TypeName, RelationshipType yRelationshipType) {
         TRelationshipType tRelationshipType = new TRelationshipType();
 
         // attribute-other,
@@ -60,6 +59,11 @@ public class RelationShipTypeYaml2XmlSubSwitch extends
         // attribute-name,target name space,abstract,final
         tRelationshipType.setName(TypeName);
         tRelationshipType.setTargetNamespace(getParent().getUsedNamespace());
+        
+        tRelationshipType.setDerivedFrom(
+            Yaml2XmlTypeMapper.buildDerivedFrom(
+                getParent().getUsedNamespace(),
+                Yaml2XmlTypeMapper.mappingRelationshipType(yRelationshipType.getDerived_from())));
 
         // attribute-
 

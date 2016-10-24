@@ -53,18 +53,17 @@ public class SubstitutionMappingsXml2YamlSubSwitch extends AbstractXml2YamlSubSw
         }
 
         Map<String, Object> substitution_mappings = new HashMap<>();
-        substitution_mappings.put("type", Xml2YamlSwitchUtils
+        substitution_mappings.put("node_type", Xml2YamlSwitchUtils
                 .getNamefromQName(tServiceTemplate.getSubstitutableNodeType()));
 
         List<TCapabilityRef> tCapabilityList = getTCapabilityList();
-
         if (tCapabilityList != null && !tCapabilityList.isEmpty()) {
             Map<String, String[]> yCapabilities = buildYCapabilities(tCapabilityList);
             substitution_mappings.put("capabilities", yCapabilities);
         }
 
         List<TRequirementRef> tRequirementList = getTRequirementList();
-        if (tCapabilityList != null && !tCapabilityList.isEmpty()) {
+        if (tRequirementList != null && !tRequirementList.isEmpty()) {
             Map<String, String[]> yRequirements = buildYRequirements(tRequirementList);
             substitution_mappings.put("requirements", yRequirements);
         }

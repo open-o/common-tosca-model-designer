@@ -23,12 +23,12 @@ import java.util.Map;
 public class NodeType extends YAMLElement {
 
 	private String derived_from = "";
-	private Map<String, PropertyDefinition> properties = new HashMap<String, PropertyDefinition>();
-	private Map<String, AttributeDefinition> attributes = new HashMap<String, AttributeDefinition>();
-	private List<Map<String, Object>> requirements = new ArrayList<Map<String, Object>>();
-	private Map<String, Object> capabilities = new HashMap<String, Object>();
-	private Map<String, Map<String, Map<String, String>>> interfaces = new HashMap<String, Map<String, Map<String, String>>>();
-	private List<Map<String, Object>> artifacts = new ArrayList<Map<String, Object>>();
+	private Map<String, PropertyDefinition> properties = new HashMap<>();
+	private Map<String, AttributeDefinition> attributes = new HashMap<>();
+	private List<Map<String, RequirementDefinition>> requirements = new ArrayList<>();
+	private Map<String, CapabilityDefinition> capabilities = new HashMap<>();
+	private Map<String, Map<String, Map<String, String>>> interfaces = new HashMap<>();
+	private List<Map<String, Object>> artifacts = new ArrayList<>();
     
 	public void setArtifacts(List<Map<String, Object>> artifacts) {
 		if (artifacts != null) {
@@ -68,21 +68,54 @@ public class NodeType extends YAMLElement {
         this.attributes = attributes;
     }
 
-    public List<Map<String, Object>> getRequirements() {
-		return this.requirements;
-	}
+    @SuppressWarnings("rawtypes")
+    public List<Map<String, RequirementDefinition>> getRequirements() {
+      for (Map<String, RequirementDefinition> requirement : this.requirements) {
+        for (String name : requirement.keySet()) {
+          Object tmp = requirement.get(name);
+          if (tmp instanceof Map) {
+            Map req_value = (Map) tmp;
+            requirement.put(name,  // substitute map with RequirementDefinition
+                new RequirementDefinition(req_value.get("capability"),
+                    req_value.get("node"),
+                    req_value.get("relationship"),
+                    parseOccurrences((List)req_value.get("occurrences"))));
+          }
+        }
+        
+      }
+      return this.requirements;
+    }
 
-	public void setRequirements(List<Map<String, Object>> requirements) {
+	/**
+     * @param list
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    private String[] parseOccurrences(List list) {
+      if (list == null || list.isEmpty()) {
+        return RequirementDefinition.UNBOUNDED_OCCURRENCE;
+      }
+      
+      String[] occurrences = new String[list.size()];
+      int i = 0;
+      for (Object object : list) {
+        occurrences[i++] = object.toString();
+      }
+      return occurrences;
+    }
+
+  public void setRequirements(List<Map<String, RequirementDefinition>> requirements) {
 		if (requirements != null) {
 			this.requirements = requirements;
 		}
 	}
 
-	public Map<String, Object> getCapabilities() {
+	public Map<String, CapabilityDefinition> getCapabilities() {
 		return this.capabilities;
 	}
 
-	public void setCapabilities(Map<String, Object> capabilities) {
+	public void setCapabilities(Map<String, CapabilityDefinition> capabilities) {
 		if (capabilities != null) {
 			this.capabilities = capabilities;
 		}

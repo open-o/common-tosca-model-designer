@@ -72,8 +72,7 @@ public class InputsYaml2XmlSubSwitch extends AbstractYaml2XmlSubSwitch {
     private Input buildInput(
             Map.Entry<String, org.eclipse.winery.repository.ext.yamlmodel.Input> yInput) {
         Input tInput = new Input();
-        tInput.setName(Yaml2XmlTypeMapper.mappingNodeType(yInput
-                .getKey()));
+        tInput.setName(yInput.getKey());
 
         tInput.setType(yInput.getValue().getType());
         tInput.setDesc(yInput.getValue().getDescription());

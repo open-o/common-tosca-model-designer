@@ -34,9 +34,11 @@ import org.eclipse.winery.model.tosca.TNodeType.Interfaces;
 import org.eclipse.winery.model.tosca.TNodeType.RequirementDefinitions;
 import org.eclipse.winery.model.tosca.TRequirementDefinition;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.Xml2YamlSwitch;
+import org.eclipse.winery.repository.ext.yamlmodel.CapabilityDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.DataType;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
+import org.eclipse.winery.repository.ext.yamlmodel.RequirementDefinition;
 import org.eclipse.winery.repository.resources.entitytypes.requirementtypes.RequirementTypesResource;
 
 /**
@@ -108,42 +110,42 @@ public class NodeTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
      * @param tNodeType
      * @return
      */
-    private Entry<String, NodeType> createNodeType(TNodeType tNodeType) {
+    public Entry<String, NodeType> createNodeType(TNodeType tNodeType) {
         NodeType yNodeType = new NodeType();
 
         // derived_from
         if (tNodeType.getDerivedFrom() == null) {
             yNodeType.setDerived_from(Xml2YamlTypeMapper.mappingNodeType(null));
         } else {
-            yNodeType.setDerived_from(Xml2YamlTypeMapper.mappingNodeType(Xml2YamlSwitchUtils
-                    .getNamefromQName(tNodeType.getDerivedFrom().getTypeRef())));
+            yNodeType.setDerived_from(
+                Xml2YamlTypeMapper.mappingNodeType(
+                    Xml2YamlSwitchUtils.getNamefromQName(tNodeType.getDerivedFrom().getTypeRef())));
         }
 
         // description
-        yNodeType.setDescription(Xml2YamlSwitchUtils.convert2Description(tNodeType
-                .getDocumentation()));
+        yNodeType.setDescription(
+            Xml2YamlSwitchUtils.convert2Description(tNodeType.getDocumentation()));
 
         // properties
-        yNodeType
-                .setProperties(Xml2YamlSwitchUtils.convert2PropertyDefinitions(tNodeType.getAny()));
+        yNodeType.setProperties(
+            Xml2YamlSwitchUtils.convert2PropertyDefinitions(tNodeType.getAny()));
 
         // attributes
-        yNodeType
-                .setAttributes(Xml2YamlSwitchUtils.convert2AttributeDefinitions(tNodeType.getAny()));
+        yNodeType.setAttributes(
+            Xml2YamlSwitchUtils.convert2AttributeDefinitions(tNodeType.getAny()));
 
         // capabilities
         CapabilityDefinitions tCapabilities = tNodeType.getCapabilityDefinitions();
         if (tCapabilities != null) {
-            yNodeType.setCapabilities(parseNodeTypeCapabilities(tCapabilities));
+            yNodeType.getCapabilities().putAll(parseCapabilityDefinitions(tCapabilities));
         }
 
         // requirements
         RequirementDefinitions tRequirements = tNodeType.getRequirementDefinitions();
         if (tRequirements != null) {
-            List<Map<String, Object>> yamlRequirementList =
-                    parseNodeTypeRequirementDefinitions(tRequirements);
-            yNodeType.setRequirements(yamlRequirementList);
-
+            List<Map<String, RequirementDefinition>> yRequirementList =
+                    parseRequirementDefinitions(tRequirements);
+            yNodeType.getRequirements().addAll(yRequirementList);
         }
 
         // interfaces
@@ -157,14 +159,7 @@ public class NodeTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         // TODO artifacts
 
         String name = Xml2YamlTypeMapper.mappingNodeType(tNodeType.getName());
-        return buildEntry(name, yNodeType);
-    }
-
-    private Entry<String, NodeType> buildEntry(String name, NodeType yNodeType) {
-        Map<String, NodeType> map = new HashMap<>();
-        map.put(name, yNodeType);
-
-        return map.entrySet().iterator().next();
+        return Xml2YamlSwitchUtils.buildEntry(name, yNodeType);
     }
 
     /**
@@ -191,71 +186,66 @@ public class NodeTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
      * @param tRequirements
      * @return
      */
-    private List<Map<String, Object>> parseNodeTypeRequirementDefinitions(
+    private List<Map<String, RequirementDefinition>> parseRequirementDefinitions(
             RequirementDefinitions tRequirements) {
-        List<Map<String, Object>> yRequirementList = new ArrayList<>();
+        List<Map<String, RequirementDefinition>> yRequirementList = new ArrayList<>();
 
         List<TRequirementDefinition> tRequirementList = tRequirements.getRequirementDefinition();
         for (TRequirementDefinition tRequirement : tRequirementList) {
-            Map<String, Object> yamlRequirement = new HashMap<>();
-            yamlRequirement
-                    .put(tRequirement.getName(), convert2YamlRequirementObject(tRequirement));
+            Map<String, RequirementDefinition> yRequirement = new HashMap<>();
+            yRequirement.put(
+                tRequirement.getName(), convert2YamlRequirementDefinition(tRequirement));
 
-            yRequirementList.add(yamlRequirement);
+            yRequirementList.add(yRequirement);
         }
 
         return yRequirementList;
     }
 
-    private Map<String, String> convert2YamlRequirementObject(TRequirementDefinition tRequirement) {
-        Map<String, String> yRequirementObject = new HashMap<>(); // TODO
-                                                                  // yamlRequirementDefinition对象的类待定义，暂时以Map代替。
+    private RequirementDefinition convert2YamlRequirementDefinition(TRequirementDefinition tRequirement) {
+      RequirementDefinition yRequirementDef = new RequirementDefinition();
 
         String tRequirementType =
                 Xml2YamlSwitchUtils.getNamefromQName(tRequirement.getRequirementType());
 
-        QName tRequiredCapabilityType =
-                new RequirementTypesResource()
-                        .getComponentInstaceResource(
-                                Util.URLencode(tRequirement.getRequirementType().getNamespaceURI()),
-                                tRequirementType).getRequiredCapabilityTypeResource()
-                        .getRequirementType().getRequiredCapabilityType();
+        QName tCapabilityType =
+            new RequirementTypesResource().getComponentInstaceResource(
+                Util.URLencode(tRequirement.getRequirementType().getNamespaceURI()),
+                tRequirementType).
+                    getRequiredCapabilityTypeResource().getRequirementType().getRequiredCapabilityType();
 
-        if (tRequiredCapabilityType != null) {
-            String yCapabilityType = Xml2YamlSwitchUtils.getNamefromQName(tRequiredCapabilityType);
-            yRequirementObject.put("capability",
-                    Xml2YamlTypeMapper.mappingCapabilityType(yCapabilityType));
+        if (tCapabilityType != null) {
+            String yCapabilityType = Xml2YamlSwitchUtils.getNamefromQName(tCapabilityType);
+            yRequirementDef.setCapability(Xml2YamlTypeMapper.mappingCapabilityType(yCapabilityType));
         } else {
-            yRequirementObject.put("capability",
-                    Xml2YamlTypeMapper.mappingTRequirement2yCapabilityType(tRequirementType));
+          yRequirementDef.setCapability(Xml2YamlTypeMapper.mappingTRequirement2yCapabilityType(tRequirementType));
         }
-
-
-        return yRequirementObject;
+        yRequirementDef.setOccurrences(RequirementDefinition.UNBOUNDED_OCCURRENCE);
+        
+        return yRequirementDef;
     }
 
 
 
-    private Map<String, Object> parseNodeTypeCapabilities(CapabilityDefinitions tCapabilities) {
-        Map<String, Object> yCapabilities = new HashMap<>();
+    private Map<String, CapabilityDefinition> parseCapabilityDefinitions(CapabilityDefinitions tCapabilities) {
+        Map<String, CapabilityDefinition> yCapabilities = new HashMap<>();
         if (tCapabilities.getCapabilityDefinition() != null
                 && !tCapabilities.getCapabilityDefinition().isEmpty()) {
             for (TCapabilityDefinition tCapability : tCapabilities.getCapabilityDefinition()) {
-                yCapabilities.put(tCapability.getName(), convert2YamlCapabilityObject(tCapability));
+                yCapabilities.put(tCapability.getName(), convert2YamlCapabilityDefinition(tCapability));
             }
         }
 
         return yCapabilities;
     }
 
-    private Map<String, String> convert2YamlCapabilityObject(TCapabilityDefinition tCapability) {
-        Map<String, String> yCapabilityObject = new HashMap<>(); // TODO
-        // yamlCapabilityDefinition对象的类待定义，暂时以Map代替。
-
-        yCapabilityObject.put("type", Xml2YamlTypeMapper.mappingCapabilityType(Xml2YamlSwitchUtils
-                .getNamefromQName(tCapability.getCapabilityType())));
-
-        return yCapabilityObject;
+    private CapabilityDefinition convert2YamlCapabilityDefinition(TCapabilityDefinition tCapability) {
+      CapabilityDefinition yCapabilityDef = new CapabilityDefinition();
+      yCapabilityDef.setType(
+          Xml2YamlTypeMapper.mappingCapabilityType(
+              Xml2YamlSwitchUtils.getNamefromQName(tCapability.getCapabilityType())));
+      
+        return yCapabilityDef;
     }
 
 }
