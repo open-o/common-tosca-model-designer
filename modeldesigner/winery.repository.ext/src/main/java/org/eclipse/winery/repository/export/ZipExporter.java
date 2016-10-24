@@ -432,10 +432,9 @@ public class ZipExporter {
 
     buffer.append("Provider:");
     buffer.append(boundaryPropertyDefinition.getMetaData("csarProvider"));
-    buffer.append("\n");
 
     PrintWriter pw = new PrintWriter(out);
-    pw.println(buffer.toString());
+    pw.print(buffer.toString());
     pw.flush();
     out.closeArchiveEntry();
   }
