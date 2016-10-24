@@ -175,7 +175,7 @@
 		$("#addNFPDialog").modal("show");
 	}
 
-	// 添加vnf 
+	// add new vnf 
 	function addNfp() {
 		var name = $('#nfpName').val();
 		var nodeType = $('#nodeTypeSelect').val();
@@ -212,7 +212,7 @@
 		
 		var successFunc = function(resData, textStatus, jqXHR) {
 				REQ.addNfp2Vnffg(vnffgConstants.CURRENT_PATH_ID, loadVnffgInfo);
-				clearPath();	// 在图形界面删除原有路径
+				clearPath();	// hide the exitsted path
 				
 				vShowSuccess("add Path success[" + name + "]", "success");
 
@@ -263,7 +263,6 @@
 		newObj.children("div.headerContainer").children("div.id").text(id);
 
 		// initial name has been generated based on the id
-		//如果名字存在，则使用默认的软件仓储选择的nodeTemplate名字，否则使用现在生成的name
 		//newObj.children("div.headerContainer").children("div.name").text(name);
 		var $nodeName = newObj.children("div.headerContainer").children("div.name");
 		if(!$nodeName.text()) {
@@ -299,7 +298,7 @@
 	}
 
 
-	//从软件仓库选择，生成nodeTemplate
+	// generate a new node template div while create nfp
 	function generateNodeTemplateDiv(data) {
 		var newNodeTemplate = $("#newNodeTemplate .NodeTemplateShape").clone();
 
@@ -310,7 +309,7 @@
 		var headerContainer = newNodeTemplate.children(".headerContainer");
 		headerContainer.find(".name").text(name);
 
-		//设置nodeTemplate值
+		//set nodeTemplate value
 		var typeQName = nodeTemplate.type;
 		var namespace = typeQName.substring(typeQName.indexOf("{") + 1, typeQName.indexOf("}"));
 		var localName = typeQName.substring(typeQName.indexOf("}") + 1);
@@ -320,28 +319,28 @@
 		headerContainer.find(".typeQName").text(typeQName);
 		headerContainer.find(".typeNamespace").text(namespace);
 		headerContainer.find(".type").text(localName);
-		//设置image
+		//set image
 		if(namespace.indexOf("/ns") > -1) {
 			newNodeTemplate.find("img").attr("src", "images/ns.png");
 		} else if(namespace.indexOf("/service") > -1) {
 			newNodeTemplate.find("img").attr("src", "images/service.png");
 		}
 
-		//设置document
+		//set document
 		var documentation = nodeTemplate.documentation;
 		if(documentation.length && documentation[0].content.length) {
 			var documentation = documentation[0].content[0];
 			headerContainer.children(".documentation").text(documentation);
 		}
 
-		//设置nodeTemplate properties
+		//set nodeTemplate properties
 		var propertyDefinitions = data.type.any[0];
 		if(propertyDefinitions && propertyDefinitions.propertyDefinitionKVList) {
 			var propertyDefinitionKVList = propertyDefinitions.propertyDefinitionKVList;
 			var properties = nodeTemplate.properties.any;
 			var propertiesHtml = "";
 			$.each(propertyDefinitionKVList, function(index, property){
-				//属性值或者属性定义的默认值
+				//set value of properties
 				var value = properties[property.key] || property.value;
 				if(!value) {
 					value = "";
@@ -369,11 +368,11 @@
 			var propertyNamespace = propertyDefinitions.namespace;
 			content.children(".namespace").text(propertyNamespace);
 		} else {
-			//没有属性就移除属性节点，否则保存报错
+			//remove property node while there is no property, or there will an error
 			newNodeTemplate.children(".propertiesContainer").remove();
 		}
 
-		//设置Requirements
+		//set Requirements
 		var generateKVProperty = function(properties) {
 			var propertiesHtml = "";
 			$.each(properties, function(key, value){
@@ -411,7 +410,7 @@
 			generateReqOrCap(requirements, requirementsContainer, requirementsContent);
 		}
 		
-		//设置Capabilities
+		//set Capabilities
 		var capabilitiesContent = newNodeTemplate.find(".capabilitiesContainer>.content");
 		var capabilitiesContainer = capabilitiesContent.children().clone();
 		capabilitiesContent.html("");
@@ -420,7 +419,7 @@
 			generateReqOrCap(capabilities, capabilitiesContainer, capabilitiesContent);
 		}
 
-		//把nodeTemplate添加到页面上
+		//add nodeTemplate to page
 		dragHandler(newNodeTemplate);	
 	}
 
@@ -453,31 +452,31 @@
 			winery.events.fire(winery.events.name.command.UNSELECT_ALL_NODETEMPLATES);
 			$("#" + vnffgConstants.CURRENT_PATH_ID).addClass("selected");
 			winery.events.fire(winery.events.name.SELECTION_CHANGED);
-
-			// var nodeTemplate = $("#" + vnffgConstants.CURRENT_PATH_ID);
-			// fillInformationSection(nodeTemplate);
-			// showViewOnTheRight(nodeTemplate.attr("id"));
 		} else {
 			vShowError("please select nfp first", "error");
 		}
 	}
 
 
-	// 编辑路径
+	/**
+	 * editNfp
+	 * @param  {[type]} nfpId [description]
+	 * @return {[type]}       [description]
+	 */
 	function editNfp(nfpId) {
 
 		vnffgConstants.CURRENT_PATH_ID = nfpId;
 		vnffgConstants.URL_NODETEMPLATE_REQUIREMENT = vnffgConstants._URL_NODETEMPLATE_REQUIREMENT.replace("{nodeTmepateId}", vnffgConstants.CURRENT_PATH_ID);
 		vnffgConstants.URL_NODETEMPLATE_PROPERTIES = vnffgConstants._URL_NODETEMPLATE_PROPERTIES.replace("{nodeTmepateId}", vnffgConstants.CURRENT_PATH_ID);
 
-		clearPath();	// 在图形界面删除原有路径
+		clearPath();	// hide path collection
 
 		$('#selectedPath').text(nfpId);
 
 		var successFunc = function(resData, textStatus, jqXHR) {
 
 
-			connectPath(resData);	// 重绘当前路径
+			connectPath(resData);	// repain path
 
 			var type = resData.type;
 			typeName = type.substring(1).split("}")[1];
@@ -491,20 +490,19 @@
 	}
 
 	/**
-	 * 删除路径
+	 * delete path
 	 * @param  {[type]} name [description]
 	 * @return {[type]}      [description]
 	 */
 	function deleteNfp(name) {
 		var successFunc = function() {
-			// 更新vnfg信息
+			// update vnffg info
 			REQ.deleteNfpFromVnffg(name, updateVnffgProperties);
 			$('#' + name).remvoe();
 			$('#' + name + "Path").remvoe();
 			vShowSuccess("delete Path success[" + name + "]", "success");
 		};
 
-		// 删除NFP节点
 		REQ.deletePath(name, successFunc);
 	}
 
@@ -537,9 +535,6 @@
 
 
 	function savePathProperties(successFunc) {
-		// // 先让属性加载到 propertiesContent 属性页面中, 避免在界面点解了节点后，这里保存的数据变成了节点的数据
-		// editNfpAttri();
-
 		var properties = {};
 
 		$("#" + vnffgConstants.CURRENT_PATH_ID + " .propertiesContainer div[name='Properties']  tr").each(function(index, element) {
@@ -548,17 +543,6 @@
 			properties[key] = value;
 		});
 
-		// $("#propertiesContent select").each(function(index, element) {
-		// 	var name = $(element).attr("name");
-		// 	var val = $(element).val();
-		// 	properties[name] = val;
-		// });
-
-		// $("#propertiesContent input").each(function(index, element) {
-		// 	var name = $(element).attr("name");
-		// 	var val = $(element).val();
-		// 	properties[name] = val;
-		// });
 
 		REQ.saveNodeTemplateProperties(properties, successFunc);
 	}
@@ -573,7 +557,7 @@
 			var connData = winery.connections[id];
 			if(connData.nsAndLocalName.localname == vnffgConstants.RELATIONSHIP_FORWARDTO_TYPE) {
 				connections[connections.length] = connection;
-				// 判断序号是否重复
+				// check whether the index repeat
 				var pathIndex = $(connection.getOverlay("label").getElement()).text();
 				if(!pathIndex) {
 					flag = false;
@@ -588,7 +572,7 @@
 				}
 				
 
-				// 判断源和目标是否设置正确
+				// check source and target 
 				var tmp = validateConnectionSourceTarget(connection, connData);
 				if(!tmp) {
 					flag = false;
@@ -634,7 +618,7 @@
 
 
 	/**
-	 * 校验节点必填属性
+	 * node property validate
 	 * @return {[type]} [description]
 	 */
 	function validateNodeTemplateProperties() {
@@ -646,7 +630,6 @@
 			var $propertyValue = $property.children(".KVPropertyValue");
 			var propertyRequired = $property.children(".KVPropertyRequired").text();
 			if(propertyRequired == "true" && $propertyValue.hasClass("editable-empty")) {
-				//必填属性没有值
 				var nodeTemplateName = $(nodeTemplate).children(".fullName").text();
 				var propertyName = $property.children(".KVPropertyKey").text();
 				vShowError($.i18n.prop("winery-template-validate-nodeproperties-required", nodeTemplateName, propertyName));
@@ -659,7 +642,11 @@
 
 
 	
-	// 生成path对应的路径
+	/**
+	 * get connect points of current path
+	 * @param  {[type]} connections [description]
+	 * @return {[type]}             [description]
+	 */
 	function createRequirements(connections) {
 		var tmp = vnffgConstants.CURRENT_NODE_TYPE.requirementDefinitions.requirementDefinition[0].requirementType.substring(1).split("}");
 		var requirementType = {"namespace" :tmp[0], "type" : tmp[1]};
@@ -701,13 +688,13 @@
 
 	
 	/**
-	 * 生成requirement参数
+	 * create requirement param
 	 * @param  {[type]} id                [requirement id]
 	 * @param  {[type]} relationType      [forward type]
 	 * @param  {[type]} relationNameSpace [forward namespace]
-	 * @param  {[type]} nodeId            [关系连接的节点ID]
-	 * @param  {[type]} capabilityId      [使用的节点的能力id]
-	 * @return {[type]}                   [requirement 对象]
+	 * @param  {[type]} nodeId            [nodeId]
+	 * @param  {[type]} capabilityId      [capabilityId]
+	 * @return {[type]}                   [requirement]
 	 */
 	function createRequirement(id, requirementType, nodeId, capabilityId) {
 		var nodeName = $('#' + nodeId + ' .headerContainer .name').text();
@@ -728,32 +715,7 @@
 
 
 	
-	// 计算路径顺序
 	function computePathSequence(connections) {
-		// 原始计算
-		// var targets = [];
-		// var connectionMap = {};
-		// $.each(connections, function(index, connection){
-		// 	connectionMap[connection.sourceId] = connection;
-		// 	targets[targets.length] = connection.targetId;
-		// });
-
-		// var startPoint; 
-		// $.each(connections, function(index, connection){
-		// 	for(var i=0, len=targets.length; i<len; i++) {
-		// 		if(targets[i] == connection.sourceId) {
-		// 			return true; // 外层循环 continue
-		// 		}
-		// 	}
-
-		// 	startPoint = connection.sourceId;
-		// 	return false;
-		// });
-		
-		// var sortedConnections = [];
-		// getPathSequence(connectionMap, startPoint, sortedConnections);
-		// return sortedConnections;
-		
 		var connectionMap = {};
 		$.each(connections, function(index, connection) {
 			var pathIndex = $(connection.getOverlay("label").getElement()).text();
@@ -770,17 +732,27 @@
 
 
 
-	// 递归获取路径的顺序
+	// get the path's node sequence
+	/**
+	 * getPathSequence
+	 * @param  {[type]} connectionMap     [description]
+	 * @param  {[type]} startPoint        [description]
+	 * @param  {[type]} sortedConnections [description]
+	 * @return {[type]}                   [description]
+	 */
 	function getPathSequence(connectionMap, startPoint, sortedConnections) {
 		var connection = connectionMap[startPoint];
-		if(connection) { // 节点存在
+		if(connection) { // 
 			sortedConnections[sortedConnections.length] = connection;
 			getPathSequence(connectionMap, connection.targetId, sortedConnections);
 		}
 	}
 	
-
-	// 重新绘制path对应的路径
+	/**
+	 * repaint path on page
+	 * @param  {[type]} nodeTemplate [description]
+	 * @return {[type]}              [description]
+	 */
 	function connectPath(nodeTemplate) {
 		if(nodeTemplate.requirements && nodeTemplate.requirements.requirement) {
 			var requirements = nodeTemplate.requirements.requirement;
@@ -851,7 +823,10 @@
 
 
 
-	// 清空路径的连线
+	/**
+	 * Erase path
+	 * @return {[type]} [description]
+	 */
 	function clearPath() {
 		$.each(jsPlumb.getConnections(), function(index, connection){
 			var id = connection.id;
@@ -872,7 +847,7 @@
 	function updateVnffgProperties() {
 
 		var getVnffgPropertiesSuccessFunc = function(resData, textStatus, jqXHR) {
-			if(!resData) { // 属性为空
+			if(!resData) { // property is empty
 				resData = {
 					"number_of_endpoints" : 0,
 					"dependent_virtual_link" : [],
@@ -944,7 +919,10 @@
 		return vnfArray;
 	}
 
-	// 获取所有的 forward 类型节点
+	/**
+	 * getForwardNodeTypes
+	 * @return {[type]} [description]
+	 */
 	function getForwardNodeTypes() {
 		if (vnffgConstants.NODETYPES == null || vnffgConstants.NODETYPES.length == 0) {
 			// 
@@ -959,11 +937,20 @@
 	}
 
 
-  	//获取url中的参数
+  	/**
+  	 * [getUrlParam description]
+  	 * @param  {[type]} name [description]
+  	 * @return {[type]}      [description]
+  	 */
     function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
-        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
-        if (r != null) return unescape(r[2]); return null; //返回参数值
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); 
+        var r = window.location.search.substr(1).match(reg);  
+        
+        if (r != null) {
+        	return unescape(r[2]); 
+        }
+
+        return null; 
     }
 
 
@@ -977,7 +964,7 @@
 
 
     /**
-     * 获取group中的 所有path列表
+     * get all path in group
      * @return {[type]} [description]
      */
     function getNfpOfGroup(resData, textStatus, jqXHR)  {
@@ -1062,7 +1049,7 @@
     function getAllVL(nodeTemplates) {
     	vnffgConstants.NODETEMPLATE_VL = [];
     	$.each(nodeTemplates, function(index, nodeTemplate) {
-    		// TODO 判断VL 方式待修改
+    		// TODO need to change the way of check a node is VL
     		if(nodeTemplate.type.indexOf(".VL") != -1) {
     			vnffgConstants.NODETEMPLATE_VL[vnffgConstants.NODETEMPLATE_VL.length] = nodeTemplate;
     		}
@@ -1071,7 +1058,7 @@
 
 
     function pathIndexHandler() {
-    	// 向路径的属性中添加 路径序号信息
+    	// add index to path 
 		var indexHtml = ''
     		+ '<div class="form-group">'
 				+ '<label for="pathIndex">Index</label>'
@@ -1096,10 +1083,9 @@
     	});
     }
 
-	// 初始化界面
 	function vnffgInit() {
 		$('#palette').hide();
-		// 隐藏不需要的关系
+		// hide unrelated relations
 		$(".connectorEndpoint").hide();
 		$('.http___www_zte_com_cn_tosca_nfv_vnffg_tosca_relationships_nfv_ForwardsTo').show();
 
@@ -1111,7 +1097,6 @@
 		vnffgConstants.URL_VNFFG_PROPERTIES = vnffgConstants._URL_VNFFG_PROPERTIES.replace("{groupId}", vnffgConstants.CURRENT_GROUP_ID);
 
 		vnffgConstants.PARAM_TYPE = getUrlParam("type");
-		// 获取所有
 		var successFunc = function(resData, textStatus, jqXHR) {
 			vnffgConstants.NODETYPES = resData;
 			getForwardNodeTypes();
@@ -1119,10 +1104,9 @@
 		REQ.getNodeTypes(successFunc);
 		
 
-		// 获取group 信息
+		// get group info
 		loadVnffgInfo();
 
-		// 添加对pathindex的处理
 		pathIndexHandler();
 
 		winery.events.register(winery.events.name.command.SAVE, savePath);
