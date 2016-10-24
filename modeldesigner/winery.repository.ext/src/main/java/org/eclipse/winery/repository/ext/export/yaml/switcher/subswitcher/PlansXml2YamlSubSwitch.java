@@ -203,7 +203,7 @@ public class PlansXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         return "";
       }
 
-      return "plan" + File.separator + new File(tReference).getName();
+      return "plan/" + new File(tReference).getName();
     }
 
     /**
