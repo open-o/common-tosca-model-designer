@@ -57,12 +57,14 @@ public class GroupTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
      */
     private Entry<String, GroupType> createGroupType(TGroupType tType) {
         GroupType yType = new GroupType();
+        
+        String name = Xml2YamlTypeMapper.mappingGroupType(tType.getName());
         // derived_from
         if (tType.getDerivedFrom() == null) {
-            yType.setDerived_from(Xml2YamlTypeMapper.mappingGroupType(null));
+            yType.setDerived_from(Xml2YamlTypeMapper.mappingGroupTypeDerivedFrom(null, name));
         } else {
-            yType.setDerived_from(Xml2YamlTypeMapper.mappingGroupType(Xml2YamlSwitchUtils
-                    .getNamefromQName(tType.getDerivedFrom().getTypeRef())));
+            yType.setDerived_from(Xml2YamlTypeMapper.mappingGroupTypeDerivedFrom(
+                Xml2YamlSwitchUtils.getNamefromQName(tType.getDerivedFrom().getTypeRef()), name));
         }
         // description
         yType.setDescription(Xml2YamlSwitchUtils.convert2Description(tType.getDocumentation()));
@@ -82,7 +84,6 @@ public class GroupTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
             yType.setInterfaces(yamlInterfaces);
         }
 
-        String name = Xml2YamlTypeMapper.mappingGroupType(tType.getName());
         return Xml2YamlSwitchUtils.buildEntry(name, yType);
     }
 
