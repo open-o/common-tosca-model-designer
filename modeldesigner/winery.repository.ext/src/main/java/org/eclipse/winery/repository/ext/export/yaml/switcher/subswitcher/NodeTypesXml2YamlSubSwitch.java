@@ -112,14 +112,15 @@ public class NodeTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
      */
     public Entry<String, NodeType> createNodeType(TNodeType tNodeType) {
         NodeType yNodeType = new NodeType();
-
+        
+        String name = Xml2YamlTypeMapper.mappingNodeType(tNodeType.getName());
         // derived_from
         if (tNodeType.getDerivedFrom() == null) {
-            yNodeType.setDerived_from(Xml2YamlTypeMapper.mappingNodeType(null));
+            yNodeType.setDerived_from(Xml2YamlTypeMapper.mappingNodeTypeDerivedFrom(null, name));
         } else {
             yNodeType.setDerived_from(
-                Xml2YamlTypeMapper.mappingNodeType(
-                    Xml2YamlSwitchUtils.getNamefromQName(tNodeType.getDerivedFrom().getTypeRef())));
+                Xml2YamlTypeMapper.mappingNodeTypeDerivedFrom(
+                    Xml2YamlSwitchUtils.getNamefromQName(tNodeType.getDerivedFrom().getTypeRef()), name));
         }
 
         // description
@@ -158,7 +159,6 @@ public class NodeTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
 
         // TODO artifacts
 
-        String name = Xml2YamlTypeMapper.mappingNodeType(tNodeType.getName());
         return Xml2YamlSwitchUtils.buildEntry(name, yNodeType);
     }
 

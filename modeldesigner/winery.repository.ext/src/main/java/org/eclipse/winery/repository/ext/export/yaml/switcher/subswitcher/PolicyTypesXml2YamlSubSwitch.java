@@ -58,12 +58,14 @@ public class PolicyTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     private Entry<String, PolicyType> createPolicyType(TPolicyType tPolicyType) {
         PolicyType yPolicyType = new PolicyType();
 
+        String name = Xml2YamlTypeMapper.mappingPolicyType(tPolicyType.getName());
         // derived_from
         if (tPolicyType.getDerivedFrom() == null) {
-            yPolicyType.setDerived_from("tosca.policies.Root");
+            yPolicyType.setDerived_from(Xml2YamlTypeMapper.mappingPolicyTypeDerivedFrom(null, name));
         } else {
-            yPolicyType.setDerived_from(Xml2YamlTypeMapper.mappingNodeType(Xml2YamlSwitchUtils
-                    .getNamefromQName(tPolicyType.getDerivedFrom().getTypeRef())));
+            yPolicyType.setDerived_from(
+                Xml2YamlTypeMapper.mappingPolicyTypeDerivedFrom(
+                    Xml2YamlSwitchUtils.getNamefromQName(tPolicyType.getDerivedFrom().getTypeRef()), name));
         }
 
         // description
@@ -74,10 +76,10 @@ public class PolicyTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         }
 
         // properties
-        yPolicyType.setProperties(Xml2YamlSwitchUtils.convert2PolicyPropertyDefinitions(tPolicyType
-                .getAny()));
+        yPolicyType.setProperties(
+            Xml2YamlSwitchUtils.convert2PolicyPropertyDefinitions(tPolicyType.getAny()));
 
-        return buildEntry(tPolicyType.getName(), yPolicyType);
+        return buildEntry(name, yPolicyType);
     }
 
     private Entry<String, PolicyType> buildEntry(String name, PolicyType yPolicyType) {

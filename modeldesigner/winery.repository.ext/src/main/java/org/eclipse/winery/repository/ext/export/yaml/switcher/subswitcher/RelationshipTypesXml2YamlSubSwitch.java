@@ -61,15 +61,15 @@ public class RelationshipTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitc
             TRelationshipType tRelationshipType) {
         RelationshipType yRelationshipType = new RelationshipType();
 
+        String name = Xml2YamlTypeMapper.mappingRelationshipType(tRelationshipType.getName());
         // derived_from
         if (tRelationshipType.getDerivedFrom() == null) {
-            yRelationshipType.setDerived_from(Xml2YamlTypeMapper
-                    .mappingRelationshipType(null));
+            yRelationshipType.setDerived_from(
+                Xml2YamlTypeMapper.mappingRelationshipTypeDerivedFrom(null, name));
         } else {
-            yRelationshipType.setDerived_from(Xml2YamlTypeMapper
-                    .mappingRelationshipType(Xml2YamlSwitchUtils
-                            .getNamefromQName(tRelationshipType
-                                    .getDerivedFrom().getTypeRef())));
+            yRelationshipType.setDerived_from(
+                Xml2YamlTypeMapper.mappingRelationshipTypeDerivedFrom(
+                    Xml2YamlSwitchUtils.getNamefromQName(tRelationshipType.getDerivedFrom().getTypeRef()), name));
         }
 
         // description
@@ -93,9 +93,7 @@ public class RelationshipTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitc
 
         }
 
-        String relationshipTypeName = Xml2YamlTypeMapper
-                .mappingRelationshipType(tRelationshipType.getName());
-        return buildEntry(relationshipTypeName, yRelationshipType);
+        return buildEntry(name, yRelationshipType);
     }
 
     private Entry<String, RelationshipType> buildEntry(

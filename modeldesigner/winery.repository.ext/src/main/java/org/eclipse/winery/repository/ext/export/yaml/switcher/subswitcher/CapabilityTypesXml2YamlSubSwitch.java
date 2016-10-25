@@ -59,14 +59,15 @@ public class CapabilityTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch 
     private Entry<String, CapabilityType> createCapabilityType(TCapabilityType tCapabilityType) {
         CapabilityType yCapabilityType = new CapabilityType();
 
+        String name = Xml2YamlTypeMapper.mappingCapabilityType(tCapabilityType.getName());
         // derived_from
         if (tCapabilityType.getDerivedFrom() == null) {
-            yCapabilityType.setDerived_from(Xml2YamlTypeMapper.mappingCapabilityType(null));
+            yCapabilityType.setDerived_from(Xml2YamlTypeMapper.mappingCapabilityTypeDerivedFrom(null, name));
         } else {
-            yCapabilityType.setDerived_from(Xml2YamlTypeMapper
-                    .mappingCapabilityType(Xml2YamlSwitchUtils
-                    .getNamefromQName(tCapabilityType
-                    .getDerivedFrom().getTypeRef())));
+            yCapabilityType.setDerived_from(
+                Xml2YamlTypeMapper.mappingCapabilityTypeDerivedFrom(
+                    Xml2YamlSwitchUtils.getNamefromQName(
+                        tCapabilityType.getDerivedFrom().getTypeRef()), name));
         }
         
         // description
@@ -77,9 +78,7 @@ public class CapabilityTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch 
         yCapabilityType.setProperties(Xml2YamlSwitchUtils
                 .convert2PropertyDefinitions(tCapabilityType.getAny()));
 
-        return buildEntry(
-                Xml2YamlTypeMapper.mappingCapabilityType(tCapabilityType
-                        .getName()), yCapabilityType);
+        return buildEntry(name, yCapabilityType);
     }
 
     private Entry<String, CapabilityType> buildEntry(

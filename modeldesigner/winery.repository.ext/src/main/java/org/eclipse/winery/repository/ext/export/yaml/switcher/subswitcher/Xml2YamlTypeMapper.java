@@ -25,9 +25,20 @@ import java.util.Map;
  *
  */
 public class Xml2YamlTypeMapper {
+  /** */
+  private static final String TOSCA_POLICIES_ROOT = "tosca.policies.Root";
+  /** */
+  private static final String TOSCA_RELATIONSHIPS_ROOT = "tosca.relationships.Root";
+  /** */
+  private static final String TOSCA_NODES_ROOT = "tosca.nodes.Root";
+  /** */
+  private static final String TOSCA_CAPABILITIES_ROOT = "tosca.capabilities.Root";
+  /** */
+  private static final String TOSCA_GROUPS_ROOT = "tosca.groups.Root";
+  
     private static Map<String, String> t2yNodeTypeMap = new HashMap<>();
     static {
-        t2yNodeTypeMap.put("RootNodeType", "tosca.nodes.Root");
+        t2yNodeTypeMap.put("RootNodeType", TOSCA_NODES_ROOT);
         t2yNodeTypeMap.put("Server", "tosca.nodes.Compute");
         t2yNodeTypeMap.put("OperatingSystem", "tosca.nodes.SoftwareComponent");
         t2yNodeTypeMap.put("WebServer", "tosca.nodes.WebServer");
@@ -46,7 +57,7 @@ public class Xml2YamlTypeMapper {
      */
     public static String mappingNodeType(String tNodeType) {
         if (tNodeType == null) {
-            return "tosca.nodes.Root";
+            return TOSCA_NODES_ROOT;
         }
 
         if (t2yNodeTypeMap.containsKey(tNodeType)) {
@@ -55,10 +66,22 @@ public class Xml2YamlTypeMapper {
 
         return tNodeType;
     }
+    
+    /**
+     * @param derivedFrom
+     * @param type
+     * @return
+     */
+    public static String mappingNodeTypeDerivedFrom(String derivedFrom, String type) {
+      if (type.equals(TOSCA_NODES_ROOT)) {
+        return null;
+      }
+      return mappingNodeType(derivedFrom);
+    }
 
     private static Map<String, String> t2yCapabilityTypeMap = new HashMap<>();
     static {
-        t2yCapabilityTypeMap.put("RootCapabilityType", "tosca.capabilities.Root");
+        t2yCapabilityTypeMap.put("RootCapabilityType", TOSCA_CAPABILITIES_ROOT);
         t2yCapabilityTypeMap.put("FeatureCapability", "tosca.capabilities.Feature");
         t2yCapabilityTypeMap.put("ContainerCapability", "tosca.capabilities.Container");
         t2yCapabilityTypeMap.put("EndpointCapability", "tosca.capabilities.Endpoint");
@@ -66,7 +89,6 @@ public class Xml2YamlTypeMapper {
                 "tosca.capabilities.DatabaseEndpoint");
         t2yCapabilityTypeMap.put("MySQLDatabaseEndpointCapability",
                 "tosca.capabilities.DatabaseEndpoint.MySQL");
-
         t2yCapabilityTypeMap.put("OSContainerCapability",
                 "tosca.capabilities.OperatingSystem");
         t2yCapabilityTypeMap.put("VirtualBindable",
@@ -80,7 +102,7 @@ public class Xml2YamlTypeMapper {
      */
     public static String mappingCapabilityType(String tCapabilityType) {
         if (tCapabilityType == null) {
-            return "tosca.capabilities.Root";
+            return TOSCA_CAPABILITIES_ROOT;
         }
 
         if (t2yCapabilityTypeMap.containsKey(tCapabilityType)) {
@@ -88,6 +110,18 @@ public class Xml2YamlTypeMapper {
         }
 
         return tCapabilityType;
+    }
+    
+    /**
+     * @param derivedFrom
+     * @param type 
+     * @return
+     */
+    public static String mappingCapabilityTypeDerivedFrom(String derivedFrom, String type) {
+      if (type.equals(TOSCA_CAPABILITIES_ROOT)) {
+        return null;
+      }
+      return mappingCapabilityType(derivedFrom);
     }
 
 
@@ -114,15 +148,11 @@ public class Xml2YamlTypeMapper {
 
     private static Map<String, String> t2yRelationshipTypeMap = new HashMap<>();
     static {
-        t2yRelationshipTypeMap.put("RootRelationshipType",
-                "tosca.relationships.Root");
-        t2yRelationshipTypeMap
-                .put("DependsOn", "tosca.relationships.DependsOn");
-        t2yRelationshipTypeMap.put("DeployedOn",
-                "tosca.relationships.DeployedOn");
+        t2yRelationshipTypeMap.put("RootRelationshipType", TOSCA_RELATIONSHIPS_ROOT);
+        t2yRelationshipTypeMap.put("DependsOn", "tosca.relationships.DependsOn");
+        t2yRelationshipTypeMap.put("DeployedOn", "tosca.relationships.DeployedOn");
         t2yRelationshipTypeMap.put("HostedOn", "tosca.relationships.HostedOn");
-        t2yRelationshipTypeMap.put("ConnectsTo",
-                "tosca.relationships.ConnectsTo");
+        t2yRelationshipTypeMap.put("ConnectsTo", "tosca.relationships.ConnectsTo");
     }
 
     /**
@@ -131,7 +161,7 @@ public class Xml2YamlTypeMapper {
      */
     public static String mappingRelationshipType(String tRelationshipType) {
         if (tRelationshipType == null) {
-            return "tosca.relationships.Root";
+            return TOSCA_RELATIONSHIPS_ROOT;
         }
 
         if (t2yRelationshipTypeMap.containsKey(tRelationshipType)) {
@@ -140,6 +170,19 @@ public class Xml2YamlTypeMapper {
 
         return tRelationshipType;
     }
+    
+    /**
+     * @param derivedFrom
+     * @param type
+     * @return
+     */
+    public static String mappingRelationshipTypeDerivedFrom(String derivedFrom, String type) {
+      if (type.equals(TOSCA_RELATIONSHIPS_ROOT)) {
+        return null;
+      }
+      return mappingRelationshipType(derivedFrom);
+    }
+    
 
     /**
      * @param tGroupType
@@ -147,10 +190,44 @@ public class Xml2YamlTypeMapper {
      */
     public static String mappingGroupType(String tGroupType) {
         if (tGroupType == null || tGroupType.isEmpty()) {
-            return "tosca.groups.Root";
+            return TOSCA_GROUPS_ROOT;
         }
-
         return tGroupType;
+    }
+    
+    /**
+     * @param derivedFrom
+     * @param type
+     * @return
+     */
+    public static String mappingGroupTypeDerivedFrom(String derivedFrom, String type) {
+      if (type.equals(TOSCA_GROUPS_ROOT)) {
+        return null;
+      }
+      return mappingGroupType(derivedFrom);
+    }
+
+    /**
+     * @param tPolicyType
+     * @return
+     */
+    public static String mappingPolicyType(String tPolicyType) {
+      if (tPolicyType == null || tPolicyType.isEmpty()) {
+        return TOSCA_POLICIES_ROOT;
+      }
+      return tPolicyType;
+    }
+
+    /**
+     * @param derivedFrom
+     * @param type
+     * @return
+     */
+    public static String mappingPolicyTypeDerivedFrom(String derivedFrom, String type) {
+      if (type.equals(TOSCA_POLICIES_ROOT)) {
+        return null;
+      }
+      return mappingPolicyType(derivedFrom);
     }
 
 }
