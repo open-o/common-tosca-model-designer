@@ -37,6 +37,9 @@
 				model: this.model,
 				title: "Edit Public Rest Task"
 			});
+
+
+
 			dialog.on("confirm", function(event){
 				var publicInterface = this.$el.find("#publicInterface")[0].selectize.options[this.$el.find("#publicInterface")[0].selectize.getValue()];
 				
@@ -57,7 +60,7 @@
 						var bodyParam = {"type":bpelVarType, "value":value, "jsonType":type, "id":node.id};
 						root.varParam[parent[key]] = bodyParam;
 					} else {
-						if((typeof value) != "undefined" && "" != value) {
+						if((typeof value) != "undefined") {
 							var varibaleKey = generateVariableInfo(node.id);
 
 							if(parent instanceof Array) {
@@ -92,7 +95,7 @@
 
 				var root = {varParam:{}};
 				if($('#restParam').length == 0) {
-					
+
 				} else {
 					var treeObj = $.fn.zTree.getZTreeObj("restParam");
 					var node = treeObj.getNodeByTId("restParam_1");
@@ -154,7 +157,21 @@
 				})[0].selectize;
 
 				var initParam = function (bodyParam, model, paramElement) {
+						//点击其他地方隐藏属性输入框
+						$('#restParam').click(function(e) {
 
+							var treeObj = $.fn.zTree.getZTreeObj("restParam");
+							var nodes = treeObj.getSelectedNodes();
+
+							if(nodes.length != 0 && e.target.id.indexOf("restParam")==0 && e.target.id.indexOf(nodes[0].id)<0){
+								treeObj.cancelSelectedNode(nodes[0]);
+
+								var aObj = $("#" + nodes[0].tId + "_a");
+								aObj.css({"background-color":"rgb(255, 255, 255)","color":"black"});
+							}
+
+						})	
+						
 						var addDiyDom = function(treeId, treeNode) {
 							// 添加类型
 							var typeStr = "<span id='restParam_" +treeNode.id+ "_rpType'>[" + treeNode.rp_rest_type + "]</span>";
@@ -167,7 +184,13 @@
 							aObj.append(editStr);
 
 							// 添加value
-							var editStr = "<span id='restParam_" +treeNode.id+ "_rpValue'>" + treeNode.rp_value + "</span>";
+							var editStr = "<span id='restParam_" +treeNode.id+ "_rpValue'>";
+							if( treeNode.rp_value != undefined) {
+								
+								editStr += treeNode.rp_value;
+							}
+							editStr += "</span>";
+							
 							aObj.append(editStr);
 						};
 
@@ -199,48 +222,15 @@
 						};
 
 						var addHoverDom = function(treeId, treeNode) {
-							if ($("#diyBtn_"+treeNode.id).length>0) return;
+
 							$.fn.zTree.getZTreeObj("restParam").setting.edit.showRemoveBtn = false;
+							if ($("#diyBtn_"+treeNode.id).length>0) return;
 
 							var aObj = $("#" + treeNode.tId + "_a");
-							
-
-							// 添加编辑按钮
-							var paramElement = new Application.View.DialogParameterTree(
-								_.extend(
-									{editable: false, type: "string"}, 
-									{
-										direction: "input",
-										model: model,
-										name: treeNode.name,
-										sources: ["concat", "string", "plan", "object"],
-										type: treeNode.rp_bpel_type,
-										value : treeNode.rp_value
-									}
-								)
-							).render().el;
-
-							aObj.after(paramElement);
-							$("#" + treeNode.tId + "_a + div").attr("id", 'diyBtn_' + treeNode.id).css({ "display": "inline-block", "margin-top": "-19px", "width":"60%" });
-							var btn = $("#diyBtn_"+treeNode.id + " input");
-							if (btn) btn.bind("change", function(){
-								var bpelVariableType = $("#diyBtn_"+treeNode.id + " input").attr("data-type");
-
-								var val = $("#diyBtn_"+treeNode.id + " input").val();
-								if(treeNode.rp_rest_type =="number" && bpelVariableType == "string" && isNaN(val)) {
-									$("#diyBtn_" + treeNode.id + " .input-group").addClass("has-error");
-								} else {
-									$("#diyBtn_" + treeNode.id + " .input-group").removeClass("has-error");
-									$("#restParam_" + treeNode.id+ "_rpValue").text(val);
-									treeNode.rp_bpel_type = bpelVariableType;
-									treeNode.rp_value = val;
-								}
-
-							});
-
 
 							if(treeNode.rp_rest_type == "Array") {
-								// 数组节点增加添加子节点按钮
+								// 数组节点增加添加子节点按�?
+
 								if (treeNode.editNameFlag || $("#diyBtn_"+treeNode.id + "_add").length>0) return;
 								var addStr = "<span class='button add' id='diyBtn_" + treeNode.id
 									+ "_add' title='add node' onfocus='this.blur();'></span>";
@@ -261,21 +251,66 @@
 								});
 
 							} else if(treeNode.getParentNode() && treeNode.getParentNode().rp_rest_type == "Array") {
-								// 数组节点的子节点，添加删除按钮
+								// 数组节点的子节点，添加删除按�?
 								$.fn.zTree.getZTreeObj("restParam").setting.edit.showRemoveBtn = true;
 							}
-							
+
 						};
 
 						var removeHoverDom = function(treeId, treeNode) {
 
+							$.fn.zTree.getZTreeObj("restParam").setting.edit.showRemoveBtn = false;
 							if(treeNode.rp_rest_type == "Array") {
 								$("#diyBtn_" + treeNode.id + "_add").unbind().remove();
-								$.fn.zTree.getZTreeObj("restParam").setting.edit.showRemoveBtn = false;
 							}
 
 							$("#diyBtn_"+treeNode.id + " input").unbind();
 							$("#diyBtn_"+treeNode.id).remove();
+
+						};
+						var tempaObj = null;
+						var zTreeOnClick = function(event,treeId, treeNode) {
+							tempaObj == null ? null:tempaObj.css({"background-color":"rgb(255, 255, 255)","color":"black"});
+							var aObj = $("#" + treeNode.tId + "_a");
+
+							// 添加编辑输入�?
+							var paramElement = new Application.View.DialogParameterTree(
+								_.extend(
+									{editable: false, type: "string"},
+									{
+										direction: "input",
+										model: model,
+										name: treeNode.name,
+										sources: ["concat", "string", "plan", "object"],
+										type: treeNode.rp_bpel_type,
+										value : treeNode.rp_value
+									}
+								)
+							).render().el;
+
+
+							aObj.after(paramElement);//将输入框添加到div�?
+							$("#" + treeNode.tId + "_a + div").attr("id", 'diyBtn_' + treeNode.id).css({"position": "relative", "top": "5px", "left": "0px", "width":"80%"});
+							aObj.css({"background-color":"darkslategrey","color":"#ffffff"});
+							tempaObj = aObj;
+
+							//输入框输入内容则保存到树�?
+							var btn = $("#diyBtn_"+treeNode.id + " input");
+							if (btn) btn.bind("change", function(){
+								var bpelVariableType = $("#diyBtn_"+treeNode.id + " input").attr("data-type");
+
+								var val = $("#diyBtn_"+treeNode.id + " input").val();
+								if(treeNode.rp_rest_type =="number" && bpelVariableType == "string" && isNaN(val)) {
+									$("#diyBtn_" + treeNode.id + " .input-group").addClass("has-error");
+								} else {
+									$("#diyBtn_" + treeNode.id + " .input-group").removeClass("has-error");
+									$("#restParam_" + treeNode.id+ "_rpValue").text(val);
+									treeNode.rp_bpel_type = bpelVariableType;
+									treeNode.rp_value = val;
+								}
+
+							});
+
 						};
 
 						// var param = {
@@ -305,11 +340,16 @@
 						// };
 
 
+						var getVariableInfo = function(varString, variables) {
+							// "_bpelVar_id"
+							var id = varString.substr(9);
+
+							return {"value":id, "bpelVarType":bpelVarType, "restVarType":restVarType, "value":value};
+						};
+
+
 						var createParamNode = function(key, value) {
-							var node = {
-								"name":key, "rp_key":key, "open":true,
-								"rp_bpel_type":"string", "rp_rest_type":"", "rp_value":"", 
-							};
+							var node = {"name":key, "rp_key":key, "rp_bpel_type":"string", "open":true};
 
 							var type = typeof value;
 							if (type == "string" || type == "number") {
@@ -345,12 +385,9 @@
 
 						var nodeId = 1;
 						var nodeMap = {};
-
+						//解析
 						var changeParam2Node = function (key, value, param, variables) {
-							var node = {
-								"name":key, "id":"" + nodeId, "open":true, 
-								"rp_key":key, "rp_bpel_type":"string", "rp_value":""
-							};
+							var node = {"name":key, "id":"" + nodeId, "rp_key":key, "rp_bpel_type":"string", "open":true};
 							nodeId +=1;
 							nodeMap[node.id] = createParamNode(key, param);
 
@@ -418,7 +455,8 @@
 								addDiyDom:addDiyDom
 							},
 							callback: {
-								onRemove: zTreeOnRemove
+								onRemove: zTreeOnRemove,
+								onClick: zTreeOnClick
 							}
 						};
 

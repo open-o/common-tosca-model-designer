@@ -33,6 +33,100 @@
 				"width": "30px"
 			};
 		},
+	/*
+		initialize: function(){
+
+			//init
+			this.on("append", function(event) {
+				jsPlumb.setId(this.$el, this.model.id);
+				jsPlumb.draggable(this.$el, {
+
+					cancel: ".focus",
+
+					snap: ".guide",
+
+					snapMode: "inner",
+
+					start: _.bind(function (event, ui) {
+						this.$el.addClass("dragging");
+					}, this),
+
+					stop: _.bind(function (event, ui) {
+						this.model.set({
+							position: {left: ui.position.left, top: ui.position.top}
+						});
+					}, this)
+
+				});
+
+				jsPlumb.makeTarget(this.$el.attr("id"), {
+					anchor: ["Top", "RightMiddle", "LeftMiddle", "Bottom"],
+					detachable: false,
+					endpoint: "Blank",
+					isTarget: true,
+					maxConnections: -1,
+					connectorPaintStyle: {
+						lineWidth: 2
+					},
+					connector: 'StateMachine',
+					ConnectionOverlays: [
+						["Arrow", {
+							location: 1,
+							id: "arrow",
+							length: 14,
+							foldback: 0.8
+						}],
+						["Label", {label: "FOO", id: "label", cssClass: "aLabel"}]
+					]
+				});
+
+				this.on("add_connection", function(event){
+					if(this.model.id === Backbone.$(event.target.el).attr("id")){
+						_.each(jsPlumb.getConnections({target: this.$el.attr("id")}), function(targetConnection){
+							jsPlumb.detach(targetConnection);
+						});
+
+					}else{
+						this.model.addConnection(Backbone.$(event.target.el).attr("id"));
+					}
+				}, this);
+				this.on("remove_connection", function(event){
+					this.model.removeConnection(Backbone.$(event.target.el).attr("id"));
+				}, this);
+				this.model.on("change", function(event){
+					this.render();
+					jsPlumb.repaintEverything();
+				}, this);
+				this.model.on("remove", function(event){
+					this.remove();
+				}, this);
+
+
+			});
+			// begin init display
+			var initPara = ['serviceTemplateId','containerapiUrl','resourceUrl','statusUrl','instanceId', 'callbackId','roUrl','flavor','flavorParams','vnfmId','iaUrl'];
+
+			var count = initPara.length;
+
+			var initParaMap = {};
+
+			for ( var int = 0; int < count; int++)
+			{
+				var parameterObj = {type:typeof initPara[int],value:""};
+
+				initParaMap[initPara[int]] = parameterObj;
+			}
+
+			// new created Start Event
+			this.model.set({
+				name: "StartEvent",
+				output:  initParaMap
+			});
+
+			// end init display
+
+		},
+	*/
 
 		dialog: function(event){
 			if(event) event.stopPropagation();
@@ -78,6 +172,8 @@
 					}))
 				});
 			});
+			
+		
 			dialog.on("show", function(event){
 				event.dialog.$el.find("form").append(
 					"<div class=\"form-group\">"
@@ -94,25 +190,10 @@
 					"<button type=\"button\" class=\"btn btn-default\" data-event=\"appendInput\">Append Input Parameter</button>"
 					+ "<button type=\"button\" class=\"btn btn-default\" data-event=\"appendOutput\">Append Variable</button>"
 				);
-				
-				// begin init display
+
 				var initPara = ['serviceTemplateId','containerapiUrl','resourceUrl','statusUrl','instanceId', 'callbackId','roUrl','flavor','flavorParams','vnfmId','iaUrl'];
 				var count = initPara.length;
-				var setInitPara = function(name)
-				{
-					var parameters = new Application.View.DialogParameter({
-						direction: "output",
-						editable: false,
-						model: dialog.model,
-						name: name,
-						sources: ["string"],
-						hide : "hide",
-						type : "string"
-					});
-					
-					event.dialog.$el.find("form").append(parameters.render().el);
-				};
-				
+
 				var isInitPara = function(name)
 				{
 					for ( var int = 0; int < count; int++)
@@ -122,18 +203,10 @@
 							return true;
 						}
 					}
-					
+
 					return false;
 				};
-				
-				// new created Start Event
-				if(undefined == this.model.get("output"))
-				{
-					for ( var int = 0; int < count; int++)
-					{
-						setInitPara(initPara[int]);
-					}
-				}
+
 				// end init display
 				
 				// input params
@@ -151,9 +224,6 @@
 					} else {
 						event.dialog.$el.find("form .inputParameter").append(new Application.View.DialogParameter(options).render().el);
 					}
-					
-					
-					
 				}, this);
 				
 				// variables
