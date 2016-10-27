@@ -165,7 +165,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
    * @return
    */
   private String getYamlNodeTemplateName(String id, String name) {
-    return name + "+" + id;
+    return name + "_" + id;
   }
 
   /**
@@ -335,17 +335,17 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
   private Requirement buildRequirement(TEntityTemplate target) {
     // when the target is a node
     if(target instanceof TNodeTemplate){
-        TNodeTemplate nodeTemplate = (TNodeTemplate)target;
+        TNodeTemplate tnode = (TNodeTemplate)target;
         Requirement yrequirement = new Requirement();
-        yrequirement.setNode(nodeTemplate.getName());
+        yrequirement.setNode(getYamlNodeTemplateName(tnode.getId(), tnode.getName()));
         return yrequirement;
     //when the target is a capability
     }else if(target instanceof TCapability){
         TCapability capability = (TCapability)target;
-        TNodeTemplate nodeTemplate = findTNodeTemplatByCapability(capability);
+        TNodeTemplate tnode = findTNodeTemplatByCapability(capability);
         Requirement yrequirement = new Requirement();
         yrequirement.setCapability(capability.getName());
-        yrequirement.setNode(nodeTemplate.getName());
+        yrequirement.setNode(getYamlNodeTemplateName(tnode.getId(), tnode.getName()));
         return yrequirement;
     }
 
