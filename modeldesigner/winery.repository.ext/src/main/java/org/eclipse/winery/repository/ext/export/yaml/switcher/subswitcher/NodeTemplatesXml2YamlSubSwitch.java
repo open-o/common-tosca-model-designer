@@ -155,7 +155,17 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     PositionNamespaceHelper.getInstance().addPosition(
         tnodeTemplate.getName(), getNodetemplatePosition(tnodeTemplate));
 
-    return Xml2YamlSwitchUtils.buildEntry(tnodeTemplate.getName(), ynodeTemplate);
+    return Xml2YamlSwitchUtils.buildEntry(
+        getYamlNodeTemplateName(tnodeTemplate.getId(), tnodeTemplate.getName()), ynodeTemplate);
+  }
+
+  /**
+   * @param id
+   * @param name
+   * @return
+   */
+  private String getYamlNodeTemplateName(String id, String name) {
+    return name + "+" + id;
   }
 
   /**
