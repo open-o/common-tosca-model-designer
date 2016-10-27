@@ -354,11 +354,11 @@
                 #end
             #elseif( $paramType == "OBJECT" )
                 <from>
-                    <literal>$taskQueryData.getValue()</literal>
+                    <literal>$taskInputData.getValue()</literal>
                 </from>
-            #elseif( $taskQueryData.getValue() )
+            #elseif( $taskInputData.getValue() )
                 <from>
-                    <literal>$taskQueryData.getValue()</literal>
+                    <literal>$taskInputData.getValue()</literal>
                 </from>
             #else
                 <from>
