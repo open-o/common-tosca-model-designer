@@ -148,7 +148,9 @@
     });
 
     require(["winery-datatable", "jquery.fileupload"], function(wd){
+    	 
         var operationRender = function(obj) {
+        	
             var namespace_encode = encodeURIComponent(encodeURIComponent(obj.aData.namespace));
             var name = $(obj.aData.id).text();
             var serviceTemplateURL = "/winery/servicetemplates/" + namespace_encode + "/" + name;
@@ -188,8 +190,22 @@
             }
             return sourcetype;
         }
+        var namespaceType = function(obj) {
+            var namespacetype;
+            if(obj.aData.namespace == "http://www.open-o.org/tosca/sdn/ns") {
+            	namespacetype ="SSAR";
+            }else if(obj.aData.namespace == "http://www.zte.com.cn/tosca/nfv/ns") {
+            	namespacetype ="NSAR";
+            }else if(obj.aData.namespace == "http://www.open-o.org/tosca/gso") {
+            	namespacetype ="GSAR";
+            }else{
+                namespacetype ="NFAR";
+            }
+            return namespacetype;
+        }
 
         var serviceTemplate = {
+        	
             divId : "serviceTemplateTable_div",
             id : "serviceTemplateTable",
             url : "/winery/API/templatesoverview",
@@ -197,11 +213,13 @@
                 //{"mData": "id", "name": "ID", "bVisible": false}, 
                 {"mData": "id", "name": $.i18n.prop("winery-template-table-name"), "fnRender": idRender,
                     "sWidth":"25%"}, 
-                {"mData": "namespace", "name": $.i18n.prop("winery-template-table-namespace"), "sWidth":"30%"},
-                {"mData": "sourcetype", "name": $.i18n.prop("winery-template-table-type"), "fnRender": sourcetypeRender, "sWidth":"15%"},
+                {"mData": "namespacetype", "name": $.i18n.prop("winery-template-table-type"), "fnRender": namespaceType, "sWidth":"20%"},
+                //{"mData": "namespace", "name": $.i18n.prop("winery-template-table-type"), "sWidth":"30%"},
+                //{"mData": "sourcetype", "name": $.i18n.prop("winery-template-table-type"), "fnRender": sourcetypeRender, "sWidth":"15%"},
                 {"mData": null, "name": $.i18n.prop("winery-table-operation"), "sClass": "center", "fnRender": operationRender, "sWidth":"30%"}
             ]
         }
+    	 
         wd.initTable(serviceTemplate, function(){
             //初始化删除按钮
             $(".delBtn").click(function(){
