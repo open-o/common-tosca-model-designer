@@ -23,11 +23,13 @@ import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.common.ModelUtilities;
 import org.eclipse.winery.common.Util;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKV;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKVList;
 import org.eclipse.winery.common.propertydefinitionkv.WinerysPropertiesDefinition;
 import org.eclipse.winery.model.tosca.TCapabilityDefinition;
+import org.eclipse.winery.model.tosca.TConstraint;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeType.CapabilityDefinitions;
 import org.eclipse.winery.model.tosca.TNodeType.Interfaces;
@@ -40,6 +42,7 @@ import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.RequirementDefinition;
 import org.eclipse.winery.repository.resources.entitytypes.requirementtypes.RequirementTypesResource;
+import org.w3c.dom.Element;
 
 /**
  * This class supports processing of node types from a YAML service template.
@@ -204,28 +207,46 @@ public class NodeTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
 
     private RequirementDefinition convert2YamlRequirementDefinition(TRequirementDefinition tRequirement) {
       RequirementDefinition yRequirementDef = new RequirementDefinition();
-
-        String tRequirementType =
-                Xml2YamlSwitchUtils.getNamefromQName(tRequirement.getRequirementType());
-
-        QName tCapabilityType =
-            new RequirementTypesResource().getComponentInstaceResource(
-                Util.URLencode(tRequirement.getRequirementType().getNamespaceURI()),
-                tRequirementType).
-                    getRequiredCapabilityTypeResource().getRequirementType().getRequiredCapabilityType();
-
-        if (tCapabilityType != null) {
-            String yCapabilityType = Xml2YamlSwitchUtils.getNamefromQName(tCapabilityType);
-            yRequirementDef.setCapability(Xml2YamlTypeMapper.mappingCapabilityType(yCapabilityType));
-        } else {
-          yRequirementDef.setCapability(Xml2YamlTypeMapper.mappingTRequirement2yCapabilityType(tRequirementType));
-        }
-        yRequirementDef.setOccurrences(RequirementDefinition.UNBOUNDED_OCCURRENCE);
-        
-        return yRequirementDef;
+      // capability
+      yRequirementDef.setCapability(parseCapability(tRequirement));
+      // relationship
+      yRequirementDef.setRelationship(parseRelationship(tRequirement));
+     // occurrences
+      yRequirementDef.setOccurrences(RequirementDefinition.UNBOUNDED_OCCURRENCE);
+      
+      return yRequirementDef;
     }
 
+    private String parseCapability(TRequirementDefinition tRequirement) {
+      String tRequirementTypeName =
+              Xml2YamlSwitchUtils.getNamefromQName(tRequirement.getRequirementType());
 
+      QName tCapabilityType =
+          new RequirementTypesResource().getComponentInstaceResource(
+              Util.URLencode(tRequirement.getRequirementType().getNamespaceURI()), tRequirementTypeName)
+              .getRequiredCapabilityTypeResource().getRequirementType().getRequiredCapabilityType();
+
+      if (tCapabilityType != null) {
+        String tCapabilityTypeName = Xml2YamlSwitchUtils.getNamefromQName(tCapabilityType);
+        return Xml2YamlTypeMapper.mappingCapabilityType(tCapabilityTypeName);
+      }
+      
+      return Xml2YamlTypeMapper.mappingTRequirement2yCapabilityType(tRequirementTypeName);
+    }
+
+    private String parseRelationship(TRequirementDefinition tRequirement) {
+      if (tRequirement.getConstraints() == null
+          || tRequirement.getConstraints().getConstraint() == null
+          || tRequirement.getConstraints().getConstraint().isEmpty()) {
+        return null;
+      }
+      TConstraint tConstraint = tRequirement.getConstraints().getConstraint().get(0);
+      if ("relationship".equals(tConstraint.getConstraintType()) && tConstraint.getAny() != null) {
+        return ModelUtilities.resolvePropertiesElement((Element) tConstraint.getAny()).get("relationship");
+      }
+      
+      return null;
+    }
 
     private Map<String, CapabilityDefinition> parseCapabilityDefinitions(CapabilityDefinitions tCapabilities) {
         Map<String, CapabilityDefinition> yCapabilities = new HashMap<>();
