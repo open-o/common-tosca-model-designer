@@ -182,13 +182,18 @@ softwareRepositoryUtil.getQueryString=function(url,name){
 }
 
 softwareRepositoryUtil.getTableCheckedData = function(tableId) {
-    var checkedDatas = [];
+    var checkedDatas = {
+    	ids: [],
+    	projects: []
+    };
     var nodes = $("#" + tableId).dataTable().fnGetNodes();
     $.each(nodes, function(index, tr){
         var checked = $(tr).find("input:checked");
         if(checked.length) {
             var id = checked.val();
-            checkedDatas.push(id);
+            checkedDatas.ids.push(id);
+            var project = checked.data("project");
+            checkedDatas.projects.push(project);
         }
     });
     return checkedDatas;
