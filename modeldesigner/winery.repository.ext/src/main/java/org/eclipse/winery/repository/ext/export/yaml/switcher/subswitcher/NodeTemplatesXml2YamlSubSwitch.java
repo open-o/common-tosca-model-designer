@@ -165,7 +165,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
    * @return
    */
   private String getYamlNodeTemplateName(String id, String name) {
-    return name + "_" + id;
+    return name; // name + "_" + id;
   }
 
   /**
