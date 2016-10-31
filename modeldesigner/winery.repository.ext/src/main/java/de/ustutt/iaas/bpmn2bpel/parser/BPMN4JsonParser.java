@@ -298,7 +298,9 @@ public class BPMN4JsonParser extends Parser {
     }
 
     restTask.setPathParameters(getParams(restNode.get(JsonKeys.PATH_PARAMS)));
-    restTask.setBodyParameters(getParams(restNode.get(JsonKeys.BODY_PARAMS)));
+    List<Parameter> bodyParams = getParams(restNode.get(JsonKeys.BODY_PARAMS));
+    rmEmptyQueryParams(bodyParams);
+    restTask.setBodyParameters(bodyParams);
     List<Parameter> queryParams = getParams(restNode.get(JsonKeys.QUERY_PARAMS));
     rmEmptyQueryParams(queryParams);
     restTask.setQueryParameters(queryParams);
