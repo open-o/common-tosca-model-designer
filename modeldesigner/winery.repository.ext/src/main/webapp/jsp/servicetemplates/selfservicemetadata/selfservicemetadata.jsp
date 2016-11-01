@@ -522,7 +522,7 @@ $(function() {
 		});
 	});
 
-	loadi18n('winery-topologymodeler-i18n', '/winery-topologymodeler/i18n/');
+	loadi18n('winery-topologymodeler-i18n', '/modeldesigner-topologymodeler/i18n/');
 });
 
 function createOption(data) {

@@ -19,7 +19,7 @@
   <head>
     <meta charset="UTF-8">    
     <title>Service Templates</title>
-    <link type="text/css" href="/winery-topologymodeler/css/winery-common.css" rel="stylesheet" />
+    <link type="text/css" href="../modeldesigner-topologymodeler/css/winery-common.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap-theme.css" />
@@ -96,8 +96,8 @@
     <script type="text/javascript" src="components/jquery.i18n/jquery.i18n.properties-1.0.9.js"></script>
 
     <script type="text/javascript" src="js/winery-support-non-AMD.js"></script>
-    <script type="text/javascript" src="/winery-topologymodeler/js/winery-common.js"></script>
-    <script type="text/javascript" src="/winery-topologymodeler/js/winery-i18n.js"></script>
+    <script type="text/javascript" src="../modeldesigner-topologymodeler/js/winery-common.js"></script>
+    <script type="text/javascript" src="../modeldesigner-topologymodeler/js/winery-i18n.js"></script>
 
     <script type="text/javascript">
     /**
@@ -136,7 +136,7 @@
     require.config({
         baseUrl: "js",
         paths: {
-            "winery-datatable": "/winery-topologymodeler/js/winery-datatable",
+            "winery-datatable": "/modeldesigner-topologymodeler/js/winery-datatable",
             "datatables": "../components/datatables/media/js/jquery.dataTables",
             "jquery": "../components/jquery/jquery",
 
@@ -148,12 +148,10 @@
     });
 
     require(["winery-datatable", "jquery.fileupload"], function(wd){
-    	 
         var operationRender = function(obj) {
-        	
             var namespace_encode = encodeURIComponent(encodeURIComponent(obj.aData.namespace));
             var name = $(obj.aData.id).text();
-            var serviceTemplateURL = "/winery/servicetemplates/" + namespace_encode + "/" + name;
+            var serviceTemplateURL = "/modeldesigner/servicetemplates/" + namespace_encode + "/" + name;
             var serviceTemplateType = getQueryString("type");
 
             var exportURL = serviceTemplateURL + '?csar&exportType';
@@ -176,7 +174,7 @@
 
         var idRender = function(obj) {
             var namespace_encode = encodeURIComponent(encodeURIComponent(obj.aData.namespace));
-            var topologyViewURL = "/winery/servicetemplates/" + namespace_encode + "/" + obj.aData.id 
+            var topologyViewURL = "/modeldesigner/servicetemplates/" + namespace_encode + "/" + obj.aData.id
                     + "/topologytemplate?view";
             return '<a class="name link" href="'+ topologyViewURL +'">'+ obj.aData.id +'</a>';
         }
@@ -205,10 +203,9 @@
         }
 
         var serviceTemplate = {
-        	
             divId : "serviceTemplateTable_div",
             id : "serviceTemplateTable",
-            url : "/winery/API/templatesoverview",
+            url : "/modeldesigner/API/templatesoverview",
             columns : [
                 //{"mData": "id", "name": "ID", "bVisible": false}, 
                 {"mData": "id", "name": $.i18n.prop("winery-template-table-name"), "fnRender": idRender,
@@ -219,9 +216,8 @@
                 {"mData": null, "name": $.i18n.prop("winery-table-operation"), "sClass": "center", "fnRender": operationRender, "sWidth":"30%"}
             ]
         }
-    	 
         wd.initTable(serviceTemplate, function(){
-            //初始化删除按钮
+            //初始化删除按�?
             $(".delBtn").click(function(){
                 var rowElement = $(this).parent().parent();
                 var name = $(this).attr("name");
@@ -258,15 +254,15 @@
         var reloadTemplates = function() {
             $.ajax({
                 type: "GET",
-                url: "/winery/API/templatesoverview/reload",
+                url: "/modeldesigner/API/templatesoverview/reload",
                 async: false
             });
         }
 
-        //初始化文件上传
+        //初始化文件上�?
         $("#upCSARDiag").fileupload({
             dataType: 'json',
-            url: '/winery/',
+            url: '/modeldesigner/',
             type: 'POST',
             dropZone: $("#upCSARDiag"),
             paramName: 'file',
@@ -316,7 +312,7 @@
 
             function loadAndParseFile(filename) {
                 $.ajax({
-                    url: "/winery/conf/" + filename,
+                    url: "/modeldesigner/conf/" + filename,
                     async: false,
                     dataType: 'json',
                     success: function(data) {
@@ -326,10 +322,10 @@
                         data = data || [];
                         for(var i=0; i<data.length; i++) {
                             var menu = data[i];
-                            if(type && type == menu.type) {//type不为空的话，则根据type对菜单过滤
+                            if(type && type == menu.type) {//type不为空的话，则根据type对菜单过�?
                                 $("#createBtn").html($.i18n.prop("winery-toolbar-btn-create"))
                                     .click(function(){
-                                        window.location = "/winery/" + menu.url;
+                                        window.location = "/modeldesigner/" + menu.url;
                                     });
                                 $("#templateDropdownMenu").hide();
                                 break;
@@ -341,7 +337,7 @@
                                 } else {
                                     name = menu.name_en;
                                 }
-                                liHtml += '<li><a href="/winery/'+menu.url+'">'+ name +'</a></li>';
+                                liHtml += '<li><a href="/modeldesigner/'+menu.url+'">'+ name +'</a></li>';
                             }
                         }
                         $("#templateDropdownMenu").html(liHtml);

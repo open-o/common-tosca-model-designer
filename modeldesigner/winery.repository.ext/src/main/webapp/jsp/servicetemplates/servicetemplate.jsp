@@ -34,7 +34,7 @@ subMenus.add(data);
 data = new SubMenuData("#selfserviceportal", "winery-submenu-plan-option");
 subMenus.add(data);
 
-data = new SubMenuData("/winery/servicetemplates.html", "winery-submenu-return");
+data = new SubMenuData("/modeldesigner/servicetemplates.html", "winery-submenu-return");
 subMenus.add(data);
 
 //data = new SubMenuData("#boundarydefinitions", "Boundary Definitions");

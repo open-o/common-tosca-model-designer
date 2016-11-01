@@ -254,10 +254,10 @@ public class Prefs implements ServletContextListener {
 			}
 			int pos = res.lastIndexOf("/");
 			if (pos <= 0) {
-				res = "/winery-topologymodeler";
+				res = "/modeldesigner-topologymodeler";
 			} else {
 				res = res.substring(0, pos);
-				res = res + "winery-topologymodeler";
+				res = res + "modeldesigner-topologymodeler";
 			}
 			return res;
 		} else {
