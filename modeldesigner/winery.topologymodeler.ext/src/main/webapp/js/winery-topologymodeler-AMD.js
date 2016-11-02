@@ -580,13 +580,12 @@ define(
 		 * 和save方法一样，区别在于这个方法用于发布的时候调用；
 		 * 发布要等所有的保存请求完成了才能发出请求
 		 */
-		function saveServiceTemplate() {
+		function saveServiceTemplate(successFunc) {
 			//校验数据合法性
 			if(!validate()) {
 				return false;
 			}
 
-			var isSuccess = false;
 			$.ajax({
 				url: topologyTemplateURL,
 				type: "PUT",
@@ -598,17 +597,12 @@ define(
 					saveBoundaryMetaDataParam();
 					handlerReqAndCapData();
 					saveServiceTemplateParams();
-
-					vShowSuccess($.i18n.prop("winery-template-message-success-save"));
-
-					isSuccess = true;
+					if(successFunc) successFunc();
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					vShowAJAXError($.i18n.prop("winery-template-message-error-save"), jqXHR, errorThrown);
 				}
 			});
-
-			return isSuccess;
 		}
 
 		/**
