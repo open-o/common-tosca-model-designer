@@ -84,7 +84,7 @@ style="display:none"></iframe>
 <%
 	String repositoryURL = request.getParameter("repositoryURL");
 	if (StringUtils.isEmpty(repositoryURL)) {
-		repositoryURL = "http://localhost:8080/winery";
+		repositoryURL = "http://localhost:8080/modeldesigner";
 	} else if (repositoryURL.endsWith("/")) {
 		repositoryURL = repositoryURL.substring(0, repositoryURL.length()-1);
 	}
@@ -588,7 +588,7 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 		<script>
 		$("#goBack").on("click", function(){
 			var type = "<%=serviceTemplateType%>";
-			var url = "/winery/servicetemplates.html";
+			var url = "/modeldesigner/servicetemplates.html";
 			if(type) {
 				url += "?type=" + type;
 			}

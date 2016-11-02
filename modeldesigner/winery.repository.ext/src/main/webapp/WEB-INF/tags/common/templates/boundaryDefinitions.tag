@@ -671,7 +671,7 @@ $(function() {
 			//initialize policy type
 			$.ajax({
 				type: "GET",
-				url: "/winery/policytypes/",
+				url: "/modeldesigner/policytypes/",
 				dataType: "json",
 				success: function(resp) {
 					resp = resp || [];
@@ -731,7 +731,7 @@ $(function() {
 			var namespace = qname.substring(1, qname.indexOf("}"));
 			var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
 			var id = qname.substring(qname.indexOf("}") + 1);
-			var url = "/winery/policytypes/" + namespace_encode + "/" + id 
+			var url = "/modeldesigner/policytypes/" + namespace_encode + "/" + id 
 					+ "/propertiesdefinition/winery/list";
 
 			$.ajax({
@@ -872,7 +872,7 @@ $(function() {
 			$("#vnffg_type").children().remove();
 			$.ajax({
 				type: "GET",
-				url: "/winery/grouptypes/",
+				url: "/modeldesigner/grouptypes/",
 				dataType: "json",
 				success: function(resp) {
 					resp = resp || [];
