@@ -856,11 +856,11 @@ $(function() {
 		var editVnffg = function(id) {
 			//save service template
 			require(["winery-topologymodeler-AMD"], function(wt) {
-				if(wt.saveServiceTemplate()) {
+				wt.saveServiceTemplate(function(){
 					var path = window.location.pathname + "vnffg.jsp";
 					var params = window.location.search + "&groupId=" + id;
 					window.location = path + params;
-				}
+				});
 			});
 		}
 
