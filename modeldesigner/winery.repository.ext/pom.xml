@@ -79,7 +79,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <warName>modeldesigner</warName>
+                    <warName>winery</warName>
                     <webResources>
                         <resource>
                             <directory>lib/</directory>

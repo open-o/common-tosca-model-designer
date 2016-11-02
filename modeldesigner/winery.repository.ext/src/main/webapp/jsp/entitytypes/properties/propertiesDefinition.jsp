@@ -228,7 +228,7 @@ function updateKVpropertiesVisibility() {
 
 function setKVPropertiesOnServer() {
 	$.ajax({
-		url: "propertiesdefinition/modeldesigner/",
+		url: "propertiesdefinition/winery/",
 		type: "POST",
 		async: true,
 		error: function(jqXHR, textStatus, errorThrown) {
@@ -283,7 +283,7 @@ $(function() {
 
 	$("#wrapperelement_ns").on("change", function(e) {
 		$.ajax({
-			url: "propertiesdefinition/modeldesigner/namespace",
+			url: "propertiesdefinition/winery/namespace",
 			type: "PUT",
 			async: true,
 			contentType: "text/plain",
@@ -301,7 +301,7 @@ $(function() {
 	//add by wandong, hide propertiesdefinition button
 	$("a[href='#propertiesdefinition']").hide();
 
-	loadi18n('winery-topologymodeler-i18n', '/modeldesigner-topologymodeler/i18n/');
+	loadi18n('winery-topologymodeler-i18n', '/winery-topologymodeler/i18n/');
 });
 
 var propertiesTableInfo = {
@@ -318,7 +318,7 @@ function createProperty() {
 		type: $('#propType :selected').text()
 	}
 	$.ajax({
-		url: "propertiesdefinition/modeldesigner/list/",
+		url: "propertiesdefinition/winery/list/",
 		type: "POST",
 		async: true,
 		contentType: "application/json",

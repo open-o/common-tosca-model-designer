@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-softwareRepositoryUtil.loadi18n('winery-topologymodeler-i18n', '/modeldesigner-topologymodeler/i18n/');
+softwareRepositoryUtil.loadi18n('winery-topologymodeler-i18n', '/winery-topologymodeler/i18n/');
 
 var vm = avalon
 	.define({

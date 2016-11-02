@@ -105,11 +105,11 @@
     <script src="components/jquery-validation/jquery.validate.js"></script>
     <script src="components/requirejs/require.js"></script>
     <script src="components/jquery.i18n/jquery.i18n.properties-1.0.9.js"></script>
-    <script src="../modeldesigner-topologymodeler/js/winery-i18n.js"></script>
+    <script src="/winery-topologymodeler/js/winery-i18n.js"></script>
     <script>
     require.config({
         paths: {
-            "winery-util": "../modeldesigner-topologymodeler/js/winery-util"
+            "winery-util": "/winery-topologymodeler/js/winery-util"
         }
     });
 
@@ -156,10 +156,10 @@
                 var url;
                 if(createType == "inherit") {
                     //初始化继承nodetype
-                    url = "/modeldesigner/nodetypes/";
+                    url = "/winery/nodetypes/";
                 } else {
                     //初始化复制的服务模板
-                    url = "/modeldesigner/servicetemplates/";
+                    url = "/winery/servicetemplates/";
                 }
 
                 $.ajax({
@@ -210,7 +210,7 @@
                     type: "POST",
                     async: false,
                     data: data,
-                    url:"/modeldesigner/servicetemplates/",
+                    url:"/winery/servicetemplates/",
                     dataType: "text",
                     error: function(jqXHR, textStatus, errorThrown) {                    
                         if(jqXHR.status == 409) {
@@ -254,7 +254,7 @@
 	                        metaData.metadatas.push(csarVersion);
 	                        metaData.metadatas.push(csarProvider);
 	
-	                        var metaDataURL = "/modeldesigner/servicetemplates/" + namespace_encode
+	                        var metaDataURL = "/winery/servicetemplates/" + namespace_encode 
 	                                + "/" + name + "/boundarydefinitions/properties/metadata/list";
 	                        addServiceTemplateBoundaryData(metaDataURL, metaData);
                     	}
@@ -265,7 +265,7 @@
 
             //保存substitutableNodeType
             function saveSubstitutableNodeType(nodeTypeObj, namespace_encode, name) {
-                var substitutableNodeTypeUrl = "/modeldesigner/servicetemplates/"+namespace_encode
+                var substitutableNodeTypeUrl = "/winery/servicetemplates/"+namespace_encode
                         +"/"+name+"/substitutableNodeType";
 
                 $.ajax({
@@ -290,7 +290,7 @@
                 $.ajax({
                     type : "POST",
                     async: false,
-                    url : "/modeldesigner/nodetypes/",
+                    url : "/winery/nodetypes/",
                     data : $.param(nodeTypeObj),
                     success : function(resp) {
                         //保存nodetype继承关系
@@ -307,7 +307,7 @@
             function saveNodeTypeDerivedFrom(namespace_encode, name) {
                 var nodetype_namespace = $("#inheritNodetypeSelect").val(); 
                 var selectNodetype = $("#inheritNodetypeSelect").find("option:selected").text();
-                var derivedFromUrl = "/modeldesigner/nodetypes/" + namespace_encode + "/"
+                var derivedFromUrl = "/winery/nodetypes/" + namespace_encode + "/"
                         + $("#nodetype").val() + "/derivedFrom";
                 var value = "{" + nodetype_namespace + "}" + selectNodetype;
                 $.ajax({
@@ -338,8 +338,8 @@
             //查询继承nodetype的属性，把这些属性设置到服务模板的metadata中去
             function setNodeTemplateMetaDataDerivedFromNodeType(nodeTypeNamespace, nodeTypeName,
                 nodeTemplateNamespace, nodeTemplateName) {
-                var queryNodeTypePropertiesURL = "/modeldesigner/nodetypes/"
-                        + nodeTypeNamespace + "/" + nodeTypeName + "/propertiesdefinition/modeldesigner/list/";
+                var queryNodeTypePropertiesURL = "/winery/nodetypes/"
+                        + nodeTypeNamespace + "/" + nodeTypeName + "/propertiesdefinition/winery/list/";
                 $.ajax({
                     type : "GET",
                     async: false,
@@ -390,9 +390,9 @@
                         metaData.metadatas.push(csarVersion);
                         metaData.metadatas.push(csarProvider);
 
-                        var metaDataURL = "/modeldesigner/servicetemplates/" + nodeTemplateNamespace
+                        var metaDataURL = "/winery/servicetemplates/" + nodeTemplateNamespace 
                                 + "/" + nodeTemplateName + "/boundarydefinitions/properties/metadata/list";
-                        var inputDataURL = "/modeldesigner/servicetemplates/" + nodeTemplateNamespace
+                        var inputDataURL = "/winery/servicetemplates/" + nodeTemplateNamespace 
                                 + "/" + nodeTemplateName + "/boundarydefinitions/properties/inputs/list";
                         addServiceTemplateBoundaryData(metaDataURL, metaData);
                         addServiceTemplateBoundaryData(inputDataURL, inputData);
@@ -425,9 +425,9 @@
                     };
                 }         
 
-                var initialInformationsURL = "/modeldesigner/servicetemplates/" + namespace_encode + "/"
+                var initialInformationsURL = "/winery/servicetemplates/" + namespace_encode + "/"
                         + name + "/initialInformations";
-                var loc = "/modeldesigner/servicetemplates/"+namespace_encode+"/"+name+"/topologytemplate/?edit";
+                var loc = "/winery/servicetemplates/"+namespace_encode+"/"+name+"/topologytemplate/?edit";
                 $.ajax({
                     url : initialInformationsURL,
                     type : "POST",

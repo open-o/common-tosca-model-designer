@@ -111,9 +111,9 @@ div.paletteEntry > div.typeContainer > div.typeContainerMiddle > div.typeContain
 	float: left;
 	margin-left: 8px;
 	cursor: pointer;
-	background-image: url(../images/plus.png);
+	background-image: url(/winery-topologymodeler/images/plus.png);
 }
 
 #addNodeTemplateToPalette:hover{
-	background-image: url(../images/plus_hover.png);
+	background-image: url(/winery-topologymodeler/images/plus_hover.png);
 }

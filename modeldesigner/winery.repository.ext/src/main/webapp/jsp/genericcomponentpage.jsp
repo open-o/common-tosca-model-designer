@@ -354,7 +354,7 @@ $(function(){
 
     function loadAndParseFile(filename) {
         $.ajax({
-            url: "/modeldesigner/conf/" + filename,
+            url: "/winery/conf/" + filename,
             async: false,
             dataType: 'json',
             success: function(data) {
@@ -363,7 +363,7 @@ $(function(){
                 data = data || [];
                 for(var i=0; i<data.length; i++) {
                     var menu = data[i];                   
-                    liHtml += '<li><a href="/modeldesigner/'+menu.url+'">'+menu.name_zh+'</a></li>';
+                    liHtml += '<li><a href="/winery/'+menu.url+'">'+menu.name_zh+'</a></li>';
                 }
                 $("#templateDropdownMenu").html(liHtml);
             }

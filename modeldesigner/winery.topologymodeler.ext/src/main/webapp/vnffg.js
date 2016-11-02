@@ -30,7 +30,7 @@
 		NODETPYE_FORWARD_PATH_NAMESPACE : "http://www.zte.com.cn/tosca/nfv/vnffg/fp",
 		NODETPYE_VNF_NAMESPACE : "http://www.zte.com.cn/tosca/nfv/vnf",
 
-		_URL_BASE : "/modeldesigner/servicetemplates/http%253A%252F%252Fwww.zte.com.cn%252Ftosca%252Fnfv%252Fns/{nsId}",
+		_URL_BASE : "/winery/servicetemplates/http%253A%252F%252Fwww.zte.com.cn%252Ftosca%252Fnfv%252Fns/{nsId}",
 		URL_BASE : "",
 		_URL_NODETEMPLATE_REQUIREMENT : "/topologytemplate/nodetemplates/{nodeTmepateId}/extrequirements",
 		URL_NODETEMPLATE_REQUIREMENT : "",
@@ -102,7 +102,7 @@
 		},
 
 		getNodeType : function(nodeType) {
-			var url = "/modeldesigner/nodetypes/http%253A%252F%252Fwww.zte.com.cn%252Ftosca%252Fnfv%252Fvnffg%252Ffp/" + nodeType + "/detail/";
+			var url = "/winery/nodetypes/http%253A%252F%252Fwww.zte.com.cn%252Ftosca%252Fnfv%252Fvnffg%252Ffp/" + nodeType + "/detail/";
 
 			var successFunc = function(resData, textStatus, jqXHR) {
 				vnffgConstants.CURRENT_NODE_TYPE = resData;
@@ -114,7 +114,7 @@
 		},
 
 		getNodeTypes : function (successFunc) {
-			var url = "/modeldesigner/nodetypes";
+			var url = "/winery/nodetypes";
 			REQ._request("GET", url, null, successFunc, REQ._error("getNodeTypes error"), "json");
 		},
 
@@ -675,7 +675,7 @@
 			} else {
 				var preRequirement = result[result.length-1];
 				if(preRequirement.node == requirement.node && preRequirement.capability == requirement.capability) {
-					// duplicate cpï¼?in and out from the same cp skip
+					// duplicate cpï¼Œ in and out from the same cp skip
 				} else {
 					result[result.length] = requirement;
 				}
