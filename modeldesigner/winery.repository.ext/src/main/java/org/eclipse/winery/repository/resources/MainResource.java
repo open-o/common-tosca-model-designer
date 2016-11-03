@@ -154,7 +154,7 @@ public class MainResource {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response onGet() {
-        return Response.temporaryRedirect(Utils.createURI("servicetemplates/")).build();
+        return Response.temporaryRedirect(Utils.createURI("servicetemplates.html")).build();
     }
 
     @POST
