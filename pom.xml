@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.openo.common-tosca.model-designer.parent</groupId>
         <artifactId>modeldesignerparent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>modeldesigner-parent/modeldesignerparent</relativePath>
     </parent>
 
