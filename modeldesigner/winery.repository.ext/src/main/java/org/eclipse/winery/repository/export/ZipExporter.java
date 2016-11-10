@@ -65,6 +65,7 @@ import org.eclipse.winery.repository.backend.Repository;
 import org.eclipse.winery.repository.datatypes.ids.admin.NamespacesId;
 import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataId;
 import org.eclipse.winery.repository.ext.export.custom.CustomFileResultInfo;
+import org.eclipse.winery.repository.ext.export.custom.CustomizedFileInfos;
 import org.eclipse.winery.repository.ext.export.custom.DefinitionResultInfo;
 import org.eclipse.winery.repository.ext.export.custom.ExportFileGenerator;
 import org.eclipse.winery.repository.ext.utils.MD5Util;
@@ -186,17 +187,18 @@ public class ZipExporter {
     }
 
     // write custom file
-    ArrayList<CustomFileResultInfo> customFileResultList = new ArrayList<CustomFileResultInfo>();
+    CustomizedFileInfos customizedResult = null;
     if (entryId instanceof ServiceTemplateId) {
-      customFileResultList = this.exportCustomFiles((ServiceTemplateId) entryId, zos);
+      customizedResult = this.exportCustomFiles((ServiceTemplateId) entryId, zos);
     }
 
     // write manifest directly after the definitions to have it more at the beginning of the ZIP
     // rather than having it at the very end
     this.addManifest(entryId, definitionNames, refMap, zos);
     this.addManiYamlfest(entryId, exporter.getYamlExportDefResultList(), refMap, zos, exporter);
-    this.addCheckSumFest(getCheckSums(exporter.getYamlExportDefResultList(), customFileResultList),
-        zos);
+    this.addCheckSumFest(
+        getCheckSums(exporter.getYamlExportDefResultList(),
+            customizedResult.getCustomizedFileResults()), zos);
     // used for generated XSD schemas
     TransformerFactory tFactory = TransformerFactory.newInstance();
     Transformer transformer;
@@ -230,43 +232,52 @@ public class ZipExporter {
           ZipExporter.logger.error("Could not copy file content to ZIP outputstream", e);
         }
       }
-      zos.closeArchiveEntry();
 
       // add plan files/artifact templantes to yaml folder
-      if (archivePath.contains("plans")) {
-        addPlan2Zip(archivePath, ref, zos);
-      }
-      // TODO artifact templates
+      updatePlanDef(archivePath, ref, zos, customizedResult.getPlanInfos());
+
+      zos.closeArchiveEntry();
     }
 
+    addPlan2Zip(customizedResult.getPlanInfos(), zos);
     this.addNamespacePrefixes(zos);
 
     zos.finish();
     zos.close();
   }
 
-  private void addPlan2Zip(String archivePath, RepositoryFileReference ref, ArchiveOutputStream zos)
-      throws IOException {
+  private void addPlan2Zip(Map<String, RepositoryFileReference> map, ArchiveOutputStream zos) {
+    try {
+      for (RepositoryFileReference ref : map.values()) {
+        addFile2Archive(ref, zos, "plan/");
+      }
+    } catch (IOException e) {
+      ZipExporter.logger.debug("Could not copy file content to ZIP outputstream", e);
+    }
+  }
 
+  private void updatePlanDef(String archivePath, RepositoryFileReference ref,
+      ArchiveOutputStream zos, Map<String, RepositoryFileReference> map) {
+    if (!archivePath.contains("plans")) {
+      return;
+    }
     if (archivePath.endsWith(".bpmn4tosca") || archivePath.endsWith("file.json")) {
       // TODO converted when create json file
     } else if (archivePath.endsWith(".zip")) {
-      ArchiveEntry archiveEntry = new ZipArchiveEntry("plan/" + ref.getFileName());
-      zos.putArchiveEntry(archiveEntry);
-      copyFile(ref, zos);
-      zos.closeArchiveEntry();
+      map.put(ref.getFileName(), ref);
     }
   }
 
-  private void copyFile(RepositoryFileReference ref, ArchiveOutputStream zos) {
-    try (InputStream is = Repository.INSTANCE.newInputStream(ref)) {
-      IOUtils.copy(is, zos);
-    } catch (Exception e) {
-      ZipExporter.logger.error("Could not copy file content to ZIP outputstream", e);
-    }
+  private void addFile2Archive(RepositoryFileReference ref, ArchiveOutputStream zos, String path)
+      throws IOException {
+    ArchiveEntry archiveEntry = new ZipArchiveEntry(path + ref.getFileName());
+    zos.putArchiveEntry(archiveEntry);
+    InputStream is = Repository.INSTANCE.newInputStream(ref);
+    IOUtils.copy(is, zos);
+    zos.closeArchiveEntry();
   }
 
-  private ArrayList<CustomFileResultInfo> exportCustomFiles(ServiceTemplateId templateId,
+  private CustomizedFileInfos exportCustomFiles(ServiceTemplateId templateId,
       ArchiveOutputStream zos) throws IOException {
     ServiceFilesResource fileResource =
         new ServiceTemplatesResource().getComponentInstaceResource(
@@ -275,22 +286,25 @@ public class ZipExporter {
     return exportFiles(fileResource.getRef(), zos);
   }
 
-  private ArrayList<CustomFileResultInfo> exportFiles(List<FileInfo> fileInfos,
-      ArchiveOutputStream aos) throws IOException {
-    ArrayList<CustomFileResultInfo> result = new ArrayList<CustomFileResultInfo>();
+  private CustomizedFileInfos exportFiles(List<FileInfo> fileInfos, ArchiveOutputStream aos)
+      throws IOException {
+    CustomizedFileInfos result = new CustomizedFileInfos();
     for (FileInfo fileInfo : fileInfos) {
       String filePath = getRelativePath(fileInfo);
+      if (filePath.startsWith("plan")) {
+        result.addPlanInfo(fileInfo);
+      } else {
+        aos.putArchiveEntry(new ZipArchiveEntry(filePath));
+        InputStream is = Repository.INSTANCE.newInputStream(fileInfo.getRef());
+        String md5 = MD5Util.md5(is, aos);
+        aos.closeArchiveEntry();
 
-      aos.putArchiveEntry(new ZipArchiveEntry(filePath));
-      InputStream is = Repository.INSTANCE.newInputStream(fileInfo.getRef());
-      String md5 = MD5Util.md5(is, aos);
-      aos.closeArchiveEntry();
+        CustomFileResultInfo info = new CustomFileResultInfo();
 
-      CustomFileResultInfo info = new CustomFileResultInfo();
-
-      info.setFileFullName(filePath);
-      info.setFileChecksum(md5);
-      result.add(info);
+        info.setFileFullName(filePath);
+        info.setFileChecksum(md5);
+        result.addCustFileInfo(info);
+      }
     }
     return result;
   }
@@ -309,8 +323,8 @@ public class ZipExporter {
   }
 
   private String[] getCheckSums(ArrayList<DefinitionResultInfo> resultDefList,
-      ArrayList<CustomFileResultInfo> customFileList) {
-    ArrayList<String> checksumList = new ArrayList<String>();
+      List<CustomFileResultInfo> customFileList) {
+    List<String> checksumList = new ArrayList<String>();
     for (DefinitionResultInfo info : resultDefList) {
       if (info.getFileChecksum() != null && !info.getFileChecksum().isEmpty()) {
         checksumList.add(info.getFileFullName() + ":" + info.getFileChecksum());

@@ -7,7 +7,7 @@
  * and http://www.apache.org/licenses/LICENSE-2.0
  *
  * Contributors:
- *     K¨¢lm¨¢n K¨¦pes - initial API and implementation and/or initial documentation
+ *     Kï¿½ï¿½lmï¿½ï¿½n Kï¿½ï¿½pes - initial API and implementation and/or initial documentation
  *     Oliver Kopp - adapted to new storage model and to TOSCA v1.0
  *******************************************************************************/
 /*
@@ -39,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.winery.common.ModelUtilities;
 import org.eclipse.winery.common.RepositoryFileReference;
 import org.eclipse.winery.common.Util;
-import org.eclipse.winery.common.constants.Namespaces;
 import org.eclipse.winery.common.constants.QNames;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.ArtifactTypeId;
@@ -70,7 +69,6 @@ import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TEntityType;
 import org.eclipse.winery.model.tosca.TEntityType.PropertiesDefinition;
-import org.eclipse.winery.model.tosca.TExtensibleElements;
 import org.eclipse.winery.model.tosca.TGroupTemplate;
 import org.eclipse.winery.model.tosca.TGroupTemplates;
 import org.eclipse.winery.model.tosca.TImplementationArtifact;
@@ -82,9 +80,6 @@ import org.eclipse.winery.model.tosca.TNodeTemplate.Requirements;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TNodeType.CapabilityDefinitions;
 import org.eclipse.winery.model.tosca.TNodeType.RequirementDefinitions;
-import org.eclipse.winery.model.tosca.TPlan;
-import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
-import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TPolicy;
 import org.eclipse.winery.model.tosca.TRelationshipTemplate;
 import org.eclipse.winery.model.tosca.TRelationshipType;
@@ -92,7 +87,7 @@ import org.eclipse.winery.model.tosca.TRelationshipType.ValidSource;
 import org.eclipse.winery.model.tosca.TRelationshipType.ValidTarget;
 import org.eclipse.winery.model.tosca.TRequirement;
 import org.eclipse.winery.model.tosca.TRequirementDefinition;
-import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTarget;
 import org.eclipse.winery.repository.JAXBSupport;
 import org.eclipse.winery.repository.Utils;
 import org.eclipse.winery.repository.backend.BackendUtils;
@@ -111,6 +106,7 @@ import org.eclipse.winery.repository.resources.entitytemplates.artifacttemplates
 import org.eclipse.winery.repository.resources.entitytemplates.policytemplates.PolicyTemplateResource;
 import org.eclipse.winery.repository.resources.entitytypeimplementations.nodetypeimplementations.NodeTypeImplementationResource;
 import org.eclipse.winery.repository.resources.entitytypeimplementations.relationshiptypeimplementations.RelationshipTypeImplementationResource;
+import org.eclipse.winery.repository.resources.entitytypes.grouptypes.GroupTypeResource;
 import org.eclipse.winery.repository.resources.entitytypes.nodetypes.NodeTypeResource;
 import org.eclipse.winery.repository.resources.entitytypes.relationshiptypes.RelationshipTypeResource;
 import org.eclipse.winery.repository.resources.entitytypes.requirementtypes.RequirementTypeResource;
@@ -358,9 +354,6 @@ public class TOSCAExportUtil {
       }
     }
 
-    // replace bpmn4tosca to bpel
-    replaceBPMN4Tosca2BPEL(entryDefinitions);
-
     // END: Definitions modification
 
     if (extendPoint != null) {
@@ -394,47 +387,6 @@ public class TOSCAExportUtil {
         return true;
     }
     return false;
-  }
-
-  private void replaceBPMN4Tosca2BPEL(Definitions entryDefinitions) {
-    // TODO Auto-generated method stub
-    for (TExtensibleElements tExtensibleElements : entryDefinitions
-        .getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-      if (!(tExtensibleElements instanceof TServiceTemplate)) {
-        continue;
-      }
-      TServiceTemplate serviceTemplate = (TServiceTemplate) tExtensibleElements;
-      TPlans stPlans = serviceTemplate.getPlans();
-      if (null == stPlans) {
-        continue;
-      }
-      List<TPlan> plans = stPlans.getPlan();
-      for (TPlan plan : plans) {
-        if (!Namespaces.URI_BPMN4TOSCA_20.equals(plan.getPlanLanguage())) {
-          continue;
-        }
-        plan.setPlanLanguage(Namespaces.URI_BPEL20_EXECUTABLE);
-        PlanModelReference planModelReference = plan.getPlanModelReference();
-        String reference = planModelReference.getReference();
-        String newRef = null;
-        if (reference.endsWith(".bpmn4tosca")) {
-          newRef = reference.replace(".bpmn4tosca", ".zip");
-        } else if (reference.endsWith("file.json")) {
-          String planName = this.getPlanName(reference);
-          newRef = reference.replace("file.json", planName + ".zip");
-        }
-        planModelReference.setReference(newRef);
-      }
-    }
-  }
-
-  private String getPlanName(String path) {
-    // path :
-    // servicetemplates/http%3A%2F%2Fwww.open-o.org%2Ftosca%2Fnfv%2F2015%2F12/testBPMN2BPEL/plans/test1/file.json
-    // target : test1
-    String[] split = path.split("/");
-    int length = split.length;
-    return length > 1 ? split[length - 2] : null;
   }
 
   private Collection<TOSCAComponentId> getReferencedTOSCAComponentIds(EntityTypeId id) {
@@ -955,9 +907,29 @@ public class TOSCAExportUtil {
     return ids;
   }
 
-  private Collection<TOSCAComponentId> getReferencedTOSCAComponentIds(GroupTypeId id) {
-    return Collections.emptyList();
-  }
+    private Collection<TOSCAComponentId> getReferencedTOSCAComponentIds(GroupTypeId id) {
+        GroupTypeResource groupRes = new GroupTypeResource(id);
+        TTarget targets = groupRes.getGroupType().getTargets();
+        if (null == targets || null == targets.getTarget()) {
+            return Collections.emptyList();
+        }
+
+        Collection<TOSCAComponentId> ids = new ArrayList<TOSCAComponentId>();
+        Map<String, TOSCAComponentId> nodeTypeMap = new HashMap<String, TOSCAComponentId>();
+        SortedSet<NodeTypeId> allNodeTypes = Repository.INSTANCE.getAllTOSCAComponentIds(NodeTypeId.class);
+        for (NodeTypeId nodeId : allNodeTypes) {
+            NodeTypeResource res = new NodeTypeResource(nodeId);
+            nodeTypeMap.put(res.getNodeType().getName(), nodeId);
+        }
+
+        for (String target : targets.getTarget()) {
+            if (nodeTypeMap.containsKey(target)) {
+                ids.add(nodeTypeMap.get(target));
+            }
+        }
+
+        return ids;
+    }
 
   private void addVisualAppearanceToCSAR(TopologyGraphElementEntityTypeId id) {
     VisualAppearanceId visId = new VisualAppearanceId(id);
