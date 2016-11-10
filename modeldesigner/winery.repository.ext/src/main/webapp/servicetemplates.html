@@ -217,7 +217,6 @@
             ]
         }
         wd.initTable(serviceTemplate, function(){
-            //初始化删除按�?
             $(".delBtn").click(function(){
                 var rowElement = $(this).parent().parent();
                 var name = $(this).attr("name");
@@ -225,16 +224,13 @@
                 var url = $(this).attr("data-url");
 
                 if(namespace.indexOf("nfv") > -1) {
-                    //nfv中创建的nodetype也要删除
                     url += "?delSubstitutableNodeType=true";
                 }
-                //删除记录
                 deleteResource(name, url, function() {
                     rowElement.remove();
                 });
             });
 
-            //根据url中的type过滤表格数据
             var serviceTemplateType = getQueryString("type");
             if(serviceTemplateType) {
                 var table = $("#" + serviceTemplate.id).dataTable();
@@ -242,7 +238,6 @@
                 $.each(data, function(index, trElem){
                     var namespace = $(trElem.cells[1]).text();
                     var index = namespace.indexOf(serviceTemplateType);
-                    //删除不符合类型的数据
                     if(index == -1) {
                         table.fnDeleteRow(trElem);
                     }
@@ -250,7 +245,6 @@
             }
         });
 
-        //上传的文件，必须调用此接口才能初始化包的类型
         var reloadTemplates = function() {
             $.ajax({
                 type: "GET",
@@ -259,7 +253,6 @@
             });
         }
 
-        //初始化文件上�?
         $("#upCSARDiag").fileupload({
             dataType: 'json',
             url: '/modeldesigner/',
@@ -305,9 +298,8 @@
                 $('#upCSARDiag').modal('show');
             });
             
-            //nfv菜单
             loadAndParseFile("nfvDropdownMenu.json");
-            //paas菜单
+
             loadAndParseFile("paasDropdownMenu.json");
 
             function loadAndParseFile(filename) {
@@ -317,12 +309,11 @@
                     dataType: 'json',
                     success: function(data) {
                         var type = getQueryString("type");
-                        //创建按钮下拉菜单
                         var liHtml = $("#templateDropdownMenu").html();
                         data = data || [];
                         for(var i=0; i<data.length; i++) {
                             var menu = data[i];
-                            if(type && type == menu.type) {//type不为空的话，则根据type对菜单过�?
+                            if(type && type == menu.type) {
                                 $("#createBtn").html($.i18n.prop("winery-toolbar-btn-create"))
                                     .click(function(){
                                         window.location = "/modeldesigner/" + menu.url;

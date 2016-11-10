@@ -439,8 +439,8 @@
 	 //      +'<td>' + nodeType + '</td>'
 	 //      +'<td>' + desc + '</td>'
 	 //      +'<td>'
-	 //      	// + '<a href="javascript:void(0)" onclick="editNfp(\'' + name + '\', \'' + nodeType + '\')">编辑</a>'
-	 //      	// + '<a href="javascript:void(0)" onclick="deleteNfp(\'' + name + '\')">删除</a>'
+	 //      	// + '<a href="javascript:void(0)" onclick="editNfp(\'' + name + '\', \'' + nodeType + '\')">Edit</a>'
+	 //      	// + '<a href="javascript:void(0)" onclick="deleteNfp(\'' + name + '\')">Delete</a>'
 	 //      	+ operationHtml
 	 //      +'</td>'
 	 //    +'</tr>';
@@ -675,7 +675,7 @@
 			} else {
 				var preRequirement = result[result.length-1];
 				if(preRequirement.node == requirement.node && preRequirement.capability == requirement.capability) {
-					// duplicate cp�?in and out from the same cp skip
+					// duplicate cp in and out from the same cp skip
 				} else {
 					result[result.length] = requirement;
 				}
@@ -703,7 +703,7 @@
 		
 		var capabilityName = null;
 		var nodeNamespace = $('#' + nodeId + ' span.typeNamespace').text();
-		if(vnffgConstants.NODETPYE_VNF_NAMESPACE == nodeNamespace) {		//  VNF 节点 获取capability
+		if(vnffgConstants.NODETPYE_VNF_NAMESPACE == nodeNamespace) {
 			capabilityName = $('#' + capabilityId + " div.name").text();
 			requirement.capability = capabilityName;
 		}
