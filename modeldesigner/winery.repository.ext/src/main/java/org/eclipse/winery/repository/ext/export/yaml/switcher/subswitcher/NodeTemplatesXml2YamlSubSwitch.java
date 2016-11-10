@@ -136,6 +136,8 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
           getYAttributes(ypropsAndAttrs, ynodeType.getAttributes());
       ynodeTemplate.setAttributes(yattributes);
     }
+    // tosca_name
+    ynodeTemplate.getAttributes().put("tosca_name", tnodeTemplate.getName());
 
     // capabilities
     TNodeTemplate.Capabilities tcapabilities = tnodeTemplate.getCapabilities();
@@ -165,7 +167,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
    * @return
    */
   private String getYamlNodeTemplateName(String id, String name) {
-    return name; // name + "_" + id;
+    return id; // name; // name + "_" + id;
   }
 
   /**
