@@ -28,7 +28,7 @@ public class NodeTemplate extends YAMLElement {
     private List<Map<String, Object>> requirements = new ArrayList<>();  // May be string or org.eclipse.winery.repository.ext.yamlmodel.Requirement
     private Map<String, Capability> capabilities = new HashMap<>();
 	private Map<String, String> interfaces = new HashMap<String, String>();
-	private List<Map<String, Object>> artifacts = new ArrayList<Map<String, Object>>();
+	private Map<String, Object> artifacts = new HashMap<>();  // Maybe String or ArtifactDefinition.
 //	private NodeTemplatePosition position;
 	
 //	public NodeTemplatePosition getPosition() {
@@ -97,17 +97,16 @@ public class NodeTemplate extends YAMLElement {
 		}
 	}
 
-	public List<Map<String, Object>> getArtifacts() {
-		return this.artifacts;
-	}
+	
+  public Map<String, Object> getArtifacts() {
+    return artifacts;
+  }
 
-	public void setArtifacts(List<Map<String, Object>> artifacts) {
-		if (artifacts != null) {
-			this.artifacts = artifacts;
-		}
-	}
+  public void setArtifacts(Map<String, Object> artifacts) {
+    this.artifacts = artifacts;
+  }
 
-	@Override
+  @Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;

@@ -22,8 +22,12 @@ package org.eclipse.winery.repository.ext.yamlmodel;
 public class ArtifactDefinition extends YAMLElement {
 
     private String type = "";
-    private String mime_type = "";
+    private String file = "";
+    private String repository = "";
+    private String deploy_path = "";
+    private String description = "";
 
+    
     public String getType() {
         return type;
     }
@@ -34,14 +38,37 @@ public class ArtifactDefinition extends YAMLElement {
         }
     }
 
-    public String getMime_type() {
-        return mime_type;
+    public String getFile() {
+      return file;
     }
 
-    public void setMime_type(String mime_type) {
-        if (mime_type != null) {
-            this.mime_type = mime_type;
-        }
+    public void setFile(String file) {
+      this.file = file;
+    }
+
+    public String getRepository() {
+      return repository;
+    }
+
+    public void setRepository(String repository) {
+      this.repository = repository;
+    }
+
+    public String getDeploy_path() {
+      return deploy_path;
+    }
+
+    public void setDeploy_path(String deploy_path) {
+      this.deploy_path = deploy_path;
+    }
+
+
+    public String getDescription() {
+      return description;
+    }
+
+    public void setDescription(String description) {
+      this.description = description;
     }
 
     @Override
@@ -52,7 +79,6 @@ public class ArtifactDefinition extends YAMLElement {
 
         ArtifactDefinition that = (ArtifactDefinition) o;
 
-        if (!mime_type.equals(that.mime_type)) return false;
         if (!type.equals(that.type)) return false;
 
         return true;
@@ -62,7 +88,6 @@ public class ArtifactDefinition extends YAMLElement {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + type.hashCode();
-        result = 31 * result + mime_type.hashCode();
         return result;
     }
 }

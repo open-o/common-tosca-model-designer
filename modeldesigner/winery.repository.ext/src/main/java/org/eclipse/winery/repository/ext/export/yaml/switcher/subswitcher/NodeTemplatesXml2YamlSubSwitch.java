@@ -24,6 +24,8 @@ import java.util.Map.Entry;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TCapability;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TDeploymentArtifacts;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate.Capabilities;
@@ -36,6 +38,7 @@ import org.eclipse.winery.repository.Constants;
 import org.eclipse.winery.repository.ext.common.CommonConst;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.PositionNamespaceHelper;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.Xml2YamlSwitch;
+import org.eclipse.winery.repository.ext.yamlmodel.ArtifactDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.Capability;
 import org.eclipse.winery.repository.ext.yamlmodel.CapabilityFilter;
@@ -143,6 +146,12 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     TNodeTemplate.Capabilities tcapabilities = tnodeTemplate.getCapabilities();
     if (tcapabilities != null) {
       ynodeTemplate.setCapabilities(processCapabilities(tcapabilities));
+    }
+    
+    // artifacts
+    TDeploymentArtifacts tDeploymentArtifacts = tnodeTemplate.getDeploymentArtifacts();
+    if (tDeploymentArtifacts != null) {
+      ynodeTemplate.getArtifacts().putAll(processArtifacts(tDeploymentArtifacts));
     }
 
     // requirement
@@ -439,6 +448,23 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     return ycapabilities;
 
   }
+  
+  /**
+   * @param tDeploymentArtifacts
+   * @return
+   */
+  private Map<String, ArtifactDefinition> processArtifacts(TDeploymentArtifacts tDeploymentArtifacts) {
+    Map<String, ArtifactDefinition> yartifacts = new HashMap<>();
+    if (tDeploymentArtifacts.getDeploymentArtifact() != null && !tDeploymentArtifacts.getDeploymentArtifact().isEmpty()) {
+      for (TDeploymentArtifact  tDeploymentArtifact: tDeploymentArtifacts.getDeploymentArtifact()) {
+        ArtifactDefinition yArtifact= buildArtifact(tDeploymentArtifact);
+        if(yArtifact != null) {
+          yartifacts.put(tDeploymentArtifact.getName(), yArtifact);
+        }
+      }
+    }
+    return yartifacts;
+  }
 
   /**
    * @param yCapability
@@ -456,6 +482,9 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     return new Capability(Xml2YamlSwitchUtils.convertTProperties(tcapability.getProperties()));
   }
   
+  private ArtifactDefinition buildArtifact(TDeploymentArtifact tDeploymentArtifact) {
+    return Xml2YamlSwitchUtils.convert2ArtifactDefinition(tDeploymentArtifact);
+  }
   
   private NodeTemplatePosition getNodetemplatePosition(TNodeTemplate tnodeTemplate) {
     NodeTemplatePosition position = new NodeTemplatePosition();

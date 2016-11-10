@@ -35,6 +35,8 @@ public class Xml2YamlTypeMapper {
   private static final String TOSCA_CAPABILITIES_ROOT = "tosca.capabilities.Root";
   /** */
   private static final String TOSCA_GROUPS_ROOT = "tosca.groups.Root";
+  /** */
+  private static final String TOSCA_ARTIFACTS_ROOT = "tosca.artifacts.Root";
   
     private static Map<String, String> t2yNodeTypeMap = new HashMap<>();
     static {
@@ -228,6 +230,27 @@ public class Xml2YamlTypeMapper {
         return null;
       }
       return mappingPolicyType(derivedFrom);
+    }
+    /**
+     * @param tArtifactType
+     * @return
+     */
+    public static String mappingArtifactType(String tArtifactType) {
+      if (tArtifactType == null || tArtifactType.isEmpty()) {
+        return TOSCA_ARTIFACTS_ROOT;
+      }
+      return tArtifactType;
+    }
+    /**
+     * @param derivedFrom
+     * @param type
+     * @return
+     */
+    public static String mappingArtifactTypeDerivedFrom(String derivedFrom, String type) {
+      if (type.equals(TOSCA_ARTIFACTS_ROOT)) {
+        return null;
+      }
+      return mappingArtifactType(derivedFrom);
     }
 
 }

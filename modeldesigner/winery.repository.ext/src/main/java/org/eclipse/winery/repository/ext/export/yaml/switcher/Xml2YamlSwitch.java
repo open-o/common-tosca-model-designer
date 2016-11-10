@@ -16,6 +16,7 @@
 package org.eclipse.winery.repository.ext.export.yaml.switcher;
 
 import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.ArtifactTypesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.CapabilityTypesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.GroupTypesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.GroupsXml2YamlSubSwitch;
@@ -70,6 +71,7 @@ public class Xml2YamlSwitch {
         new MetaDatasXml2YamlSubSwitch(this),
         new NodeTypesXml2YamlSubSwitch(this),
         new CapabilityTypesXml2YamlSubSwitch(this),
+        new ArtifactTypesXml2YamlSubSwitch(this),
         new RelationshipTypesXml2YamlSubSwitch(this),
         new NodeTemplatesXml2YamlSubSwitch(this),
         new InputsXml2YamlSubSwitch(this),

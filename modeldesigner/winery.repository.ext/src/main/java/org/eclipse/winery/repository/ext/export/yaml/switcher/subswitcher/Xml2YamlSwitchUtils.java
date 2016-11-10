@@ -37,11 +37,13 @@ import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKV;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKVList;
 import org.eclipse.winery.common.propertydefinitionkv.WinerysPropertiesDefinition;
 import org.eclipse.winery.model.tosca.TBoolean;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TDocumentation;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
 import org.eclipse.winery.model.tosca.TNodeTemplate;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.Xml2YamlSwitch;
+import org.eclipse.winery.repository.ext.yamlmodel.ArtifactDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.EntrySchema;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
@@ -441,7 +443,7 @@ public class Xml2YamlSwitchUtils {
 
     return yproperties;
   }
-
+  
   /**
    * @param value
    * @return
@@ -473,4 +475,36 @@ public class Xml2YamlSwitchUtils {
     
     return (TNodeType) nodetypeRes.getEntityType();
   }
+  /**
+   * @param tDeploymentArtifact
+   * @return
+   */
+  public static ArtifactDefinition convert2ArtifactDefinition(TDeploymentArtifact tDeploymentArtifact) {
+    ArtifactDefinition artifactDefinition = new ArtifactDefinition();
+    QName tartifactType = tDeploymentArtifact.getArtifactType();
+    artifactDefinition.setType(Xml2YamlTypeMapper.mappingArtifactType(getNamefromQName(tartifactType)));
+    Map<QName, String> otherAttributes = tDeploymentArtifact.getOtherAttributes();
+    if (otherAttributes != null && !otherAttributes.isEmpty()) {
+      String file = otherAttributes.get(new QName("artifactFileName"));
+      String repository = otherAttributes.get(new QName("nodeRepositoryInput"));
+      String description = otherAttributes.get(new QName("nodeDescriptionInput"));
+      String deployPath = otherAttributes.get(new QName("deploy_path"));
+      if (file != null) {
+        artifactDefinition.setFile(file);
+      }
+      if (repository != null) {
+        artifactDefinition.setRepository(repository);
+      }
+      if (description != null) {
+        artifactDefinition.setDescription(description);
+      }
+      if (deployPath != null) {
+        artifactDefinition.setDeploy_path(deployPath);
+      }
+    }
+    return artifactDefinition;
+  }
+
+ 
+ 
 }

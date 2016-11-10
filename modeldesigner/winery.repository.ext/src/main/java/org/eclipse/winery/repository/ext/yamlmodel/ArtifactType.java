@@ -22,27 +22,19 @@ import java.util.Map;
 public class ArtifactType extends YAMLElement {
 
 	private String derived_from = "";
-	private String implementation = "";
 	private String mime_type = "";
 	private String[] file_ext = new String[0];
 	private Map<String, PropertyDefinition> properties = new HashMap<String, PropertyDefinition>();
-
+	private String version = "";
+	private String description = "";
+	
+	
 	public String getDerived_from() {
 		return derived_from;
 	}
 
 	public void setDerived_from(String derived_from) {
 		this.derived_from = derived_from;
-	}
-
-	public String getImplementation() {
-		return implementation;
-	}
-
-	public void setImplementation(String implementation) {
-		if (implementation != null) {
-			this.implementation = implementation;
-		}
 	}
 
 	public String getMime_type() {
@@ -74,8 +66,26 @@ public class ArtifactType extends YAMLElement {
 			this.properties = properties;
 		}
 	}
+	
+	
 
-	@Override
+	public String getVersion() {
+	  return version;
+    }
+
+    public void setVersion(String version) {
+      this.version = version;
+    }
+  
+    public String getDescription() {
+      return description;
+    }
+  
+    public void setDescription(String description) {
+      this.description = description;
+    }
+
+  @Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -85,7 +95,6 @@ public class ArtifactType extends YAMLElement {
 
 		if (!derived_from.equals(that.derived_from)) return false;
 		if (!Arrays.equals(file_ext, that.file_ext)) return false;
-		if (!implementation.equals(that.implementation)) return false;
 		if (!mime_type.equals(that.mime_type)) return false;
 		if (!properties.equals(that.properties)) return false;
 
@@ -96,7 +105,6 @@ public class ArtifactType extends YAMLElement {
 	public int hashCode() {
 		int result = super.hashCode();
 		result = 31 * result + derived_from.hashCode();
-		result = 31 * result + implementation.hashCode();
 		result = 31 * result + mime_type.hashCode();
 		result = 31 * result + Arrays.hashCode(file_ext);
 		result = 31 * result + properties.hashCode();
