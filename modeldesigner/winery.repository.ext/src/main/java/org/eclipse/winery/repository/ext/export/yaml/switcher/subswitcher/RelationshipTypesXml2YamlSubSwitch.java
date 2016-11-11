@@ -15,9 +15,7 @@
  */
 package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.winery.model.tosca.TRelationshipType;
@@ -93,14 +91,6 @@ public class RelationshipTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitc
 
         }
 
-        return buildEntry(name, yRelationshipType);
-    }
-
-    private Entry<String, RelationshipType> buildEntry(
-            String name, RelationshipType yRelationshipType) {
-        Map<String, RelationshipType> map = new HashMap<>();
-        map.put(name, yRelationshipType);
-
-        return map.entrySet().iterator().next();
+        return Xml2YamlSwitchUtils.buildEntry(name, yRelationshipType);
     }
 }

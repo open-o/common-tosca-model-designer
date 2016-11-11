@@ -68,16 +68,4 @@ public class ImportYaml2XmlSubSwitch extends AbstractYaml2XmlSubSwitch {
         return tImport;
     }
 
-    /**
-     * @param yImport
-     * @return
-     */
-    private String convert2XmlFileName(String yImport) {
-        if (yImport == null || yImport.equals("")) {
-            return null;
-        }
-
-        return yImport.replaceFirst(".yaml$", ".tosca");
-    }
-
 }

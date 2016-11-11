@@ -125,11 +125,11 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         .mappingNodeType(Xml2YamlSwitchUtils.getNamefromQName(tnodeTemplate.getType())));
 
     TNodeType tnodeType = Xml2YamlSwitchUtils.getTNodeType(tnodeTemplate);
-    NodeType ynodeType = Xml2YamlSwitchUtils.convert2YamlNodeType(tnodeType);
+    NodeType ynodeType = Xml2YamlSwitchUtils.convert2NodeType(tnodeType);
     
     // properties & attributes
     Map<String, Object> ypropsAndAttrs =
-        Xml2YamlSwitchUtils.convertTProperties(tnodeTemplate.getProperties());
+        Xml2YamlSwitchUtils.convert2PropertiesOrAttributes(tnodeTemplate.getProperties());
     if (ypropsAndAttrs != null && !ypropsAndAttrs.isEmpty()) {
       Map<String, Object> yproperties = 
           getYProperties(ypropsAndAttrs, ynodeType.getProperties());
@@ -149,10 +149,8 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     }
     
     // artifacts
-    TDeploymentArtifacts tDeploymentArtifacts = tnodeTemplate.getDeploymentArtifacts();
-    if (tDeploymentArtifacts != null) {
-      ynodeTemplate.getArtifacts().putAll(processArtifacts(tDeploymentArtifacts));
-    }
+    ynodeTemplate.getArtifacts().putAll(
+        processArtifacts(tnodeTemplate.getDeploymentArtifacts()));
 
     // requirement
     TNodeTemplate.Requirements trequirements = tnodeTemplate.getRequirements();
@@ -414,7 +412,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
 
     CapabilityFilter capabilityFilter = new CapabilityFilter();
     Map<String, Object> yproperties =
-        Xml2YamlSwitchUtils.convertTProperties(trequirement.getProperties());
+        Xml2YamlSwitchUtils.convert2PropertiesOrAttributes(trequirement.getProperties());
     if (yproperties == null || yproperties.isEmpty()) {
       return null;
     }
@@ -455,7 +453,8 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
    */
   private Map<String, ArtifactDefinition> processArtifacts(TDeploymentArtifacts tDeploymentArtifacts) {
     Map<String, ArtifactDefinition> yartifacts = new HashMap<>();
-    if (tDeploymentArtifacts.getDeploymentArtifact() != null && !tDeploymentArtifacts.getDeploymentArtifact().isEmpty()) {
+    
+    if (tDeploymentArtifacts != null && tDeploymentArtifacts.getDeploymentArtifact() != null && !tDeploymentArtifacts.getDeploymentArtifact().isEmpty()) {
       for (TDeploymentArtifact  tDeploymentArtifact: tDeploymentArtifacts.getDeploymentArtifact()) {
         ArtifactDefinition yArtifact= buildArtifact(tDeploymentArtifact);
         if(yArtifact != null) {
@@ -463,6 +462,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         }
       }
     }
+    
     return yartifacts;
   }
 
@@ -479,7 +479,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
    * @return .
    */
   private Capability buildCapability(TCapability tcapability) {
-    return new Capability(Xml2YamlSwitchUtils.convertTProperties(tcapability.getProperties()));
+    return new Capability(Xml2YamlSwitchUtils.convert2PropertiesOrAttributes(tcapability.getProperties()));
   }
   
   private ArtifactDefinition buildArtifact(TDeploymentArtifact tDeploymentArtifact) {

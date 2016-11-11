@@ -73,7 +73,7 @@ public class GroupsXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         yGroup.setType(Xml2YamlTypeMapper.mappingGroupType(Xml2YamlSwitchUtils.getNamefromQName(tGroup.getType())));
         // properties
         Map<String, Object> yProperties =
-                Xml2YamlSwitchUtils.convertTProperties(tGroup.getProperties());
+                Xml2YamlSwitchUtils.convert2PropertiesOrAttributes(tGroup.getProperties());
         yGroup.setProperties(yProperties);
         // targets
         if (tGroup.getTargets() != null && tGroup.getTargets().getTarget() != null) {

@@ -77,15 +77,8 @@ public class PolicyTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
 
         // properties
         yPolicyType.setProperties(
-            Xml2YamlSwitchUtils.convert2PolicyPropertyDefinitions(tPolicyType.getAny()));
+            Xml2YamlSwitchUtils.convert2PropertyDefinitions(tPolicyType.getAny()));
 
-        return buildEntry(name, yPolicyType);
-    }
-
-    private Entry<String, PolicyType> buildEntry(String name, PolicyType yPolicyType) {
-        Map<String, PolicyType> map = new HashMap<>();
-        map.put(name, yPolicyType);
-
-        return map.entrySet().iterator().next();
+        return Xml2YamlSwitchUtils.buildEntry(name, yPolicyType);
     }
 }

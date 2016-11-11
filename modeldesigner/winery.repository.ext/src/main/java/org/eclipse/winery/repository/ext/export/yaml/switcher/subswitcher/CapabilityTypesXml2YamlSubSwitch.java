@@ -15,9 +15,7 @@
  */
 package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.winery.model.tosca.TCapabilityType;
@@ -78,15 +76,7 @@ public class CapabilityTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch 
         yCapabilityType.setProperties(Xml2YamlSwitchUtils
                 .convert2PropertyDefinitions(tCapabilityType.getAny()));
 
-        return buildEntry(name, yCapabilityType);
-    }
-
-    private Entry<String, CapabilityType> buildEntry(
-            String name, CapabilityType yCapabilityType) {
-        Map<String, CapabilityType> map = new HashMap<>();
-        map.put(name, yCapabilityType);
-
-        return map.entrySet().iterator().next();
+        return Xml2YamlSwitchUtils.buildEntry(name, yCapabilityType);
     }
 
 }

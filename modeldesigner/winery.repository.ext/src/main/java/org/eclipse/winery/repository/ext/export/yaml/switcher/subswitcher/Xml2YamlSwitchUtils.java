@@ -308,19 +308,19 @@ public class Xml2YamlSwitchUtils {
    * @param tProperties.
    * @return .
    */
-  public static Map<String, Object> convertTProperties(TEntityTemplate.Properties tproperties) {
+  public static Map<String, Object> convert2PropertiesOrAttributes(TEntityTemplate.Properties tproperties) {
     if (tproperties == null) {
       return null;
     }
 
-    return convert2Properties(tproperties.getAny());
+    return convert2PropertiesAttributes(tproperties.getAny());
   }
 
   /**
    * @param tProperties.
    * @return .
    */
-  public static Map<String, Object> convert2Properties(Object tproperties) {
+  public static Map<String, Object> convert2PropertiesAttributes(Object tproperties) {
     if (null==tproperties) {
       return null;
     }
@@ -418,31 +418,6 @@ public class Xml2YamlSwitchUtils {
     return map;
   }
 
-  /**
-   * 
-   * @param tPropertyList.
-   * @return .
-   */
-  public static Map<String, PropertyDefinition> convert2PolicyPropertyDefinitions(
-      List<Object> tpropertyList) {
-    Map<String, PropertyDefinition> yproperties = new HashMap<>();
-
-    if (tpropertyList != null && !tpropertyList.isEmpty()) {
-      WinerysPropertiesDefinition wpd = (WinerysPropertiesDefinition) tpropertyList.get(0);
-      if ("Properties".equalsIgnoreCase(wpd.getElementName())) {
-        PropertyDefinitionKVList pdkvList = wpd.getPropertyDefinitionKVList();
-
-        if (pdkvList != null && !pdkvList.isEmpty()) {
-          for (PropertyDefinitionKV pdKv : pdkvList) {
-            PropertyDefinition yproperty = buildPropertyDefinition(pdKv);
-            yproperties.put(pdKv.getKey(), yproperty);
-          }
-        }
-      }
-    }
-
-    return yproperties;
-  }
   
   /**
    * @param value
@@ -456,7 +431,7 @@ public class Xml2YamlSwitchUtils {
    * @param tnodeType
    * @return
    */
-  public static NodeType convert2YamlNodeType(TNodeType tnodeType) {
+  public static NodeType convert2NodeType(TNodeType tnodeType) {
     NodeTypesXml2YamlSubSwitch switcher = new NodeTypesXml2YamlSubSwitch(new Xml2YamlSwitch(null));
     Entry<String, NodeType> entry = switcher.createNodeType(tnodeType);
     return entry.getValue();
@@ -504,7 +479,5 @@ public class Xml2YamlSwitchUtils {
     }
     return artifactDefinition;
   }
-
- 
  
 }
