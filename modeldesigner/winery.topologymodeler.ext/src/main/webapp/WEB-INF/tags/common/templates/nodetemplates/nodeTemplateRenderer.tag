@@ -60,7 +60,9 @@
 <%@tag import="java.util.Iterator"%>
 <%@tag import="java.util.List"%>
 <%@tag import="java.util.Map"%>
-<%@tag import="java.util.UUID"%>
+<%@tag import="java.util.HashMap"%>
+<%@tag import="java.util.UUID"%> 
+<%@tag import="java.util.Date"%>
 <%@tag import="javax.xml.namespace.QName"%>
 <%@tag import="javax.xml.transform.OutputKeys"%>
 <%@tag import="javax.xml.transform.Transformer"%>
@@ -195,7 +197,7 @@
 	if (paletteMode) {
 		deploymentArtifacts = Collections.emptyList();
 	} else {
-		TDeploymentArtifacts tDeploymentArtifacts = nodeTemplate.getDeploymentArtifacts();
+		TDeploymentArtifacts tDeploymentArtifacts = nodeTemplate.getDeploymentArtifacts();		
 		if (tDeploymentArtifacts == null) {
 			deploymentArtifacts = Collections.emptyList();
 		} else {
@@ -217,21 +219,33 @@
 		<div class="content">
 			<%
 			if (!paletteMode) {
+				int count = 0;
 				for (TDeploymentArtifact deploymentArtifact : deploymentArtifacts) {
+					Long fileIndex = (new Date()).getTime();
+					String rowId = "artifactFiles_" + fileIndex + (count++) ;
+					Map<QName,String> artifactData = deploymentArtifact.getOtherAttributes();
+					String artifactQname = artifactData.get(new QName("artifactQname")).toString();
 					%>
-					<div class="deploymentArtifact row" onclick="showDeploymentArtifactInformation('<%=visualElementId%>', '<%=deploymentArtifact.getName()%>');">
-						<textarea class="hidden"><%=org.eclipse.winery.common.Util.getXMLAsString(org.eclipse.winery.model.tosca.TDeploymentArtifact.class, deploymentArtifact)%></textarea>
-						<div class="col-xs-4 overflowhidden deploymentArtifact name"><%=deploymentArtifact.getName()%></div>
-						<div class="col-xs-4 overflowhidden artifactTemplate"><%
-							QName artifactRef;
-							if ((artifactRef = deploymentArtifact.getArtifactRef()) != null) {
-								ArtifactTemplateId atId = new ArtifactTemplateId(artifactRef);
-								%><%=client.getName(atId)%><%
-							}
-						%></div>
-						<div class="col-xs-4 overflowhidden artifactType"><%
-						ArtifactTypeId atyId = new ArtifactTypeId(deploymentArtifact.getArtifactType());
-						%><%=client.getName(atyId)%></div>
+					<div class="deploymentArtifact row" id=<%=rowId%> >
+						<div class="artifactName">
+							<a data-qname=<%=artifactQname%>><%=deploymentArtifact.getName()%></a>
+						</div>					
+						<div class="deploy_path">
+							<a data-qname=<%=artifactQname%>><%=artifactData.get(new QName("deploy_path"))%></a>
+						</div>
+						<div class="artifactFileName">
+							<a data-qname=<%=artifactQname%>><%=artifactData.get(new QName("artifactFileName"))%></a>
+						</div>
+						<div class="artifactType">
+							<a data-qname=<%=artifactQname%>><%=artifactData.get(new QName("artifactTypeStr"))%></a>
+						</div>
+						<div class="nodeDescriptionInput">
+							<a data-qname=<%=artifactQname%>><%=artifactData.get(new QName("nodeDescriptionInput"))%></a>
+						</div>
+						<div class="nodeRepositoryInput">
+							<a data-qname=<%=artifactQname%>><%=artifactData.get(new QName("nodeRepositoryInput"))%></a>
+						</div>
+
 					</div>
 					<%
 				}

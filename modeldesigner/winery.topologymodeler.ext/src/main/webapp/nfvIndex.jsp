@@ -301,7 +301,7 @@ style="display:none"></iframe>
     	    alert(description); 
     } 
     
-    // 生成随机数
+    // 生成随机�?
     function RndNum(n){
     	var rnd="";
     	for(var i=0;i<n;i++)
@@ -535,7 +535,9 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 %>
 
 <div id="winery">
-	<ncnt:propertiesOfOneNodeTemplate repositoryURL="<%=repositoryURL%>" palette="true"/>
+	<ncnt:propertiesOfOneNodeTemplate repositoryURL="<%=repositoryURL%>" serviceTemplateURL="<%=serviceTemplateURL%>" palette="true"
+		allArtifactTypes="<%=client.getQNameListOfAllTypes(TArtifactType.class)%>"
+	/>
 	<ncrt:propertiesOfOneRelationshipTemplate relationshipTypes="<%=relationshipTypes%>" repositoryURL="<%=repositoryURL%>"/>
 	<%-- add boundaryDefinitions in paas --%>
 	<bdf:boundaryDefinitions serviceTemplateURL="<%=serviceTemplateURL%>" 
@@ -1067,7 +1069,7 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 			$(document).off("mousemove", selectionBoxModeMouseMoveFunction);
 			selectionBoxMode = false;
 			
-			// 创建一个DIV层
+			// 创建一个DIV�?
 			var width = $("#selectionbox").width();
 			if(width > 100)
 			{
@@ -1084,7 +1086,7 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 					id = temp_id + (count - 1);
 				}
 				
-				// 创建新层并设置ID和样式
+				// 创建新层并设置ID和样�?
 				var newDiv = $("#selectionbox").clone();
 				newDiv.attr("id", id);
 				newDiv.addClass("div_selectionbox");
@@ -1115,7 +1117,7 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 				newDiv.appendTo($("#editorArea"));
 			}
 
-			// 隐藏选择框
+			// 隐藏选择�?
 			$("#selectionbox").hide();
 			
 		} else if (multiDNDmode) {

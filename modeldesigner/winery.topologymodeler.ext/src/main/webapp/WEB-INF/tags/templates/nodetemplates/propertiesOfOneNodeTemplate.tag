@@ -18,6 +18,11 @@
 
 <%@attribute name="repositoryURL" required="true" type="java.lang.String" description="The repository URL"%>
 <%@attribute name="palette" required="false" type="java.lang.Boolean" description="palette mode or view mode"%>
+<%@attribute name="serviceTemplateURL" required="true" type="java.lang.String" description="The topologyTemplate URL"%>
+<%@attribute name="allArtifactTypes" required="true" type="java.util.Collection" description="All available artifact types"%>
+
+<%@tag import="javax.xml.namespace.QName"%>
+<%@tag import="java.util.List"%>
 
 <%@taglib prefix="ct" tagdir="/WEB-INF/tags/common" %>
 
@@ -35,20 +40,25 @@
 		<form id="propertiesForm" class="form-horizontal" role="form">
 			<ul class="nav title-list">
 				<li class="active">
-			      	<a href="#basicInfo" data-toggle="tab">
-			      		<span id="winery-property-tab-basic" name_i18n="winery_i18n"></span>
-			      	</a>
-			   	</li>	
+					<a href="#basicInfo" data-toggle="tab" class="tab-multi">
+						<span id="winery-property-tab-basic" name_i18n="winery_i18n"></span>
+					</a>
+				</li>	
 				<li>
-			      	<a href="#propertiesInfo" data-toggle="tab">
-			      		<span id="winery-property-tab-property" name_i18n="winery_i18n"></span>
-			      	</a>
-			   	</li>
-			   	<li>
-			      	<a href="#reqAndCapInfo" data-toggle="tab">
-			      		<span id="winery-property-tab-reqAndCap" name_i18n="winery_i18n"></span>
-			      	</a>
-			   	</li>
+					<a href="#propertiesInfo" data-toggle="tab" class="tab-multi">
+						<span id="winery-property-tab-property" name_i18n="winery_i18n"></span>
+					</a>
+				</li>
+				<li>
+					<a href="#reqAndCapInfo" data-toggle="tab" class="tab-multi">
+						<span id="winery-property-tab-reqAndCap" name_i18n="winery_i18n"></span>
+					</a>
+				</li>
+				<li>
+					<a href="#boundaryNodeScript" data-toggle="tab" class="tab-multi">
+						<span id="winery-boundary-tab-artifact" name_i18n="winery_i18n"></span>
+					</a>
+				</li>
 			</ul>
 			<div class="tab-content">
 				<div class="tab-pane fade in active" id="basicInfo">
@@ -99,6 +109,85 @@
 					<div id="nodeRequirementsTable_div"></div>
 					<div><span id="winery-property-reqAndCap-cap" name_i18n="winery_i18n"></span></div>
 					<div id="nodeCapabilitiesTable_div"></div>
+				</div>
+				<div class="tab-pane fade" id="boundaryNodeScript">
+					<c:if test="${palette}">
+						<div class="form-group">
+							<label class="control-label col-sm-4">
+								<span id="winery-property-artifact-name" name_i18n="winery_i18n"></span>
+								<span class="required" aria-required="true">*</span>
+							</label>
+							<div class="col-sm-8">
+								<input class="form-control" type="text" id="artifactNameInput" name="name">
+							</div>
+						</div>					
+						<div class="form-group">
+							<label class="control-label col-sm-4">
+								<span id="winery-property-artifact-file" name_i18n="winery_i18n"></span>
+								<span class="required" aria-required="true">*</span>
+							</label>
+							<div class="col-sm-8">
+								<select name="artifactFileName" class="form-control" id="artifactFileName">								
+								</select>	
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-sm-4">
+								<span id="winery-property-artifact-type" name_i18n="winery_i18n"></span>
+								<span class="required" aria-required="true">*</span>
+								
+							</label>
+							<div class="col-sm-8">
+								<select name="artifactType" class="form-control" id="artifactTypeInput">							
+								<%
+								for(Object artifactQName : allArtifactTypes){
+									String artifactType = artifactQName.toString().split("}")[1];
+								%>
+									<option value=<%="winery:" + artifactType%>><%=artifactType%></option>
+								<%
+								}
+								%>									
+								</select>						
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-sm-4"><span id="winery-property-artifact-repository" name_i18n="winery_i18n"></span></label>
+							<div class="col-sm-8">
+								<input class="form-control" type="text" id="nodeRepositoryInput" placeholder="">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-sm-4"><span id="winery-property-artifact-deploy_path" name_i18n="winery_i18n"></span></label>
+							<div class="col-sm-8">
+								<input class="form-control" type="text" id="deploy_path" name="deploy_path"></input>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label col-sm-4"><span id="winery-property-artifact-description" name_i18n="winery_i18n"></span></label>
+							<div class="col-sm-8">
+								<input class="form-control" type="text" id="nodeDescriptionInput" name="description" placeholder="">
+							</div>
+						</div>
+						
+			
+		
+						<input id="artifact-file-add" class="btn btn-primary btn-sm" value="添加" onclick="addArtifactFile()" style="margin-top:-15px;width:80px;float:right">
+
+						
+					</c:if>
+					
+					<div id="boundaryNodeScriptTable_div">
+						<div id="boundaryNodeScriptTable_wrapper" class="dataTables_wrapper" role="grid"></div>
+						<table class="zte-table dataTable" id="boundaryNodeScriptTable">
+							<thead><tr role="row" class="heading"><th class="sorting_disabled" role="columnheader" rowspan="1" colspan="1" style="width: 35%;">名称</th>
+								<th class="sorting_disabled" role="columnheader" rowspan="1" colspan="1" style="width: 40%;">文件名</th>
+								<th class="sorting_disabled" role="columnheader" rowspan="1" colspan="1" style="width: 25%;">操作</th></tr></thead>
+							<tbody role="alert" aria-live="polite" aria-relevant="all">
+						
+							</tbody>
+						</table>
+					</div>
+					
 				</div>
 			</div>
 		</form>
@@ -183,9 +272,9 @@
 	// the min/max fields of the currently selected node template
 	var ntMin;
 	var ntMax;
-
+	
 	function fillInformationSection(nodeTemplate) {
-		require(["winery-support-common", "winery-datatable", "winery-util", "jsoneditor"], 
+		require(["winery-support-common", "winery-datatable", "winery-util", "jsoneditor", "winery-support-common"], 
 		function(wsc, wd, util) {
 			// currently doesn't help for a delayed update
 			//informationSection.slideDown();
@@ -724,9 +813,217 @@
 					}
 				};
 			}
+			
+			
+			//初始化脚本表格,初始化artifact
+			initArtifactFileTable();
+			
 		});
 	}
+	
+	var qnameNamespace = "{http://www.zte.com.cn/tosca/nfv}";	
+	//添加artifacts属性
+	function addArtifactFile(){
+		require(["winery-support-common"], 
+		function(wsc) {
+			
+			if(!artifactValidate()) return ;
 
+			var nodeTemplate = $("div.NodeTemplateShape.selected");
+			var content = nodeTemplate.children("div.deploymentArtifactsContainer").children("div.content");			
+			
+			var fileIndex = (new Date()).getTime();
+			var deploy_path = wsc.qname2href("", null, qnameNamespace+$("#deploy_path").val());		
+			var artifactFileName = wsc.qname2href("", null, qnameNamespace+$("#artifactFileName").val());					
+			var nodeDescriptionInput = wsc.qname2href("", null, qnameNamespace+$("#nodeDescriptionInput").val());
+			var nodeRepositoryInput = wsc.qname2href("", null, qnameNamespace+$("#nodeRepositoryInput").val());			
+			var artifactTypeInput = wsc.qname2href("", null, qnameNamespace+$("#artifactTypeInput").val());
+			var artifactName = wsc.qname2href("", null, qnameNamespace+$("#artifactNameInput").val());
+			
+			var rowId = "artifactFiles_" + fileIndex ;
+			
+			content.append("<div class='deploymentArtifact row' id='" + rowId + "'></div>");
+															
+			var nodeArtifactInfo = $(document.getElementById(rowId));
+			
+			nodeArtifactInfo.append("<div class='artifactName'>" + artifactName + "</div>");
+			nodeArtifactInfo.append("<div class='artifactFileName'>" + artifactFileName + "</div>");
+			nodeArtifactInfo.append("<div class='artifactType'>" + artifactTypeInput + "</div>");
+			nodeArtifactInfo.append("<div class='deploy_path'>" + deploy_path + "</div>");	
+			nodeArtifactInfo.append("<div class='nodeDescriptionInput'>" + nodeDescriptionInput + "</div>");
+			nodeArtifactInfo.append("<div class='nodeRepositoryInput'>" + nodeRepositoryInput + "</div>");
+
+			
+			var str = "<tr class='odd'>"
+				+"<td>"+artifactName+"</td>"
+				+"<td>"+artifactFileName+"</td>"
+				+"<td><i class='fa fa-edit icon-del' id='winery-btn-edit' name_i18n='winery_i18n' "
+				+"onclick='showArtifactUpdate(" + rowId + ")' ></i>"				
+				+"<i class='fa fa-trash icon-del' id='winery-btn-delete' name_i18n='winery_i18n' style='margin-left:8px;' "
+				+"onclick='dellArtifactFile($(this).parent().parent(),"+rowId+");'></i></td></tr>"
+				
+			
+			$("#boundaryNodeScriptTable tbody").append(str);
+			
+			if($("#artifact-file-update").length != 0){
+				$("#artifact-file-update")[0].remove();
+			}
+			
+			artifactValidate();
+		});	
+	
+	}
+	
+	//删除ArtifactFile
+	function dellArtifactFile(tr,rowId){
+
+		tr[0].parentNode.removeChild(tr[0]);
+		rowId.remove();
+		
+		if($("#artifact-file-update").length != 0){
+			$("#artifact-file-update")[0].remove();
+		}		
+	};
+	
+	//显示修改ArtifactFile
+	function showArtifactUpdate(rowId){
+		var artifactDiv = $(rowId);	
+				
+		$("#artifactNameInput").val(artifactDiv.children(".artifactName").children().html());
+		$("#artifactFileName").val(artifactDiv.children(".artifactFileName").children().html());
+		$("#artifactTypeInput").val(artifactDiv.children(".artifactType").children().html());
+		$("#deploy_path").val(artifactDiv.children(".deploy_path").children().html());
+		$("#nodeDescriptionInput").val(artifactDiv.children(".nodeDescriptionInput").children().html());
+		$("#nodeRepositoryInput").val(artifactDiv.children(".nodeRepositoryInput").children().html());	
+		
+		var updateBtn = "<input id='artifact-file-update' class='btn btn-info btn-sm' value='修改' "
+			+ "onclick='artifactUpdate(" + artifactDiv.attr('id') + ")' style='margin-top:-15px;width:80px;float:right;margin-right:15px'>";
+		
+		if($("#artifact-file-update").length != 0){
+			$("#artifact-file-update")[0].remove();
+		}
+	
+		$("#artifact-file-add").after(updateBtn);
+	
+		
+		
+		 
+	}
+	//修改ArtifactFile
+	function artifactUpdate(rowId){
+		require(["winery-support-common"], 
+			function(wsc) {
+			if(!artifactValidate()) return ;
+			var artifactDiv = $(rowId);			
+			
+			var artifactName = wsc.qname2href("", null, qnameNamespace+$("#artifactNameInput").val());
+			var deploy_path = wsc.qname2href("", null, qnameNamespace+$("#deploy_path").val());		
+			var artifactFileName = wsc.qname2href("", null, qnameNamespace+$("#artifactFileName").val());		
+			var artifactType = wsc.qname2href("", null, qnameNamespace+$("#artifactTypeInput").val());
+			var nodeDescriptionInput = wsc.qname2href("", null, qnameNamespace+$("#nodeDescriptionInput").val());
+			var nodeRepositoryInput = wsc.qname2href("", null, qnameNamespace+$("#nodeRepositoryInput").val());			
+		
+			
+			artifactDiv.children(".artifactName").html(artifactName);
+			artifactDiv.children(".artifactFileName").html(artifactFileName);
+			artifactDiv.children(".artifactType").html(artifactType);
+			artifactDiv.children(".deploy_path").html(deploy_path);
+			artifactDiv.children(".nodeDescriptionInput").html(nodeDescriptionInput);
+			artifactDiv.children(".nodeRepositoryInput").html(nodeRepositoryInput);
+			
+			$("#artifact-file-update")[0].remove();
+
+			initArtifactFileTable();
+			
+		});
+	}
+	
+	//初始化artifact表格
+	function initArtifactFileTable(){
+		var nodeTemplate = $("div.NodeTemplateShape.selected");
+		var artifacts = nodeTemplate.children("div.deploymentArtifactsContainer").children("div.content").children("div.deploymentArtifact");
+
+		$("#boundaryNodeScriptTable tbody").html("");
+		
+		for(var ai=0 ; ai<artifacts.length ; ai++){
+			var artifactDiv = $(artifacts[ai]);	
+								
+			var artifactName = artifactDiv.children(".artifactName").children().html();
+			var artifactFileName = artifactDiv.children(".artifactFileName").children().html();
+			var artifactType = artifactDiv.children(".artifactType").children().html();
+			var deploy_path = artifactDiv.children(".deploy_path").children().html();
+			var nodeDescriptionInput = artifactDiv.children(".nodeDescriptionInput").children().html();
+			var nodeRepositoryInput = artifactDiv.children(".nodeRepositoryInput").children().html();	
+			
+			
+			var str = "<tr class='odd'  ondblclick='showArtifactUpdate(" + artifactDiv.attr('id') + ")'>"
+					+"<td>"+artifactName+"</td>"
+					+"<td>"+artifactFileName+"</td>"
+					+"<td><i class='fa fa-edit icon-del' id='winery-btn-edit' name_i18n='winery_i18n' "
+					+"onclick='showArtifactUpdate(" + artifactDiv.attr("id") + ")' ></i>"				
+					+"<i class='fa fa-trash icon-del' id='winery-btn-delete' name_i18n='winery_i18n' style='margin-left:8px;' "
+					+"onclick='dellArtifactFile($(this).parent().parent()," + artifactDiv.attr("id") + ");'></i></td></tr>"
+	
+			$("#boundaryNodeScriptTable tbody").append(str);
+														
+		}
+		
+		$("#artifactNameInput").val("");
+		$("#artifactFileName").val("");
+		$("#artifactTypeInput").val("");
+		$("#deploy_path").val("");
+		$("#nodeDescriptionInput").val("");
+		$("#nodeRepositoryInput").val("");	
+		
+		if($("#artifact-file-update").length != 0){
+			$("#artifact-file-update")[0].remove();
+		}
+		
+		//初始化artifactFile列表
+		$("#artifactFileName").html("");
+		$.ajax({
+				type : "GET",
+				dataType : "json",
+				url : "${serviceTemplateURL}/servicefiles",
+				success : function(resp) {
+					var filesData = resp || [];
+					for(var i=0,len = filesData.length; i<len; i++){
+						$("#artifactFileName").append(
+						"<option value='" + filesData[i].fileName + "'>"+ filesData[i].fileName +"</option>"
+						);
+					}					
+				}
+		});	
+		
+	}
+
+	//artifact数据校验
+	function artifactValidate(){
+		
+		if($("#artifactNameInput").val() == "" ){
+			var tagName = "*" + $("#winery-boundary-tab-artifact").text() + "*";
+			var inputName = "*" + $("#artifactNameInput").parent().prev().text().replace(/[\r\n]/g,"");
+			vShowError($.i18n.prop("winery-template-validate-artifact-add", tagName, inputName));
+			return false;
+		}
+		
+		if($("#artifactFileName").val() == "" ){
+			var tagName = "*" + $("#winery-boundary-tab-artifact").text() + "*";
+			var inputName = "*" + $("#artifactFileName").parent().prev().text().replace(/[\r\n]/g,"");
+			vShowError($.i18n.prop("winery-template-validate-artifact-add", tagName, inputName));
+			return false;
+		}
+
+		if($("#artifactTypeInput").val() == "" ){
+			var tagName = "*" + $("#winery-boundary-tab-artifact").text() + "*";
+			var inputName = "*" + $("#artifactTypeInput").parent().prev().text().replace(/[\r\n]/g,"");
+			vShowError($.i18n.prop("winery-template-validate-artifact-add", tagName, inputName));
+			return false;
+		}
+
+		return true;
+	}
+	
 	function showViewOnTheRight(nid) {
 		//隐藏boundary
 		$("#boundaryDefinition").hide();
@@ -805,7 +1102,7 @@ $(function() {
 	$("#closeNTPropertiesViewBtn").click(function() {
 		$("#NTPropertiesView").hide();
 	});
-
+	
 	//点击右侧属性删除按钮
 	$("#delNodeTemplate").click(function(){
 		$("#NTPropertiesView").hide();
@@ -820,5 +1117,7 @@ $(function() {
 		$("#delNodeTemplate").hide();
 		$("#nodeTemplateInformationSection").find("input").attr("disabled", true);
 	}
+		
+	
 });
 </script>
