@@ -82,6 +82,7 @@ public class ComplexPropertiesDefinitionResource {
     @Path("all")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addProperties(List<WinerysPropertiesDefinition> properties) {
+        list.clear();
         list.addAll(properties);
         return BackendUtils.persist(this.res);
     }
