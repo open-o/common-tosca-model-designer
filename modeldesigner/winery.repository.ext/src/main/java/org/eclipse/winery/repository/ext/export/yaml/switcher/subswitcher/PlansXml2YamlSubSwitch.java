@@ -15,6 +15,17 @@
  */
 package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.xml.namespace.QName;
+
 import org.eclipse.winery.common.RepositoryFileReference;
 import org.eclipse.winery.common.Util;
 import org.eclipse.winery.common.ids.XMLId;
@@ -24,6 +35,7 @@ import org.eclipse.winery.common.ids.elements.PlansId;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.Constants;
 import org.eclipse.winery.repository.backend.Repository;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.Xml2YamlSwitch;
 import org.eclipse.winery.repository.ext.yamlmodel.Input;
@@ -37,15 +49,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * 
@@ -198,6 +201,11 @@ public class PlansXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     }
 
     private String buildReference(TPlan tPlan) {
+      String fileName = tPlan.getOtherAttributes().get(new QName(Constants.PLAN_NAME));
+      if (fileName != null && !fileName.isEmpty()) {
+        return "plan/" + fileName;
+      }
+      
       String tReference = tPlan.getPlanModelReference().getReference();
       if (tReference == null) {
         return "";
