@@ -21,6 +21,7 @@ package org.eclipse.winery.repository.ext.utils;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -36,18 +37,23 @@ import org.eclipse.winery.repository.ext.yamlmodel.ArtifactType;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.Capability;
 import org.eclipse.winery.repository.ext.yamlmodel.CapabilityDefinition;
+import org.eclipse.winery.repository.ext.yamlmodel.CapabilityFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.CapabilityType;
 import org.eclipse.winery.repository.ext.yamlmodel.DataType;
 import org.eclipse.winery.repository.ext.yamlmodel.Group;
 import org.eclipse.winery.repository.ext.yamlmodel.Input;
+import org.eclipse.winery.repository.ext.yamlmodel.NodeFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
 import org.eclipse.winery.repository.ext.yamlmodel.Output;
 import org.eclipse.winery.repository.ext.yamlmodel.Plan;
 import org.eclipse.winery.repository.ext.yamlmodel.PolicyTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.PolicyType;
+import org.eclipse.winery.repository.ext.yamlmodel.PropertiesFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
+import org.eclipse.winery.repository.ext.yamlmodel.PropertyFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.RelationshipType;
+import org.eclipse.winery.repository.ext.yamlmodel.RequirementDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.ServiceTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.TopologyTemplate;
 import org.eclipse.winery.repository.resources.entitytypes.policytypes.PolicyTypesResource;
@@ -107,8 +113,7 @@ public class YamlBeansUtils {
         
         config.setPropertyElementType(NodeType.class, "properties", PropertyDefinition.class);
         config.setPropertyElementType(NodeType.class, "attributes", AttributeDefinition.class);
-//        config.setPropertyElementType(NodeType.class, "requirements", RequirementDefinition.class);
-//        config.setPropertyElementType(NodeType.class, "requirements", (new HashMap<String, RequirementDefinition>()).getClass());
+        config.setPropertyElementType(NodeType.class, "requirements", (new HashMap<String, RequirementDefinition>()).getClass());
         config.setPropertyElementType(NodeType.class, "capabilities", CapabilityDefinition.class);
         
         config.setPropertyElementType(CapabilityType.class, "properties", PropertyDefinition.class);
@@ -123,10 +128,9 @@ public class YamlBeansUtils {
 
         config.setPropertyElementType(NodeTemplate.class, "capabilities", Capability.class);
 
-        // config.setPropertyElementType(NodeFilter.class, "capabilities",
-        // (new HashMap<String, CapabilityFilter>()).getClass());
-        // config.setPropertyDefaultType(NodeFilter.class, "capabilities",
-        // CapabilityFilter.class);
+        config.setPropertyElementType(NodeFilter.class, "capabilities", CapabilityFilter.class);
+        config.setPropertyElementType(NodeFilter.class, "properties", PropertyFilter.class);
+        config.setPropertyElementType(PropertiesFilter.class, "properties", PropertyFilter.class);
     }
 
     public static PolicyTemplate convertPolicyTemplate(TPolicy policy) {

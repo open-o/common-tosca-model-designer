@@ -15,9 +15,7 @@
  */
 package org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.winery.model.tosca.TPolicyType;

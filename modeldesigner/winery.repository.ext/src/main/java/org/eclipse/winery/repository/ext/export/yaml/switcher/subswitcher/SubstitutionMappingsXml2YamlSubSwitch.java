@@ -106,13 +106,13 @@ public class SubstitutionMappingsXml2YamlSubSwitch extends AbstractXml2YamlSubSw
      * @return
      */
     private String[] buildYRequirementValue(TRequirement tRequirement) {
-        TNodeTemplate tNodeTemplate = getRequirementBelongTNodeTemplate(tRequirement.getId());
+        TNodeTemplate tnode = getRequirementBelongTNodeTemplate(tRequirement.getId());
 
-        if (tNodeTemplate == null) {
-            return new String[] { tRequirement.getId() };
+        if (tnode == null) {
+            return new String[] { tRequirement.getName() };
         }
 
-        return new String[] { tNodeTemplate.getName(), tRequirement.getName() };
+        return new String[] { Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode), tRequirement.getName() };
     }
 
     private TNodeTemplate getRequirementBelongTNodeTemplate(String tRequirementId) {
@@ -137,13 +137,13 @@ public class SubstitutionMappingsXml2YamlSubSwitch extends AbstractXml2YamlSubSw
     private String[] buildYCapabilityValue(TCapability tCapability) {
         String tCapabilityId = tCapability.getId();
 
-        TNodeTemplate tmp = getCapabilityBelongTNodeTemplate(tCapabilityId);
+        TNodeTemplate tnode = getCapabilityBelongTNodeTemplate(tCapabilityId);
 
-        if (tmp == null) {
-            return new String[] { tCapability.getId() };
+        if (tnode == null) {
+            return new String[] { tCapability.getName() };
         }
 
-        return new String[] { tmp.getName(), tCapability.getName() };
+        return new String[] { Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode), tCapability.getName() };
     }
 
     private TNodeTemplate getCapabilityBelongTNodeTemplate(String tCapabilityId) {

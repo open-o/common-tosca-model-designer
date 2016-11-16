@@ -17,31 +17,29 @@ package org.eclipse.winery.repository.ext.yamlmodel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class NodeFilter {
-    private List<Map<String, Object>> properties = new ArrayList<>();
-    private List<Map<String, CapabilityFilter>> capabilities = new ArrayList<>();
+public class NodeFilter extends PropertiesFilter{
+//    private List<PropertyFilter> properties = new ArrayList<>();
+  private List<CapabilityFilter> capabilities = new ArrayList<>();
 
+//    public void setProperties(List<PropertyFilter> properties) {
+//		if (properties != null) {
+//			this.properties = properties;
+//		}
+//	}
+//
+//    public List<PropertyFilter> getProperties() {
+//		return this.properties;
+//	}
 
-    public void setProperties(List<Map<String, Object>> properties) {
-		if (properties != null) {
-			this.properties = properties;
-		}
-	}
+  public void setCapabilities(List<CapabilityFilter> capabilities) {
+    if (capabilities != null) {
+        this.capabilities = capabilities;
+    }
+  }
 
-    public List<Map<String, Object>> getProperties() {
-		return this.properties;
-	}
-
-    public void setCapabilities(List<Map<String, CapabilityFilter>> capabilities) {
-		if (capabilities != null) {
-			this.capabilities = capabilities;
-		}
-	}
-
-    public List<Map<String, CapabilityFilter>> getCapabilities() {
-		return this.capabilities;
-	}
+  public List<CapabilityFilter> getCapabilities() {
+    return this.capabilities;
+  }
 
 }
