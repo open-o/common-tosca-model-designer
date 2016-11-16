@@ -21,16 +21,16 @@ import java.util.HashMap;
  * @author 10090474
  *
  */
-public class CapabilityFilter extends HashMap<String, PropertiesFilter> {
+public class PropertyFilter extends HashMap<String, ConstraintClause>{
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
 
-  public CapabilityFilter(String capabilityName, PropertiesFilter propertiesFilter) {
+  public PropertyFilter(String propertyName, ConstraintClause constraintClause) {
     super();
-    this.put(capabilityName, propertiesFilter);
+    this.put(propertyName, constraintClause);
   }
 
 }

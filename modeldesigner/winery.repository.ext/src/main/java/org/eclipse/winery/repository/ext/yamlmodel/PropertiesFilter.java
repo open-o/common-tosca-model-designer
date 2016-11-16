@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 [ZTE] and others.
+ * Copyright 2016 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,20 @@
  */
 package org.eclipse.winery.repository.ext.yamlmodel;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * @author 10090474
- *
- */
-public class CapabilityFilter extends HashMap<String, PropertiesFilter> {
+public class PropertiesFilter {
+  private List<PropertyFilter> properties = new ArrayList<>();
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
+  public void setProperties(List<PropertyFilter> properties) {
+    if (properties != null) {
+      this.properties = properties;
+    }
+  }
 
-  public CapabilityFilter(String capabilityName, PropertiesFilter propertiesFilter) {
-    super();
-    this.put(capabilityName, propertiesFilter);
+  public List<PropertyFilter> getProperties() {
+    return this.properties;
   }
 
 }

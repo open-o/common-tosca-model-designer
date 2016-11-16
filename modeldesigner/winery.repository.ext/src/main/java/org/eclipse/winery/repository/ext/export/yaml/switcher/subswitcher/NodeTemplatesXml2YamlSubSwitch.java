@@ -42,11 +42,14 @@ import org.eclipse.winery.repository.ext.yamlmodel.ArtifactDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.AttributeDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.Capability;
 import org.eclipse.winery.repository.ext.yamlmodel.CapabilityFilter;
+import org.eclipse.winery.repository.ext.yamlmodel.ConstraintClause;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeTemplate;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeTemplatePosition;
 import org.eclipse.winery.repository.ext.yamlmodel.NodeType;
+import org.eclipse.winery.repository.ext.yamlmodel.PropertiesFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
+import org.eclipse.winery.repository.ext.yamlmodel.PropertyFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.Requirement;
 import org.eclipse.winery.repository.ext.yamlmodel.RequirementDefinition;
 
@@ -165,16 +168,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         tnodeTemplate.getName(), getNodetemplatePosition(tnodeTemplate));
 
     return Xml2YamlSwitchUtils.buildEntry(
-        getYamlNodeTemplateName(tnodeTemplate.getId(), tnodeTemplate.getName()), ynodeTemplate);
-  }
-
-  /**
-   * @param id
-   * @param name
-   * @return
-   */
-  private String getYamlNodeTemplateName(String id, String name) {
-    return id; // name; // name + "_" + id;
+        Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnodeTemplate), ynodeTemplate);
   }
 
   /**
@@ -346,7 +340,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     if(target instanceof TNodeTemplate){
         TNodeTemplate tnode = (TNodeTemplate)target;
         Requirement yrequirement = new Requirement();
-        yrequirement.setNode(getYamlNodeTemplateName(tnode.getId(), tnode.getName()));
+        yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
         return yrequirement;
     //when the target is a capability
     }else if(target instanceof TCapability){
@@ -354,13 +348,13 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         TNodeTemplate tnode = findTNodeTemplatByCapability(capability);
         Requirement yrequirement = new Requirement();
         yrequirement.setCapability(capability.getName());
-        yrequirement.setNode(getYamlNodeTemplateName(tnode.getId(), tnode.getName()));
+        yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
         return yrequirement;
     }
 
     return null;
   }
-
+  
     private boolean isRequirementEqualSourceNode(TRequirement trequirement, TRelationshipTemplate rst){
     TEntityTemplate source = (TEntityTemplate) rst.getSourceElement().getRef();
     if (trequirement != null && source != null) {
@@ -408,23 +402,37 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
   }
 
   private NodeFilter buildNodeFilter(TRequirement trequirement) {
+    PropertiesFilter capabilityFilter = buildCapabilityFilter(trequirement);
+    if (capabilityFilter == null) {
+      return null;
+    }
+    
     NodeFilter nodeFilter = new NodeFilter();
+    nodeFilter.getCapabilities().add(
+        new CapabilityFilter(trequirement.getName(), capabilityFilter));
 
-    CapabilityFilter capabilityFilter = new CapabilityFilter();
+    return nodeFilter;
+  }
+
+  private PropertiesFilter buildCapabilityFilter(TRequirement trequirement) {
     Map<String, Object> yproperties =
         Xml2YamlSwitchUtils.convert2PropertiesOrAttributes(trequirement.getProperties());
     if (yproperties == null || yproperties.isEmpty()) {
       return null;
     }
-    List<Map<String, Object>> ypropertyFilter = Xml2YamlSwitchUtils.convertMap2ListMap(yproperties);
-    capabilityFilter.setProperties(ypropertyFilter);
+    
+    PropertiesFilter capabilityFilter = new PropertiesFilter();
+    capabilityFilter.setProperties(buildPropertyFilters(yproperties));
+    return capabilityFilter;
+  }
 
-    Map<String, CapabilityFilter> ycapabilities = new HashMap<>();
-    ycapabilities.put(trequirement.getName(), capabilityFilter);
-
-    nodeFilter.setCapabilities(Xml2YamlSwitchUtils.convertMap2ListMap(ycapabilities));
-
-    return nodeFilter;
+  private List<PropertyFilter> buildPropertyFilters(Map<String, Object> yproperties) {
+    List<PropertyFilter> ypropertyFilter = new ArrayList<>();
+    for (Entry<String, Object> entry : yproperties.entrySet()) {
+      ypropertyFilter.add(new PropertyFilter(entry.getKey(), new ConstraintClause(entry.getValue())));
+    }
+    
+    return ypropertyFilter;
   }
 
 

@@ -36,7 +36,6 @@ import org.eclipse.winery.common.propertydefinitionkv.Constraint;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKV;
 import org.eclipse.winery.common.propertydefinitionkv.PropertyDefinitionKVList;
 import org.eclipse.winery.common.propertydefinitionkv.WinerysPropertiesDefinition;
-import org.eclipse.winery.model.tosca.TBoolean;
 import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 import org.eclipse.winery.model.tosca.TDocumentation;
 import org.eclipse.winery.model.tosca.TEntityTemplate;
@@ -61,6 +60,23 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 public class Xml2YamlSwitchUtils {
+  /**
+   * @param tnode
+   * @return
+   */
+  public static String getYamlNodeTemplateName(TNodeTemplate tnode) {
+    return getYamlNodeTemplateName(tnode.getId(), tnode.getName());
+  }
+  
+  /**
+   * @param id
+   * @param name
+   * @return
+   */
+  private static String getYamlNodeTemplateName(String id, String name) {
+    return name; // name + "_" + id;
+  }
+  
   /**
    * @param map.
    * @return .
@@ -416,15 +432,6 @@ public class Xml2YamlSwitchUtils {
       }
     }
     return map;
-  }
-
-  
-  /**
-   * @param value
-   * @return
-   */
-  public static boolean convert2YamlValue(TBoolean value) {
-    return value != null && value.equals(TBoolean.YES);
   }
 
   /**
