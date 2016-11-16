@@ -35,12 +35,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.winery.common.RepositoryFileReference;
 import org.eclipse.winery.common.ids.elements.PlanId;
 import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.repository.Constants;
 import org.eclipse.winery.repository.backend.BackendUtils;
 import org.eclipse.winery.repository.backend.Repository;
 import org.eclipse.winery.repository.resources.servicetemplates.ServiceTemplateResource;
@@ -92,31 +94,22 @@ public class PlanFileResource {
     String fileName = fileDetail.getFileName();
     RepositoryFileReference ref = new RepositoryFileReference(this.planId, fileName);
     RepositoryFileReference oldRef = this.getFileRef();
-    boolean persistanceNecessary;
-    if (ref.equals(oldRef)) {
-      // nothing todo, file will be replaced
-      persistanceNecessary = false;
-    } else {
+    if (!ref.equals(oldRef)) {
       // new filename sent
       BackendUtils.delete(oldRef);
       PlansResource.setPlanModelReference(this.plan, this.planId, fileName);
-      persistanceNecessary = true;
     }
 
     // Really store it
     try {
       Repository.INSTANCE.putContentToFile(ref, uploadedInputStream, body.getMediaType());
-      this.convert();//temporary treatment, for now only support bpel, bpmn4tosca2bpel
+      this.convert("bpel");// temporary treatment, for now only support bpel, bpmn4tosca2bpel
     } catch (IOException e1) {
       return Response.status(Status.INTERNAL_SERVER_ERROR)
           .entity("Could not store plan. " + e1.getMessage()).build();
     }
 
-    if (persistanceNecessary) {
-      return BackendUtils.persist(this.res);
-    } else {
-      return Response.noContent().build();
-    }
+    return BackendUtils.persist(this.res);
   }
 
   @PUT
@@ -140,6 +133,7 @@ public class PlanFileResource {
   /**
    * Returns the stored wsdl json.
    */
+  @SuppressWarnings("resource")
   public Response getWsdl() {
     try {
       StringBuilder jsonRes = new StringBuilder("[");
@@ -195,10 +189,19 @@ public class PlanFileResource {
 
   }
 
+  public void convert(String type) {
+    if ("bpmn".equals(type)) {
+      // TODO
+    } else {
+      // default convert to bpel
+      bpmn4tosca2bpel();
+    }
+  }
+
   @POST
   @Path("bpmn4tosca2bpel")
   @Produces(MediaType.APPLICATION_JSON)
-  public void convert() {
+  public void bpmn4tosca2bpel() {
     RepositoryFileReference ref = this.getFileRef();
     String archivePath = BackendUtils.getPathInsideRepo(ref);
     if (!archivePath.endsWith(".bpmn4tosca") && !archivePath.endsWith("file.json")) {
@@ -249,6 +252,7 @@ public class PlanFileResource {
 
       if (tempFile.exists()) {
         Files.copy(tempFile, targetFile);
+        this.plan.getOtherAttributes().put(new QName(Constants.PLAN_NAME), bpelName + ".zip");
         tempFile.delete();
       }
     } catch (Exception e) {

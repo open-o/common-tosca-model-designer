@@ -89,4 +89,6 @@ public class Constants {
     
     public static final String IP = "ip";
     public static final String PORT = "port";
+    
+    public static final String PLAN_NAME = "plan_name";
 }
