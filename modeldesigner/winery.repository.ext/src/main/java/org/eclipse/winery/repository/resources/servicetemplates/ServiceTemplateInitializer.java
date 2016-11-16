@@ -26,6 +26,8 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.common.Util;
 import org.eclipse.winery.common.boundaryproperty.BoundaryPropertyDefinition;
 import org.eclipse.winery.common.boundaryproperty.BoundaryPropertyUtil;
+import org.eclipse.winery.common.boundaryproperty.Flavors;
+import org.eclipse.winery.common.boundaryproperty.Inputs;
 import org.eclipse.winery.common.boundaryproperty.MetaDatas;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
 import org.eclipse.winery.common.servicetemplate.SubstitutableNodeType;
@@ -52,152 +54,160 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceTemplateInitializer extends ServiceInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateInitializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateInitializer.class);
 
 
-    public ServiceTemplateInitializer(ServiceTemplateInfo info, TServiceTemplate res) {
-        super(info, res);
+  public ServiceTemplateInitializer(ServiceTemplateInfo info, TServiceTemplate res) {
+    super(info, res);
+  }
+
+  private static List<ServiceTemplateInfoProvider> providers =
+      new ArrayList<ServiceTemplateInfoProvider>();
+
+  @Override
+  public void initServiceTemplate() throws Exception {
+    copyService();
+    createBoundaryDefinitions();
+    createSubstitutableNodeType();
+    createDefaultNodeTemplate();
+    addSource();
+    addOverview();
+  }
+
+  private void addSource() {
+    String source = null;
+    if (serviceInfo.getCopyId() != null && serviceInfo.getCopyNameSpace() != null) {
+      source = Constants.TEMPLATE_SOURCE_REPLICA;
+    } else {
+      source = Constants.TEMPLATE_SOURCE_DERIVED;
     }
 
-    private static List<ServiceTemplateInfoProvider> providers =
-            new ArrayList<ServiceTemplateInfoProvider>();
+    serviceTemplate.getOtherAttributes().put(new QName(Constants.TEMPLATE_SOURCE), source);
+  }
 
-    @Override
-    public void initServiceTemplate() throws Exception {
-        copyService();
-        createMetaDatas();
-        createSubstitutableNodeType();
-        createDefaultNodeTemplate();
-        addSource();
-        addOverview();
+  private void addOverview() {
+    new ServiceTemplatesOverviewResource().add(new ServiceTemplateOverviewInfo(serviceTemplate));
+  }
+
+  private void createBoundaryDefinitions() {
+    if (this.serviceInfo != null) {
+      logger.info("begin to create boundary definitions.");
+      MetaDatas metaDatas = this.serviceInfo.getMetaDatas();
+      Inputs inputs = this.serviceInfo.getInputs();
+      Flavors flavors = this.serviceInfo.getFlavors();
+      TBoundaryDefinitions boundaryDefinitions = serviceTemplate.getBoundaryDefinitions();
+      if (null == boundaryDefinitions) {
+        boundaryDefinitions = new TBoundaryDefinitions();
+      }
+      Properties properties = boundaryDefinitions.getProperties();
+      if (null == properties) {
+        properties = new Properties();
+      }
+      BoundaryPropertyDefinition def =
+          BoundaryPropertyUtil.getBoundaryPropertyDefinition(properties.getAny());
+      if (metaDatas != null)
+        def.setMetadatas(metaDatas);
+      if (inputs != null)
+        def.setInputs(inputs);
+      if (flavors != null)
+        def.setFlavors(flavors);
+      properties.setAny(def);
+      boundaryDefinitions.setProperties(properties);
+      serviceTemplate.setBoundaryDefinitions(boundaryDefinitions);
+      logger.info("end to create boundary definitions.");
     }
+  }
 
-    private void addSource() {
-        String source = null;
-        if (serviceInfo.getCopyId() != null && serviceInfo.getCopyNameSpace() != null) {
-            source = Constants.TEMPLATE_SOURCE_REPLICA;
-        } else {
-            source = Constants.TEMPLATE_SOURCE_DERIVED;
+  private void createSubstitutableNodeType() {
+    if (this.serviceInfo != null) {
+      logger.info("begin to create substitutable node type.");
+      SubstitutableNodeType sNodeType = this.serviceInfo.getSubstitutableNodeType();
+      if (sNodeType != null) {
+        QName subNode = new QName(sNodeType.getNamespace(), sNodeType.getName());
+        serviceTemplate.setSubstitutableNodeType(subNode);
+      }
+      logger.info("finish to create substitutable node type.");
+    }
+  }
+
+  private void createDefaultNodeTemplate() throws Exception {
+    initProviders();
+    if (providers.size() > 0) {
+      logger.info("begin to create default node.");
+      TTopologyTemplate topoTemp = serviceTemplate.getTopologyTemplate();
+      if (topoTemp == null)
+        topoTemp = new TTopologyTemplate();
+      for (ServiceTemplateInfoProvider provider : providers) {
+        topoTemp.getNodeTemplateOrRelationshipTemplate().addAll(
+            provider.getDefaultNodeTemplates(serviceTemplate));
+      }
+      serviceTemplate.setTopologyTemplate(topoTemp);
+      logger.info("finish to create default node.");
+    }
+  }
+
+  private static List<ServiceTemplateInfoProvider> initProviders() throws Exception {
+    if (providers.size() == 0) {
+      Reflections reflections = new Reflections("org.eclipse.winery.repository.ext");
+      Set<Class<? extends ServiceTemplateInfoProvider>> providersClasses =
+          reflections
+              .getSubTypesOf(org.eclipse.winery.repository.ext.serviceInfo.ServiceTemplateInfoProvider.class);
+      if (providersClasses != null) {
+        Iterator<Class<? extends ServiceTemplateInfoProvider>> it = providersClasses.iterator();
+        while (it.hasNext()) {
+          Class<? extends ServiceTemplateInfoProvider> implClass =
+              (Class<? extends ServiceTemplateInfoProvider>) it.next();
+          if (!Modifier.isAbstract(implClass.getModifiers())) {
+            providers.add(implClass.newInstance());
+          }
         }
-
-        serviceTemplate.getOtherAttributes().put(new QName(Constants.TEMPLATE_SOURCE), source);
+      }
     }
+    return providers;
+  }
 
-    private void addOverview() {
-        new ServiceTemplatesOverviewResource()
-                .add(new ServiceTemplateOverviewInfo(serviceTemplate));
+  private void copyService() {
+    if (serviceInfo.getCopyId() != null && serviceInfo.getCopyNameSpace() != null) {
+      logger.info("begin to copy service,source id is: " + serviceInfo.getCopyId());
+      TDefinitions definition =
+          RepositoryUtil.getServiceTemplateDefinition(serviceInfo.getCopyNameSpace(),
+              serviceInfo.getCopyId());
+      List<TExtensibleElements> serviceList =
+          definition.getServiceTemplateOrNodeTypeOrNodeTypeImplementation();
+      TServiceTemplate sourceTemplate = null;
+      if (!serviceList.isEmpty()) {
+        sourceTemplate = (TServiceTemplate) serviceList.get(0);
+        serviceTemplate.setTopologyTemplate(sourceTemplate.getTopologyTemplate());
+        serviceTemplate.setBoundaryDefinitions(sourceTemplate.getBoundaryDefinitions());
+        replaceSubstitutableNodeType(sourceTemplate.getSubstitutableNodeType());
+        serviceTemplate.setPlans(sourceTemplate.getPlans());
+        serviceTemplate.setGroupTemplates(sourceTemplate.getGroupTemplates());
+      }
+      logger.info("copy finished");
     }
+  }
 
-    private void createMetaDatas() {
-        if (this.serviceInfo != null) {
-            MetaDatas metaDatas = this.serviceInfo.getMetaDatas();
-            if (metaDatas != null) {
-                logger.info("begin to create meta data.");
-                TBoundaryDefinitions boundaryDefinitions = new TBoundaryDefinitions();
-                Properties properties = new Properties();
-                BoundaryPropertyDefinition def =
-                        BoundaryPropertyUtil.getBoundaryPropertyDefinition(properties.getAny());
-                def.setMetadatas(metaDatas);
-                properties.setAny(def);
-                boundaryDefinitions.setProperties(properties);
-                serviceTemplate.setBoundaryDefinitions(boundaryDefinitions);
-                logger.info("finish to create meta data.");
-            }
-        }
-    }
+  private void replaceSubstitutableNodeType(QName oldNodeTypeName) {
+    serviceTemplate.setSubstitutableNodeType(transformSubstitutableNodeType(oldNodeTypeName));
+  }
 
-    private void createSubstitutableNodeType() {
-        if (this.serviceInfo != null) {
-            logger.info("begin to create substitutable node type.");
-            SubstitutableNodeType sNodeType = this.serviceInfo.getSubstitutableNodeType();
-            if (sNodeType != null) {
-                QName subNode = new QName(sNodeType.getNamespace(), sNodeType.getName());
-                serviceTemplate.setSubstitutableNodeType(subNode);
-            }
-            logger.info("finish to create substitutable node type.");
-        }
-    }
+  private QName transformSubstitutableNodeType(QName oldNode) {
+    if (oldNode == null)
+      return null;
+    NodeTypesResource res = new NodeTypesResource();
+    NodeTypeResource nodetypeRes =
+        res.getComponentInstaceResource(Util.URLencode(oldNode.getNamespaceURI()),
+            oldNode.getLocalPart());
+    TNodeType oldNodeType = (TNodeType) nodetypeRes.getEntityType();
+    DerivedFrom derivedFrom = oldNodeType.getDerivedFrom();
+    QName derivedFromName = derivedFrom.getTypeRef();
 
-    private void createDefaultNodeTemplate() throws Exception {
-        initProviders();
-        if (providers.size() > 0) {
-            logger.info("begin to create default node.");
-            TTopologyTemplate topoTemp = serviceTemplate.getTopologyTemplate();
-            if (topoTemp == null)
-                topoTemp = new TTopologyTemplate();
-            for (ServiceTemplateInfoProvider provider : providers) {
-                topoTemp.getNodeTemplateOrRelationshipTemplate().addAll(
-                        provider.getDefaultNodeTemplates(serviceTemplate));
-            }
-            serviceTemplate.setTopologyTemplate(topoTemp);
-            logger.info("finish to create default node.");
-        }
-    }
-
-    private static List<ServiceTemplateInfoProvider> initProviders() throws Exception {
-        if (providers.size() == 0) {
-            Reflections reflections = new Reflections("org.eclipse.winery.repository.ext");
-            Set<Class<? extends ServiceTemplateInfoProvider>> providersClasses =
-                    reflections
-                            .getSubTypesOf(org.eclipse.winery.repository.ext.serviceInfo.ServiceTemplateInfoProvider.class);
-            if (providersClasses != null) {
-                Iterator<Class<? extends ServiceTemplateInfoProvider>> it =
-                        providersClasses.iterator();
-                while (it.hasNext()) {
-                    Class<? extends ServiceTemplateInfoProvider> implClass =
-                            (Class<? extends ServiceTemplateInfoProvider>) it.next();
-                    if (!Modifier.isAbstract(implClass.getModifiers())) {
-                        providers.add(implClass.newInstance());
-                    }
-                }
-            }
-        }
-        return providers;
-    }
-
-    private void copyService() {
-        if (serviceInfo.getCopyId() != null && serviceInfo.getCopyNameSpace() != null) {
-            logger.info("begin to copy service,source id is: " + serviceInfo.getCopyId());
-            TDefinitions definition =
-                    RepositoryUtil.getServiceTemplateDefinition(serviceInfo.getCopyNameSpace(),
-                            serviceInfo.getCopyId());
-            List<TExtensibleElements> serviceList =
-                    definition.getServiceTemplateOrNodeTypeOrNodeTypeImplementation();
-            TServiceTemplate sourceTemplate = null;
-            if (!serviceList.isEmpty()) {
-                sourceTemplate = (TServiceTemplate) serviceList.get(0);
-                serviceTemplate.setTopologyTemplate(sourceTemplate.getTopologyTemplate());
-                serviceTemplate.setBoundaryDefinitions(sourceTemplate.getBoundaryDefinitions());
-                replaceSubstitutableNodeType(sourceTemplate.getSubstitutableNodeType());
-                serviceTemplate.setPlans(sourceTemplate.getPlans());
-                serviceTemplate.setGroupTemplates(sourceTemplate.getGroupTemplates());
-            }
-            logger.info("copy finished");
-        }
-    }
-
-    private void replaceSubstitutableNodeType(QName oldNodeTypeName) {
-        serviceTemplate.setSubstitutableNodeType(transformSubstitutableNodeType(oldNodeTypeName));
-    }
-
-    private QName transformSubstitutableNodeType(QName oldNode) {
-        if (oldNode == null)
-            return null;
-        NodeTypesResource res = new NodeTypesResource();
-        NodeTypeResource nodetypeRes =
-                res.getComponentInstaceResource(Util.URLencode(oldNode.getNamespaceURI()),
-                        oldNode.getLocalPart());
-        TNodeType oldNodeType = (TNodeType) nodetypeRes.getEntityType();
-        DerivedFrom derivedFrom = oldNodeType.getDerivedFrom();
-        QName derivedFromName = derivedFrom.getTypeRef();
-
-        String newNodeTypeLocalPart =
-                derivedFromName.getLocalPart() + "." + serviceTemplate.getId();
-        NodeTypeId newNodeTypeId =
-                new NodeTypeId(derivedFromName.getNamespaceURI(), newNodeTypeLocalPart, false);
-        NodeTypeResource newRes = new NodeTypeResource(newNodeTypeId);
-        newRes.putDerivedFrom(derivedFromName.toString());
-        return newRes.getQName();
-    }
+    String newNodeTypeLocalPart = derivedFromName.getLocalPart() + "." + serviceTemplate.getId();
+    NodeTypeId newNodeTypeId =
+        new NodeTypeId(derivedFromName.getNamespaceURI(), newNodeTypeLocalPart, false);
+    NodeTypeResource newRes = new NodeTypeResource(newNodeTypeId);
+    newRes.putDerivedFrom(derivedFromName.toString());
+    return newRes.getQName();
+  }
 
 }
