@@ -33,7 +33,7 @@ public class ServiceTemplate extends YAMLElement {
   private Map<String, NodeType> node_types = new HashMap<String, NodeType>();
   private Map<String, Object> group_types = new HashMap<>();
   private Map<String, PolicyType> policy_types = new HashMap<>();
-  private Map<String, PolicyTemplate> policies = new HashMap<>();
+
   private TopologyTemplate topology_template;
   private Map<String, Plan> plans = new HashMap<>();
 
@@ -41,14 +41,6 @@ public class ServiceTemplate extends YAMLElement {
   private String template_name = "";
   private String template_author = "";
   private String template_version = "";
-
-  public Map<String, PolicyTemplate> getPolicies() {
-      return policies;
-  }
-
-  public void setPolicies(Map<String, PolicyTemplate> policies) {
-      this.policies = policies;
-  }
 
   public Map<String, Object> getMetadata() {
       return metadata;

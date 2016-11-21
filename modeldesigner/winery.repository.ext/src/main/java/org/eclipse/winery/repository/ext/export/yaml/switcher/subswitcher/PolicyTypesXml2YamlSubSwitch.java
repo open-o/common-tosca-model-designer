@@ -76,6 +76,8 @@ public class PolicyTypesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         // properties
         yPolicyType.setProperties(
             Xml2YamlSwitchUtils.convert2PropertyDefinitions(tPolicyType.getAny()));
+        
+        yPolicyType.setTargets(new String[]{Xml2YamlTypeMapper.TOSCA_NODES_ROOT});
 
         return Xml2YamlSwitchUtils.buildEntry(name, yPolicyType);
     }

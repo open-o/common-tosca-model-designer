@@ -27,7 +27,7 @@ import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.MetaDa
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.NodeTemplatesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.NodeTypesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.PlansXml2YamlSubSwitch;
-import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.PolicyTemplatesXml2YamlSubSwitch;
+import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.PoliciesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.PolicyTypesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.RelationshipTypesXml2YamlSubSwitch;
 import org.eclipse.winery.repository.ext.export.yaml.switcher.subswitcher.SubstitutionMappingsXml2YamlSubSwitch;
@@ -77,7 +77,7 @@ public class Xml2YamlSwitch {
         new InputsXml2YamlSubSwitch(this),
         new SubstitutionMappingsXml2YamlSubSwitch(this),
         new PolicyTypesXml2YamlSubSwitch(this),
-        new PolicyTemplatesXml2YamlSubSwitch(this),
+        new PoliciesXml2YamlSubSwitch(this),
         new GroupTypesXml2YamlSubSwitch(this),
         new GroupsXml2YamlSubSwitch(this),
         new PlansXml2YamlSubSwitch(this)};
