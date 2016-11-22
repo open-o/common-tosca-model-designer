@@ -246,14 +246,20 @@ public class ZipExporter {
     zos.close();
   }
 
-  private void addPlan2Zip(Map<String, RepositoryFileReference> map, ArchiveOutputStream zos) {
-    try {
-      for (RepositoryFileReference ref : map.values()) {
-        addFile2Archive(ref, zos, "plan/");
+  private void addPlan2Zip(Map<String, RepositoryFileReference> map, ArchiveOutputStream zos)
+      throws IOException {
+
+    for (RepositoryFileReference ref : map.values()) {
+      ArchiveEntry archiveEntry = new ZipArchiveEntry("plan/" + ref.getFileName());
+      zos.putArchiveEntry(archiveEntry);
+      try (InputStream is = Repository.INSTANCE.newInputStream(ref)) {
+        IOUtils.copy(is, zos);
+      } catch (Exception e) {
+        ZipExporter.logger.error("Could not copy file content to ZIP outputstream", e);
       }
-    } catch (IOException e) {
-      ZipExporter.logger.debug("Could not copy file content to ZIP outputstream", e);
+      zos.closeArchiveEntry();
     }
+
   }
 
   private void updatePlanDef(String archivePath, RepositoryFileReference ref,
@@ -266,15 +272,6 @@ public class ZipExporter {
     } else if (archivePath.endsWith(".zip")) {
       map.put(ref.getFileName(), ref);
     }
-  }
-
-  private void addFile2Archive(RepositoryFileReference ref, ArchiveOutputStream zos, String path)
-      throws IOException {
-    ArchiveEntry archiveEntry = new ZipArchiveEntry(path + ref.getFileName());
-    zos.putArchiveEntry(archiveEntry);
-    InputStream is = Repository.INSTANCE.newInputStream(ref);
-    IOUtils.copy(is, zos);
-    zos.closeArchiveEntry();
   }
 
   private CustomizedFileInfos exportCustomFiles(ServiceTemplateId templateId,
@@ -294,11 +291,14 @@ public class ZipExporter {
       if (filePath.startsWith("plan")) {
         result.addPlanInfo(fileInfo);
       } else {
+        String md5 = null;
         aos.putArchiveEntry(new ZipArchiveEntry(filePath));
-        InputStream is = Repository.INSTANCE.newInputStream(fileInfo.getRef());
-        String md5 = MD5Util.md5(is, aos);
+        try (InputStream is = Repository.INSTANCE.newInputStream(fileInfo.getRef())) {
+          md5 = MD5Util.md5(is, aos);
+        } catch (Exception e) {
+          ZipExporter.logger.error("Could not copy file content to ZIP outputstream", e);
+        }
         aos.closeArchiveEntry();
-
         CustomFileResultInfo info = new CustomFileResultInfo();
 
         info.setFileFullName(filePath);
