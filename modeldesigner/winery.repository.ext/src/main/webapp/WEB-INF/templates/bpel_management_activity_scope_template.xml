@@ -1,17 +1,17 @@
 <!--
-    Copyright 2016 ZTE Corporation.
+	Copyright 2016 ZTE Corporation.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+		http://www.apache.org/licenses/LICENSE-2.0
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
 
 -->
 #set( $taskName = $mngmtTask.getName() )
@@ -28,176 +28,176 @@
 #set( $taskInputDataList  = $mngmtTask.getInputParameters() )
 #set( $taskOutputDataList  = $mngmtTask.getOutputParameters() )
 <scope name="${taskName}" xmlns:pp="http://opentosca.org/api/pp"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <variables>
-        <!-- Must contain a <pp:nodeInstanceList> element with exactly one child 
-            <pp::nodeinstances> which contains exactly one child named <pp:link href="nodeInstanceId"> -->
-        <variable name="nodeInstanceUrlList" type="xsd:anyType" /> <!-- TODO set correct type -->
-        <variable name="nodeInstanceUrl" type="xsd:string" />
-        <variable name="mangementOperationRequest" messageType="si:invokeOperationAsyncMessage" />
-        <variable name="mangementOperationResponse" messageType="si:invokeResponse" />
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+	<variables>
+		<!-- Must contain a <pp:nodeInstanceList> element with exactly one child 
+			<pp::nodeinstances> which contains exactly one child named <pp:link href="nodeInstanceId"> -->
+		<variable name="nodeInstanceUrlList" type="xsd:anyType" /> <!-- TODO set correct type -->
+		<variable name="nodeInstanceUrl" type="xsd:string" />
+		<variable name="mangementOperationRequest" messageType="si:invokeOperationAsyncMessage" />
+		<variable name="mangementOperationResponse" messageType="si:invokeResponse" />
 
-        <!--  Variables holding the URLs of node instances of node templates and their properties  -->
+		<!--  Variables holding the URLs of node instances of node templates and their properties  -->
         #foreach($nodeTemplateId in $taskInputOutputNodeTemplateIds)
             #set( $nodeTemplateIdLocalName = $nodeTemplateId.getLocalPart())
-        <variable name="nodeInstanceUrl_$nodeTemplateIdLocalName" type="xsd:string" />
-        <variable name="properties_$nodeTemplateIdLocalName" type="xsd:anyType" />
+		<variable name="nodeInstanceUrl_$nodeTemplateIdLocalName" type="xsd:string" />
+		<variable name="properties_$nodeTemplateIdLocalName" type="xsd:anyType" />
         #end
-    </variables>
-    <sequence name="${taskName}_Sequence">
-        <!-- Retrieve node instance URLs of the instances of all nodes templates used either as input and output of this plan operation -->
+	</variables>
+	<sequence name="${taskName}_Sequence">
+		<!-- Retrieve node instance URLs of the instances of all nodes templates used either as input and output of this plan operation -->
         #foreach($nodeTemplateId in $taskInputOutputNodeTemplateIds)
             #set( $nodeTemplateIdQName = $nodeTemplateId.toString())
             #set( $nodeTemplateIdLocalName = $nodeTemplateId.getLocalPart())
-        <extensionActivity>
-            <bpel4RestLight:GET name="getNodeInstanceList"
-                accept="application/xml" response="nodeInstanceUrlList"
-                uri="${bpelvar}[containerAPIServiceInstanceURL]/nodeInstances?nodeTemplateID=$nodeTemplateIdQName&amp;serviceInstanceID=${bpelvar}[serviceInstanceId]" />
-        </extensionActivity>
+		<extensionActivity>
+			<bpel4RestLight:GET name="getNodeInstanceList"
+				accept="application/xml" response="nodeInstanceUrlList"
+				uri="${bpelvar}[containerAPIServiceInstanceURL]/nodeInstances?nodeTemplateID=$nodeTemplateIdQName&amp;serviceInstanceID=${bpelvar}[serviceInstanceId]" />
+		</extensionActivity>
         
-        <!-- Select the node instance to be plan from the list - just one node 
-            instance expected in the list -->
-        <assign name="selectNodeInstanceIdFromList" validate="no">
-            <copy>
-                <from variable="nodeInstanceUrlList">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                    <![CDATA[string(//pp:NodeInstanceList/pp:nodeinstances/pp:link/@xlink:href)]]>
-                    </query>
-                </from>
-                <to variable="nodeInstanceUrl_$nodeTemplateIdLocalName" />
-            </copy>
-        </assign>
+		<!-- Select the node instance to be plan from the list - just one node 
+			instance expected in the list -->
+		<assign name="selectNodeInstanceIdFromList" validate="no">
+			<copy>
+				<from variable="nodeInstanceUrlList">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+					<![CDATA[string(//pp:NodeInstanceList/pp:nodeinstances/pp:link/@xlink:href)]]>
+					</query>
+				</from>
+				<to variable="nodeInstanceUrl_$nodeTemplateIdLocalName" />
+			</copy>
+		</assign>
         #end
         
         #foreach($nodeTemplateId in $taskInputOutputNodeTemplateIds)
             #set( $nodeTemplateIdLocalName = $nodeTemplateId.getLocalPart())
-        <!-- Get properties of node instance and store it in the corresponding 
-            variable -->
-        <extensionActivity>
-            <bpel4RestLight:GET 
-                name="getNodeInstanceProperties_$nodeTemplateIdLocalName"
-                accept="application/xml"
-                response="properties_$nodeTemplateIdLocalName" 
-                uri="${bpelvar}[nodeInstanceUrl_$nodeTemplateIdLocalName]/properties" />
-        </extensionActivity> 
+		<!-- Get properties of node instance and store it in the corresponding 
+			variable -->
+		<extensionActivity>
+			<bpel4RestLight:GET 
+				name="getNodeInstanceProperties_$nodeTemplateIdLocalName"
+				accept="application/xml"
+				response="properties_$nodeTemplateIdLocalName" 
+				uri="${bpelvar}[nodeInstanceUrl_$nodeTemplateIdLocalName]/properties" />
+		</extensionActivity> 
         #end
 
-        <!-- Create input message for task $taskName -->
-        <assign name="createPlanOperationInput" validate="no">
-            <!-- Initialize input variable for asynch. call  -->
-            <copy>
-                <from>
-                    <literal>
-                        <sischema:invokeOperationAsync xmlns:impl="http://siserver.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                            <sischema:CsarID>$csarID</sischema:CsarID>
-                            <sischema:ServiceTemplateIDNamespaceURI>$serviceTemplateIDNamespaceURI</sischema:ServiceTemplateIDNamespaceURI>
-                            <sischema:ServiceTemplateIDLocalPart>$serviceTemplateIDLocalPart</sischema:ServiceTemplateIDLocalPart>
-                            <sischema:NodeTemplateID>$taskNodeTemplate</sischema:NodeTemplateID>
-                            <sischema:InterfaceName>$taskInterface</sischema:InterfaceName>
-                            <sischema:OperationName>$taskOperation</sischema:OperationName>
-                            <sischema:ReplyTo/>
-                            <sischema:MessageID></sischema:MessageID>
-                            <sischema:Params>
-                                <!-- Create input parameters (payload) skeleton where the task input parameter values will be assigned to  -->
+		<!-- Create input message for task $taskName -->
+		<assign name="createPlanOperationInput" validate="no">
+			<!-- Initialize input variable for asynch. call  -->
+			<copy>
+				<from>
+					<literal>
+						<sischema:invokeOperationAsync xmlns:impl="http://siserver.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+							<sischema:CsarID>$csarID</sischema:CsarID>
+							<sischema:ServiceTemplateIDNamespaceURI>$serviceTemplateIDNamespaceURI</sischema:ServiceTemplateIDNamespaceURI>
+							<sischema:ServiceTemplateIDLocalPart>$serviceTemplateIDLocalPart</sischema:ServiceTemplateIDLocalPart>
+							<sischema:NodeTemplateID>$taskNodeTemplate</sischema:NodeTemplateID>
+							<sischema:InterfaceName>$taskInterface</sischema:InterfaceName>
+							<sischema:OperationName>$taskOperation</sischema:OperationName>
+							<sischema:ReplyTo/>
+							<sischema:MessageID></sischema:MessageID>
+							<sischema:Params>
+								<!-- Create input parameters (payload) skeleton where the task input parameter values will be assigned to  -->
                                 #foreach( $taskInput in $taskInputDataList)
-                                <sischema:Param>
-                                    <sischema:key>$taskInput.name</sischema:key>
-                                    <sischema:value></sischema:value> 
-                                </sischema:Param>
+								<sischema:Param>
+									<sischema:key>$taskInput.name</sischema:key>
+									<sischema:value></sischema:value> 
+								</sischema:Param>
                                 #end    
-                            </sischema:Params>
-                        </sischema:invokeOperationAsync>
-                    </literal>
-                </from>
-                <to variable="mangementOperationRequest" part="invokeOperationAsync" />
-            </copy> 
-            <copy>
-                <from variable="csarId" /> <!-- TODO frage an Olly: assigne dder hier jetzt nur den content oder die 
-                    ganze variable mit tags, in BPELDesigner checken -->
-                <to variable="mangementOperationRequest" part="invokeOperationAsync">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                    <![CDATA[//sischema:invokeOperationAsync/sischema:CsarID]]>
-                    </query>
-                </to>
-            </copy>
+							</sischema:Params>
+						</sischema:invokeOperationAsync>
+					</literal>
+				</from>
+				<to variable="mangementOperationRequest" part="invokeOperationAsync" />
+			</copy> 
+			<copy>
+				<from variable="csarId" /> <!-- TODO frage an Olly: assigne dder hier jetzt nur den content oder die 
+					ganze variable mit tags, in BPELDesigner checken -->
+				<to variable="mangementOperationRequest" part="invokeOperationAsync">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+					<![CDATA[//sischema:invokeOperationAsync/sischema:CsarID]]>
+					</query>
+				</to>
+			</copy>
 
-            <copy>
-                <!-- Generate unique message id used for correlation -->
-                <from> 
+			<copy>
+				<!-- Generate unique message id used for correlation -->
+				<from> 
                     $ode:pid
-                </from>
-                <to variable="mangementOperationRequest" part="invokeOperationAsync">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                    <![CDATA[//sischema:invokeOperationAsync/sischema:MessageID]]>
-                    </query>
-                </to>
-            </copy>
-            <!-- Copy the property values from the node instances retrieved before, to the inputVariable mangementOperationRequest being used as request message for the task  -->
+				</from>
+				<to variable="mangementOperationRequest" part="invokeOperationAsync">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+					<![CDATA[//sischema:invokeOperationAsync/sischema:MessageID]]>
+					</query>
+				</to>
+			</copy>
+			<!-- Copy the property values from the node instances retrieved before, to the inputVariable mangementOperationRequest being used as request message for the task  -->
             #foreach($taskInputData in $taskInputDataList)
                 #set( $paramType = $taskInputData.getType() )
-            <copy>
+			<copy>
                 #if($paramType == "STRING") 
-                <from>
-                    <literal>$taskInputData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskInputData.getValue()</literal>
+				</from>
                 #elseif($paramType == "PLAN") 
                     #if($taskPathData.getStartTaskName() == "StartEvent")
-                <from variable="$taskInputData.getParameterName()">
-                </from>
+				<from variable="$taskInputData.getParameterName()">
+				</from>
                     #else
-                <from variable="$taskPathData.getStartTaskName()Response">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                    <![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
-                    </query>
-                </from>
+				<from variable="$taskPathData.getStartTaskName()Response">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+					<![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
+					</query>
+				</from>
                     #end
                 #elseif($paramType == "TOPOLOGY") 
                     #set( $nodeTemplateIdLocalName = $taskInputData.nodeTemplateId.getLocalPart())
-                <from variable="properties_$nodeTemplateIdLocalName">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                    <![CDATA[string(//*[local-name()='$taskInputData.property'])]]>
-                    </query>
-                </from>
+				<from variable="properties_$nodeTemplateIdLocalName">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+					<![CDATA[string(//*[local-name()='$taskInputData.property'])]]>
+					</query>
+				</from>
                 #elseif( $taskInputData.getValue() )
-                <from>
-                    <literal>$taskInputData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskInputData.getValue()</literal>
+				</from>
                 #else
-                <from>
-                    <literal></literal>
-                </from>
+				<from>
+					<literal></literal>
+				</from>
                 #end
-                <to  variable="mangementOperationRequest" part="invokeOperationAsync">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
-                    <![CDATA[//*[local-name()="Param" and namespace-uri()="http://siserver.org/schema"]/*[local-name()="key" and text()="$taskInputData.name"]/following-sibling::*[local-name()="value"]]]>
-                    </query>
-                </to>
-            </copy>
+				<to  variable="mangementOperationRequest" part="invokeOperationAsync">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+					<![CDATA[//*[local-name()="Param" and namespace-uri()="http://siserver.org/schema"]/*[local-name()="key" and text()="$taskInputData.name"]/following-sibling::*[local-name()="value"]]]>
+					</query>
+				</to>
+			</copy>
             #end
-        </assign>
+		</assign>
         
-        <!-- Call Service Invoker asynchronously --> 
-        <invoke name="call_${taskName}"
-            inputVariable="mangementOperationRequest"
-            operation="invokeOperationAsync" 
-            partnerLink="serviceInvokerPL"
-            portType="si:InvokePortType">
-            <correlations>
-                <correlation initiate="join" set="ServiceInvokerCS" />
-            </correlations> 
-        </invoke>    
+		<!-- Call Service Invoker asynchronously --> 
+		<invoke name="call_${taskName}"
+			inputVariable="mangementOperationRequest"
+			operation="invokeOperationAsync" 
+			partnerLink="serviceInvokerPL"
+			portType="si:InvokePortType">
+			<correlations>
+				<correlation initiate="join" set="ServiceInvokerCS" />
+			</correlations> 
+		</invoke>    
         
-        <!-- Receive asynchronous response of the plan task from Service Invoker   -->
-        <receive name="receive_${taskName}_response"
-            variable="${taskName}Response"
-            operation="callback" 
-            partnerLink="serviceInvokerPL" 
-            portType="si:CallbackPortType">
-            <correlations>
-                <correlation initiate="no" set="ServiceInvokerCS" />
-            </correlations>
-        </receive>
-    </sequence>
+		<!-- Receive asynchronous response of the plan task from Service Invoker   -->
+		<receive name="receive_${taskName}_response"
+			variable="${taskName}Response"
+			operation="callback" 
+			partnerLink="serviceInvokerPL" 
+			portType="si:CallbackPortType">
+			<correlations>
+				<correlation initiate="no" set="ServiceInvokerCS" />
+			</correlations>
+		</receive>
+	</sequence>
 </scope>
 #elseif( $taskTypeDetail == "rest" )
 #set( $methodType = $mngmtTask.getMethodType() )
@@ -205,439 +205,465 @@
 #set( $contentType = $mngmtTask.getContentType() )
 #set( $originalUrl = $mngmtTask.getUrl() )
 #set( $taskRequestData = $mngmtTask.getRequestBody() )
-#set( $taskInputDataList  = $mngmtTask.getBodyParameters() )
-#set( $taskPathDataList  = $mngmtTask.getPathParameters() )
-#set( $taskQueryDataList  = $mngmtTask.getQueryParameters() )
-#set( $taskOutputDataList  = $mngmtTask.getOutputParameters() )
+#set( $taskInputDataList = $mngmtTask.getBodyParameters() )
+#set( $taskPathDataList = $mngmtTask.getPathParameters() )
+#set( $taskQueryDataList = $mngmtTask.getQueryParameters() )
+#set( $taskOutputDataList = $mngmtTask.getOutputParameters() )
+#set( $restStatus = $mngmtTask.getResponseStatus() )
 <scope name="${taskName}" xmlns:pp="http://opentosca.org/api/pp"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- add by qinlihan   add rest Components -->
-    <variables>
-        <variable name="request" type="xsd:string" />
-        <variable name="url" type="xsd:string" />
-        <variable name="temp" type="xsd:string" />
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+	<!-- add by qinlihan   add rest Components -->
+	<variables>
+		<variable name="request" type="xsd:string" />
+		<variable name="url" type="xsd:string" />
+		<variable name="temp" type="xsd:string" />
         #if( $taskOutputDataList.size()==0 )
-        <!--temp var for response-->
-        <variable name="${taskName}Response" type="xsd:string" />
+		<!--temp var for response-->
+		<variable name="${taskName}Response" type="xsd:string" />
         #end 
-    </variables>
+	</variables>
     
-    <sequence name="${taskName}_Sequence">
-        <!-- build url start -->
-        <assign name="${taskName}_URL">
-            <copy>
-                <from>
-                    <literal>$originalUrl</literal>
-                </from>
-                <to variable="url"></to>
-            </copy>
+	<sequence name="${taskName}_Sequence">
+		<!-- build url start -->
+		<assign name="${taskName}_URL">
+			<copy>
+				<from>
+					<literal>$originalUrl</literal>
+				</from>
+				<to variable="url"></to>
+			</copy>
 
     #foreach($taskPathData in $taskPathDataList)
         #set( $paramType = $taskPathData.getType() )
-            <copy>
+			<copy>
         #if($paramType == "PLAN") 
             #if($taskPathData.getStartTaskName() == "StartEvent")
-                <from variable="$taskPathData.getParameterName()">
-                </from>
+				<from variable="$taskPathData.getParameterName()">
+				</from>
+            #elseif( $taskPathData.getParameterName() == "ResponseStatus" )
+				<from variable="$taskPathData.getStartTaskName()ResponseStatus"/>
             #else
-                <from variable="$taskPathData.getStartTaskName()Response">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                    <![CDATA[//*[local-name()="$taskPathData.getParameterName()"]/text()]]>
-                    </query>
-                </from>
+				<from variable="$taskPathData.getStartTaskName()Response">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+					<![CDATA[//*[local-name()="$taskPathData.getParameterName()"]/text()]]>
+					</query>
+				</from>
             #end
         #elseif( $taskPathData.getValue() )
-                <from>
-                    <literal>$taskPathData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskPathData.getValue()</literal>
+				</from>
         #else
-                <from>
-                    <literal></literal>
-                </from>
+				<from>
+					<literal></literal>
+				</from>
         #end
-                <to variable="temp"/>
-            </copy>
+				<to variable="temp"/>
+			</copy>
         
-            <copy>
-                <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                <![CDATA[concat(substring-before($url,'{$taskPathData.getName()}'), $temp, substring-after($url,'{$taskPathData.getName()}'))]]>
-                </from>
-                <to variable="url"></to>
-            </copy>
+			<copy>
+				<from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+				<![CDATA[concat(substring-before($url,'{$taskPathData.getName()}'), $temp, substring-after($url,'{$taskPathData.getName()}'))]]>
+				</from>
+				<to variable="url"></to>
+			</copy>
     #end
     
     #set($query_size = $taskQueryDataList.size())
     #foreach($taskQueryData in $taskQueryDataList)
         #set( $paramType = $taskQueryData.getType() )
-            <copy>
+			<copy>
         #if($paramType == "PLAN") 
             #if($taskQueryData.getStartTaskName() == "StartEvent")
-                <from variable="$taskQueryData.getParameterName()">
-                </from>
+				<from variable="$taskQueryData.getParameterName()">
+				</from>
+            #elseif( $taskPathData.getParameterName() == "ResponseStatus" )
+				<from variable="$taskPathData.getStartTaskName()ResponseStatus"/>
             #else
-                <from variable="$taskQueryData.getStartTaskName()Response">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                    <![CDATA[//*[local-name()="$taskQueryData.getParameterName()"]/text()]]>
-                    </query>
-                </from>
+				<from variable="$taskQueryData.getStartTaskName()Response">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+					<![CDATA[//*[local-name()="$taskQueryData.getParameterName()"]/text()]]>
+					</query>
+				</from>
             #end
         #elseif( $taskQueryData.getValue() )
-                <from>
-                    <literal>$taskQueryData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskQueryData.getValue()</literal>
+				</from>
         #else
-                <from>
-                    <literal></literal>
-                </from>
+				<from>
+					<literal></literal>
+				</from>
         #end
-                <to variable="temp"/>
-            </copy>
+				<to variable="temp"/>
+			</copy>
         
-            <copy>
-                <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                <![CDATA[concat($url,#if( $velocityCount==1 )'?',#end'$taskQueryData.getName()=',$temp#if( $velocityCount!=$query_size ),'&amp;'#end)]]>
-                </from>
-                <to variable="url"></to>
-            </copy>
+			<copy>
+				<from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+				<![CDATA[concat($url,#if( $velocityCount==1 )'?',#end'$taskQueryData.getName()=',$temp#if( $velocityCount!=$query_size ),'&amp;'#end)]]>
+				</from>
+				<to variable="url"></to>
+			</copy>
     #end
-        </assign>
-        <!-- build url end -->
+		</assign>
+		<!-- build url end -->
     
-        <!-- build request start -->
-        <assign name="${taskName}_Request">
+		<!-- build request start -->
+		<assign name="${taskName}_Request">
     #set($req_size = $taskInputDataList.size())
     #if( $req_size==1 && $taskInputDataList.get(0).getName()=="body" )
         #set($taskInputData = $taskInputDataList.get(0))
-            <copy>
+			<copy>
             #if($taskInputData.getType() == "PLAN") 
                 #if($taskInputData.getStartTaskName() == "StartEvent")
-                <from variable="$taskInputData.getParameterName()">
-                </from>
+				<from variable="$taskInputData.getParameterName()">
+				</from>
+                #elseif( $taskPathData.getParameterName() == "ResponseStatus" )
+				<from variable="$taskPathData.getStartTaskName()ResponseStatus"/>
                 #else
-                <from variable="$taskInputData.getStartTaskName()Response">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                    <![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
-                    </query>
-                </from>
+				<from variable="$taskInputData.getStartTaskName()Response">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+					<![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
+					</query>
+				</from>
                 #end
             #elseif( $taskInputData.getValue() )
-                <from>
-                    <literal>$taskInputData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskInputData.getValue()</literal>
+				</from>
             #else
-                <from>
-                    <literal></literal>
-                </from>
+				<from>
+					<literal></literal>
+				</from>
             #end
-                <to variable="request"/>
-            </copy>
+				<to variable="request"/>
+			</copy>
     #elseif( $taskRequestData )
-            <!-- use reqeustBdoy as rest request -->
-            <copy>
-                <from>
-                    <literal>$taskRequestData</literal>
-                </from>
-                <to variable="request"></to>
-            </copy>
+			<!-- use reqeustBdoy as rest request -->
+			<copy>
+				<from>
+					<literal>$taskRequestData</literal>
+				</from>
+				<to variable="request"></to>
+			</copy>
         #foreach($taskInputData in $taskInputDataList)
             #set( $paramType = $taskInputData.getType() )
-            <copy>
+			<copy>
             #if($paramType == "PLAN")
                 #if($taskInputData.getStartTaskName() == "StartEvent")
-                <from variable="$taskInputData.getParameterName()" />
+				<from variable="$taskInputData.getParameterName()" />
+                #elseif( $taskPathData.getParameterName() == "ResponseStatus" )
+				<from variable="$taskPathData.getStartTaskName()ResponseStatus"/>
                 #else
-                <from variable="$taskInputData.getStartTaskName()Response">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                    <![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
-                    </query>
-                </from>
+				<from variable="$taskInputData.getStartTaskName()Response">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+					<![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
+					</query>
+				</from>
                 #end
             #elseif( $paramType == "OBJECT" )
-                <from>
-                    <literal>$taskInputData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskInputData.getValue()</literal>
+				</from>
             #elseif( $taskInputData.getValue() )
-                <from>
-                    <literal>$taskInputData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskInputData.getValue()</literal>
+				</from>
             #else
-                <from>
-                    <literal></literal>
-                </from>
+				<from>
+					<literal></literal>
+				</from>
             #end
-                <to variable="temp"/>
-            </copy>
+				<to variable="temp"/>
+			</copy>
             
             #if( $paramType == "OBJECT" )
-            <copy>
-                <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                <![CDATA[concat(substring-before($request,'"$taskInputData.getName()"'), $temp, substring-after($request,'"$taskInputData.getName()"'))]]>
-                </from>
-                <to variable="request"></to>
-            </copy>
+			<copy>
+				<from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+				<![CDATA[concat(substring-before($request,'"$taskInputData.getName()"'), $temp, substring-after($request,'"$taskInputData.getName()"'))]]>
+				</from>
+				<to variable="request"></to>
+			</copy>
             #else
-            <copy>
-                <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                <![CDATA[concat(substring-before($request,'$taskInputData.getName()'), $temp, substring-after($request,'$taskInputData.getName()'))]]>
-                </from>
-                <to variable="request"></to>
-            </copy>
+			<copy>
+				<from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+				<![CDATA[concat(substring-before($request,'$taskInputData.getName()'), $temp, substring-after($request,'$taskInputData.getName()'))]]>
+				</from>
+				<to variable="request"></to>
+			</copy>
             #end
         #end
             
     #else
-            <copy>
-                <from>
-                    <literal>{</literal>
-                </from>
-                <to variable="request"></to>
-            </copy>
+			<copy>
+				<from>
+					<literal>{</literal>
+				</from>
+				<to variable="request"></to>
+			</copy>
         
         #foreach($taskInputData in $taskInputDataList)
             #set( $paramType = $taskInputData.getType() )
-            <copy>
+			<copy>
             #if($paramType == "PLAN")
                 #if($taskInputData.getStartTaskName() == "StartEvent")
-                <from variable="$taskInputData.getParameterName()">
-                </from>
+				<from variable="$taskInputData.getParameterName()">
+				</from>
+                #elseif( $taskPathData.getParameterName() == "ResponseStatus" )
+				<from variable="$taskPathData.getStartTaskName()ResponseStatus"/>
                 #else
-                <from variable="$taskInputData.getStartTaskName()Response">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                    <![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
-                    </query>
-                </from>
+				<from variable="$taskInputData.getStartTaskName()Response">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+					<![CDATA[//*[local-name()="$taskInputData.getParameterName()"]/text()]]>
+					</query>
+				</from>
                 #end
             #elseif( $taskInputData.getValue() )
-                <from>
-                    <literal>$taskInputData.getValue()</literal>
-                </from>
+				<from>
+					<literal>$taskInputData.getValue()</literal>
+				</from>
             #else
-                <from>
-                    <literal></literal>
-                </from>
+				<from>
+					<literal></literal>
+				</from>
             #end
-                <to variable="temp"/>
-            </copy>
+				<to variable="temp"/>
+			</copy>
             
-            <copy>
-                <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+			<copy>
+				<from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
                 #if($paramType == "PLAN" && $taskInputData.getParameterName().startsWith("object_"))
-                <![CDATA[concat($request,'"$taskInputData.getName()":',$temp#if( $velocityCount!=$req_size ),','#end)]]>
+				<![CDATA[concat($request,'"$taskInputData.getName()":',$temp#if( $velocityCount!=$req_size ),','#end)]]>
                 #else
-                <![CDATA[concat($request,'"$taskInputData.getName()":"',$temp,'"'#if( $velocityCount!=$req_size ),','#end)]]>
+				<![CDATA[concat($request,'"$taskInputData.getName()":"',$temp,'"'#if( $velocityCount!=$req_size ),','#end)]]>
                 #end
-                </from>
-                <to variable="request"></to>
-            </copy>
+				</from>
+				<to variable="request"></to>
+			</copy>
         #end
-            <copy>
-                <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                <![CDATA[concat($request,'}')]]>
-                </from>
-                <to variable="request"></to>
-            </copy>
+			<copy>
+				<from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+				<![CDATA[concat($request,'}')]]>
+				</from>
+				<to variable="request"></to>
+			</copy>
     #end
-        </assign>
-        <!-- build request end -->
+		</assign>
+		<!-- build request end -->
 
     #if($methodType == "PUT") 
-        <extensionActivity>
-            <bpel4RestLight:PUT contentType="${contentType}" accept="${accept}" request='request' response='${taskName}Response' uri="$bpelvar[url]"></bpel4RestLight:PUT>
-        </extensionActivity>
+		<extensionActivity>
+			<bpel4RestLight:PUT contentType="${contentType}" statusCode="${taskName}ResponseStatus" 
+				accept="${accept}" request='request' response='${taskName}Response' uri="$bpelvar[url]" />
+		</extensionActivity>
     #elseif($methodType == "POST")
-        <extensionActivity>
-            <bpel4RestLight:POST contentType="${contentType}" accept="${accept}" request='request' response='${taskName}Response' uri="$bpelvar[url]"></bpel4RestLight:POST>
-        </extensionActivity>
+		<extensionActivity>
+			<bpel4RestLight:POST contentType="${contentType}" statusCode="${taskName}ResponseStatus" 
+				accept="${accept}" request='request' response='${taskName}Response' uri="$bpelvar[url]" />
+		</extensionActivity>
     #elseif($methodType == "GET")
-        <extensionActivity>
-            <bpel4RestLight:GET contentType="${contentType}" accept="${accept}" uri="$bpelvar[url]" response='${taskName}Response'></bpel4RestLight:GET>
-        </extensionActivity>
+		<extensionActivity>
+			<bpel4RestLight:GET contentType="${contentType}" statusCode="${taskName}ResponseStatus" 
+				accept="${accept}" uri="$bpelvar[url]" response='${taskName}Response' />
+		</extensionActivity>
     #elseif($methodType == "DELETE")
-        <extensionActivity>
-            <bpel4RestLight:DELETE contentType="${contentType}" accept="${accept}" uri="$bpelvar[url]" request='request' response='${taskName}Response'></bpel4RestLight:DELETE>
-        </extensionActivity>
+		<extensionActivity>
+			<bpel4RestLight:DELETE contentType="${contentType}" statusCode="${taskName}ResponseStatus" 
+				accept="${accept}" uri="$bpelvar[url]" request='request' response='${taskName}Response' />
+		</extensionActivity>
     #else
-        <!-- do nothing -->
+		<!-- do nothing -->
     #end
-        
+    
+    #if( $restStatus && $restStatus.getType()=="PLAN" && $restStatus.getName()=="responseStatus" && $restStatus.getStartTaskName() == "StartEvent")
+		<assign name="${taskName}_ResponseStatus_$restStatus.getName()">
+			<copy>
+				<from variable="${taskName}ResponseStatus" />
+				<to variable="$restStatus.getParameterName()"/>
+			</copy>
+		</assign>
+    #end
+    
     #foreach($outData in $taskOutputDataList)
     #set( $paramType = $outData.getType() )
-    #if($paramType == "PLAN" && $outData.getStartTaskName() == "StartEvent")
-        <assign name="${taskName}_Response_$outData.getName()">
-            <copy>
-                <from variable="${taskName}Response">
-                    <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                    <![CDATA[//*[local-name()="$outData.getName()"]/text()]]>
-                    </query>
-                </from>
-                <to variable="$outData.getParameterName()"/>
-            </copy>
-        </assign>
+	    #if($paramType == "PLAN" && $outData.getStartTaskName() == "StartEvent")
+		<assign name="${taskName}_Response_$outData.getName()">
+			<copy>
+				<from variable="${taskName}Response">
+					<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+					<![CDATA[//*[local-name()="$outData.getName()"]/text()]]>
+					</query>
+				</from>
+				<to variable="$outData.getParameterName()"/>
+			</copy>
+		</assign>
+	    #end
     #end
-    #end
-    </sequence>
+	</sequence>
 </scope>
 #elseif( $taskTypeDetail == "Decision" )
 #set( $branchList = $mngmtTask.getBranchList() )
 #set( $branch_size = $branchList.size() )
 <scope name="${taskName}" xmlns:pp="http://opentosca.org/api/pp"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <sequence name="${taskName}_Sequence">
-        <if>
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+	<sequence name="${taskName}_Sequence">
+		<if>
         #foreach($branch in $branchList)
             #set( $tasks = $branch.getBranch() )
             #if( $velocityCount==1 )
-            <condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
+			<condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0">
                 $branch.getCondition()
-            </condition>
-            <sequence name="${taskName}_Branch${velocityCount}_Sequence">
+			</condition>
+			<sequence name="${taskName}_Branch${velocityCount}_Sequence">
                 #foreach( $task in $tasks)
                 #set( $mngmtTask = $task )
                         #parse(
                         "../templates/bpel_management_activity_scope_template.xml"
                         )
                 #end
-            </sequence>
+			</sequence>
 
             #elseif( $velocityCount==$branch_size && !$branch.getCondition() )
-            <else>
-                <sequence name="${taskName}_Branch${velocityCount}_Sequence">
+			<else>
+				<sequence name="${taskName}_Branch${velocityCount}_Sequence">
                     #foreach( $task in $tasks)
                     #set( $mngmtTask = $task )
                             #parse(
                             "../templates/bpel_management_activity_scope_template.xml"
                             )
                     #end
-                </sequence>
-            </else>
+				</sequence>
+			</else>
             #else
-            <elseif>
-                <condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+			<elseif>
+				<condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
                     $branch.getCondition()
-                </condition>
-                <sequence name="${taskName}_Branch${velocityCount}_Sequence">
+				</condition>
+				<sequence name="${taskName}_Branch${velocityCount}_Sequence">
                     #foreach( $task in $tasks)
                     #set( $mngmtTask = $task )
                             #parse(
                             "../templates/bpel_management_activity_scope_template.xml"
                             )
                     #end
-                </sequence>
-            </elseif>
+				</sequence>
+			</elseif>
             #end
         #end
-        </if>
-    </sequence>
+		</if>
+	</sequence>
 </scope>
 #elseif( $taskTypeDetail == "Fork" )
 #set( $branchList = $mngmtTask.getBranchList() )
 <scope name="${taskName}" xmlns:pp="http://opentosca.org/api/pp"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <sequence name="${taskName}_Sequence">
-        <flow>
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+	<sequence name="${taskName}_Sequence">
+		<flow>
         #foreach($branch in $branchList)
             #set( $tasks = $branch.getBranch() )
-            <sequence name="${taskName}_Branch${velocityCount}_Sequence">
+			<sequence name="${taskName}_Branch${velocityCount}_Sequence">
                 #foreach( $task in $tasks)
                 #set( $mngmtTask = $task )
                         #parse(
                         "../templates/bpel_management_activity_scope_template.xml"
                         )
                 #end
-            </sequence>
+			</sequence>
         #end
-        </flow>
-    </sequence>
+		</flow>
+	</sequence>
 </scope>
 #elseif( $taskTypeDetail == "While" )
 #set( $branch = $mngmtTask.getBranch() )
 <scope name="${taskName}_WhileTask" xmlns:pp="http://opentosca.org/api/pp"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <while name="${taskName}">
-        <condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+	<while name="${taskName}">
+		<condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
             $branch.getCondition()
-        </condition>
+		</condition>
         #set( $tasks = $branch.getBranch() )
-        <sequence name="${taskName}_WhileBranch_Sequence">
+		<sequence name="${taskName}_WhileBranch_Sequence">
         #foreach( $task in $tasks)
         #set( $mngmtTask = $task )
             #parse(
                 "../templates/bpel_management_activity_scope_template.xml"
             )
         #end
-            <wait name="Wait">
-                <for><![CDATA['PT01M30.0S']]></for>
-            </wait>
-        </sequence>
-    </while>
+			<wait name="Wait">
+				<for><![CDATA['PT01M30.0S']]></for>
+			</wait>
+		</sequence>
+	</while>
 </scope>
 #elseif( $taskTypeDetail == "RepeatUntil" )
 #set( $branch = $mngmtTask.getBranch() )
 <scope name="${taskName}_RepeatTask" xmlns:pp="http://opentosca.org/api/pp"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <repeatUntil name="${taskName}">
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+	<repeatUntil name="${taskName}">
         #set( $tasks = $branch.getBranch() )
-        <sequence name="${taskName}_RepeatBranch_Sequence">
+		<sequence name="${taskName}_RepeatBranch_Sequence">
                 #foreach( $task in $tasks)
                 #set( $mngmtTask = $task )
                         #parse(
                         "../templates/bpel_management_activity_scope_template.xml"
                         )
                 #end
-            <wait name="Wait">
-                <for><![CDATA['PT01M30.0S']]></for>
-            </wait>
-        </sequence>
-        <condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+			<wait name="Wait">
+				<for><![CDATA['PT01M30.0S']]></for>
+			</wait>
+		</sequence>
+		<condition expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
             $branch.getCondition()
-        </condition>
-    </repeatUntil>
+		</condition>
+	</repeatUntil>
 </scope>
 #elseif( $taskTypeDetail == "Assign" && !$mngmtTask.getParams().isEmpty() )
 #set( $params = $mngmtTask.getParams() )
 <scope name="${taskName}_AssignTask" xmlns:pp="http://opentosca.org/api/pp"
-    xmlns:xlink="http://www.w3.org/1999/xlink">
-    <assign name="${taskName}_Assign">
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+	<assign name="${taskName}_Assign">
     #foreach( $param in $params )
     #set($paramType = $param.getType())
-        <copy>
+		<copy>
         #if($paramType == "PLAN")
             #if($param.getStartTaskName() == "StartEvent")
-            <from variable="$param.getParameterName()">
+			<from variable="$param.getParameterName()">
                 #if($param.getQuery())
-                <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                <![CDATA[$param.getQuery()]]>
-                </query>
+				<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+				<![CDATA[$param.getQuery()]]>
+				</query>
                 #end
-            </from>
+			</from>
+			#elseif( $taskPathData.getParameterName() == "ResponseStatus" )
+			<from variable="$taskPathData.getStartTaskName()ResponseStatus"/>
             #else
-            <from variable="$param.getStartTaskName()Response">
-                <query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+			<from variable="$param.getStartTaskName()Response">
+				<query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
                 #if($param.getQuery())
-                <![CDATA[$param.getQuery()]]>
+				<![CDATA[$param.getQuery()]]>
                 #else
-                <![CDATA[//*[local-name()="$param.getParameterName()"]/text()]]>
+				<![CDATA[//*[local-name()="$param.getParameterName()"]/text()]]>
                 #end
-                </query>
-            </from>
+				</query>
+			</from>
             #end
         #elseif($paramType == "EXPRESSION")
-            <from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-            <![CDATA[$param.getValue()]]>
-            </from>
+			<from expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+			<![CDATA[$param.getValue()]]>
+			</from>
         #elseif( $param.getValue() )
-            <from>
-                <literal>$param.getValue()</literal>
-            </from>
+			<from>
+				<literal>$param.getValue()</literal>
+			</from>
         #else
-            <from>
-                <literal></literal>
-            </from>
+			<from>
+				<literal></literal>
+			</from>
         #end
-            <to variable="$param.getName()"/>
-        </copy>
+			<to variable="$param.getName()"/>
+		</copy>
     #end
-    </assign>
+	</assign>
 </scope>
 #else
 <!-- do nothing -->

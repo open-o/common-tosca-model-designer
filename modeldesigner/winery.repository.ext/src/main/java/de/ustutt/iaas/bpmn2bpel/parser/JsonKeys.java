@@ -53,6 +53,8 @@ public interface JsonKeys {
 	public static final String REST_ACCEPT = "accept";
 	public static final String REST_CONTENT_TYPE = "contentType";
 	public static final String REST_REQUEST_BODY = "requestBody";
+	public static final String REST_RESPONSE_STATUS = "responseStatus";
+	
 	public static final String PATH_PARAMS = "path";
 	public static final String QUERY_PARAMS = "query";
 	public static final String BODY_PARAMS = "body";

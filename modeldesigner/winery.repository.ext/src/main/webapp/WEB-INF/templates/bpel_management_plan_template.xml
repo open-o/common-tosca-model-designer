@@ -59,6 +59,9 @@
         #foreach( $inputVariable in $inputVariables )
         <variable name="${inputVariable}" type="xsd:string" />
         #end
+        #foreach( $responseStatus in $responseStatusList )
+        <variable name="${responseStatus}" type="xsd:string" />
+        #end
     </variables>
 
     <correlationSets>

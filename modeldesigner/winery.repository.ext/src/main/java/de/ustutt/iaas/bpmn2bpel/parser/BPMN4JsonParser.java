@@ -52,7 +52,6 @@ import de.ustutt.iaas.bpmn2bpel.model.param.ImplementationArtefactParameter;
 import de.ustutt.iaas.bpmn2bpel.model.param.Parameter;
 import de.ustutt.iaas.bpmn2bpel.model.param.PlanParameter;
 import de.ustutt.iaas.bpmn2bpel.model.param.StringParameter;
-import de.ustutt.iaas.bpmn2bpel.model.param.TopologyParameter;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -292,9 +291,15 @@ public class BPMN4JsonParser extends Parser {
     restTask.setContentType(contentType);
     restTask.setUrl(url);
     restTask.setTaskTypeDetail(JsonKeys.TASK_TYPE_DETAIL_REST);
+
     JsonNode reqBody = restNode.get(JsonKeys.REST_REQUEST_BODY);
     if (null != reqBody) {
       restTask.setRequestBody(reqBody.toString());
+    }
+
+    List<Parameter> responseStatus = getParams(restNode.get(JsonKeys.REST_RESPONSE_STATUS));
+    if (null != responseStatus && !responseStatus.isEmpty()) {
+      restTask.setResponseStatus(responseStatus.get(0));
     }
 
     restTask.setPathParameters(getParams(restNode.get(JsonKeys.PATH_PARAMS)));
@@ -430,7 +435,8 @@ public class BPMN4JsonParser extends Parser {
         param = new StringParameter();
         break;
       case JsonKeys.PARAM_TYPE_VALUE_TOPOLOGY:
-        param = new TopologyParameter();
+        // param = new TopologyParameter();
+        param = new StringParameter();
         break;
       case JsonKeys.PARAM_TYPE_VALUE_EXPRESSION:
         param = new ExpressionParameter();

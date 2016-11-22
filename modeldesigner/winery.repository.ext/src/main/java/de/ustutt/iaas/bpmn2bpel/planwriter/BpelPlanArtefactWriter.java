@@ -42,201 +42,207 @@ import de.ustutt.iaas.bpmn2bpel.parser.JsonKeys;
 
 public class BpelPlanArtefactWriter {
 
-    private ManagementFlow mangagementFlow;
+  private ManagementFlow mangagementFlow;
 
-    public static String TEMPLATE_PATH = "./src/main/resources/templates/";
+  public static String TEMPLATE_PATH = "./src/main/resources/templates/";
 
-    private static Logger log = LoggerFactory.getLogger(BpelPlanArtefactWriter.class);
+  private static Logger log = LoggerFactory.getLogger(BpelPlanArtefactWriter.class);
 
-    public BpelPlanArtefactWriter(ManagementFlow mangagementFlow) {
-        this.mangagementFlow = mangagementFlow;
-        try {
-            Velocity.init();
-        } catch (Exception e) {
-            e.printStackTrace();
+  public BpelPlanArtefactWriter(ManagementFlow mangagementFlow) {
+    this.mangagementFlow = mangagementFlow;
+    try {
+      Velocity.init();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public String completePlanTemplate(String planName, String planNameSpace, String csarID,
+      String serviceTemplateIDNamespaceURI, String serviceTemplateIDLocalPart,
+      List<Parameter> variables, List<String> iaResponseVariables)
+      throws ResourceNotFoundException, ParseErrorException, Exception {
+    log.debug("Completing BPEL process template");
+
+    /*
+     * Traverse the management flow and add the management tasks in the order of their execution to
+     * a list
+     */
+    List<Task> taskSeq = new ArrayList<Task>();
+    List<String> inputVariables = new ArrayList<String>();
+    List<String> responseStatusList = new ArrayList<String>();
+
+    GraphIterator<Node, Link> iterator = new DepthFirstIterator<Node, Link>(mangagementFlow);
+    while (iterator.hasNext()) {
+      Node node = iterator.next();
+      /* In this version the templates do only support management tasks */
+      if (node instanceof Task) {
+
+        // modify by qinlihan
+        Task manageTask = (Task) node;
+
+        if (JsonKeys.TASK_TYPE_DETAIL_IA.equals(manageTask.getTaskTypeDetail())) {
+          ManagementTaskTemplateWrapper taskWrapper =
+              new ManagementTaskTemplateWrapper((ManagementTask) manageTask);
+          taskSeq.add(taskWrapper);
+        } else if (JsonKeys.TASK_TYPE_START_EVENT.equals(manageTask.getTaskTypeDetail())) {
+          for (Parameter param : manageTask.getOutputParameters()) {
+            inputVariables.add(param.getName());
+          }
+        } else if (JsonKeys.TASK_TYPE_DETAIL_REST.equals(manageTask.getTaskTypeDetail())) {
+          String status = manageTask.getName().trim().replaceAll(" ", "_") + "ResponseStatus";
+          responseStatusList.add(status);
+          taskSeq.add(manageTask);
+        } else {
+          taskSeq.add(manageTask);
         }
+      }
     }
 
-    public String completePlanTemplate(String planName, String planNameSpace, String csarID,
-            String serviceTemplateIDNamespaceURI, String serviceTemplateIDLocalPart,
-            List<Parameter> variables, List<String> iaResponseVariables)
-            throws ResourceNotFoundException, ParseErrorException, Exception {
-        log.debug("Completing BPEL process template");
+    VelocityContext context = new VelocityContext();
+    // Template planTemplate = Velocity.getTemplate(TEMPLATE_PATH +
+    // "bpel_management_plan_template.xml");
+    Template planTemplate = getTemplate("bpel_management_plan_template.xml");
+    context.put("mngmtTaskList", taskSeq);
 
-        /*
-         * Traverse the management flow and add the management tasks in the order of their execution
-         * to a list
-         */
-        List<Task> taskSeq = new ArrayList<Task>();
-        List<String> inputVariables = new ArrayList<String>();
+    // added by lvbo 20160105
+    context.put("planName", planName);
+    context.put("planNameSpace", planNameSpace);
+    context.put("csarID", csarID);
+    context.put("serviceTemplateIDNamespaceURI", serviceTemplateIDNamespaceURI);
+    context.put("serviceTemplateIDLocalPart", serviceTemplateIDLocalPart);
 
-        GraphIterator<Node, Link> iterator = new DepthFirstIterator<Node, Link>(mangagementFlow);
-        while (iterator.hasNext()) {
-            Node node = iterator.next();
-            /* In this version the templates do only support management tasks */
-            if (node instanceof Task) {
+    context.put("inputVariables", inputVariables);
+    context.put("iaResponseVariables", iaResponseVariables);
+    context.put("variables", variables);
+    context.put("responseStatusList", responseStatusList);
 
-                // modify by qinlihan
-                Task manageTask = (Task) node;
+    StringWriter planWriter = new StringWriter();
+    planTemplate.merge(context, planWriter);
 
-                if (JsonKeys.TASK_TYPE_DETAIL_IA.equals(manageTask.getTaskTypeDetail())) {
-                    ManagementTaskTemplateWrapper taskWrapper =
-                            new ManagementTaskTemplateWrapper((ManagementTask) manageTask);
-                    taskSeq.add(taskWrapper);
-                } else if (JsonKeys.TASK_TYPE_START_EVENT.equals(manageTask.getTaskTypeDetail())) {
-                    for (Parameter param : manageTask.getOutputParameters()) {
-                        inputVariables.add(param.getName());
-                    }
-                } else {
-                    taskSeq.add(manageTask);
-                }
-            }
-        }
+    String bpelProcessContent = planWriter.toString();
 
-        VelocityContext context = new VelocityContext();
-        // Template planTemplate = Velocity.getTemplate(TEMPLATE_PATH +
-        // "bpel_management_plan_template.xml");
-        Template planTemplate = getTemplate("bpel_management_plan_template.xml");
-        context.put("mngmtTaskList", taskSeq);
+    log.debug("Completed BPEL process template" + bpelProcessContent);
 
-        // added by lvbo 20160105
-        context.put("planName", planName);
-        context.put("planNameSpace", planNameSpace);
-        context.put("csarID", csarID);
-        context.put("serviceTemplateIDNamespaceURI", serviceTemplateIDNamespaceURI);
-        context.put("serviceTemplateIDLocalPart", serviceTemplateIDLocalPart);
+    return bpelProcessContent;
 
-        context.put("inputVariables", inputVariables);
-        context.put("iaResponseVariables", iaResponseVariables);
-        context.put("variables", variables);
+  }
 
-        StringWriter planWriter = new StringWriter();
-        planTemplate.merge(context, planWriter);
+  public String completePlanWsdlTemplate(String planName, String planNameSpace)
+      throws ResourceNotFoundException, ParseErrorException, Exception {
+    log.debug("Completing BPEL WSDL template");
 
-        String bpelProcessContent = planWriter.toString();
+    VelocityContext context = new VelocityContext();
 
-        log.debug("Completed BPEL process template" + bpelProcessContent);
-
-        return bpelProcessContent;
-
+    // add by lvbo 20160105
+    /*
+     * Traverse the management flow and add the management tasks in the order of their execution to
+     * a list
+     */
+    GraphIterator<Node, Link> iterator = new DepthFirstIterator<Node, Link>(mangagementFlow);
+    StartTask startTask = null;
+    EndTask endTask = null;
+    while (iterator.hasNext()) {
+      Node node = iterator.next();
+      /* In this version the templates do only support management tasks */
+      if (node instanceof StartTask) {
+        startTask = (StartTask) node;
+      } else if (node instanceof EndTask) {
+        endTask = (EndTask) node;
+      }
     }
 
-    public String completePlanWsdlTemplate(String planName, String planNameSpace)
-            throws ResourceNotFoundException, ParseErrorException, Exception {
-        log.debug("Completing BPEL WSDL template");
+    context.put("planName", planName);
+    context.put("planNameSpace", planNameSpace);
+    context.put("inputParams", startTask.getOutputParameters());
+    context.put("outputParam", endTask.getOutputParameters());
 
-        VelocityContext context = new VelocityContext();
+    // Template wsdlTemplate = Velocity.getTemplate(TEMPLATE_PATH +
+    // "management_plan_wsdl_template.xml");
+    Template wsdlTemplate = getTemplate("management_plan_wsdl_template.xml");
 
-        // add by lvbo 20160105
-        /*
-         * Traverse the management flow and add the management tasks in the order of their execution
-         * to a list
-         */
-        GraphIterator<Node, Link> iterator = new DepthFirstIterator<Node, Link>(mangagementFlow);
-        StartTask startTask = null;
-        EndTask endTask = null;
-        while (iterator.hasNext()) {
-            Node node = iterator.next();
-            /* In this version the templates do only support management tasks */
-            if (node instanceof StartTask) {
-                startTask = (StartTask) node;
-            } else if (node instanceof EndTask) {
-                endTask = (EndTask) node;
-            }
-        }
+    StringWriter wsdlWriter = new StringWriter();
+    wsdlTemplate.merge(context, wsdlWriter);
 
-        context.put("planName", planName);
-        context.put("planNameSpace", planNameSpace);
-        context.put("inputParams", startTask.getOutputParameters());
-        context.put("outputParam", endTask.getOutputParameters());
+    String bpelProcessWSDL = wsdlWriter.toString();
 
-        // Template wsdlTemplate = Velocity.getTemplate(TEMPLATE_PATH +
-        // "management_plan_wsdl_template.xml");
-        Template wsdlTemplate = getTemplate("management_plan_wsdl_template.xml");
+    log.debug("Completed BPEL WSDL template" + bpelProcessWSDL);
 
-        StringWriter wsdlWriter = new StringWriter();
-        wsdlTemplate.merge(context, wsdlWriter);
+    return bpelProcessWSDL;
+  }
 
-        String bpelProcessWSDL = wsdlWriter.toString();
+  public String completeInvokerWsdlTemplate() throws ResourceNotFoundException,
+      ParseErrorException, Exception {
+    log.debug("Retrieving service invoker WSDL");
 
-        log.debug("Completed BPEL WSDL template" + bpelProcessWSDL);
+    VelocityContext context = new VelocityContext();
+    // Template invokerWsdlTemplate = Velocity.getTemplate(TEMPLATE_PATH +
+    // "invoker.wsdl");
+    Template invokerWsdlTemplate = getTemplate("invoker.wsdl");
 
-        return bpelProcessWSDL;
+    StringWriter wsdlWriter = new StringWriter();
+    invokerWsdlTemplate.merge(context, wsdlWriter);
+
+    return wsdlWriter.toString();
+  }
+
+  public String completeInvokerXsdTemplate() throws ResourceNotFoundException, ParseErrorException,
+      Exception {
+    log.debug("Retrieving service invoker XSD");
+
+    VelocityContext context = new VelocityContext();
+    // Template invokerXsdTemplate = Velocity.getTemplate(TEMPLATE_PATH +
+    // "invoker.xsd");
+    Template invokerXsdTemplate = getTemplate("invoker.xsd");
+
+    StringWriter xsdWriter = new StringWriter();
+    invokerXsdTemplate.merge(context, xsdWriter);
+
+    return xsdWriter.toString();
+  }
+
+  public String completeDeploymentDescriptorTemplate(String planName, String planNameSpace)
+      throws ResourceNotFoundException, ParseErrorException, Exception {
+    log.debug("Retrieving Apache ODE deployment descriptor");
+
+    VelocityContext context = new VelocityContext();
+
+    // add by lvbo 20160105
+    context.put("planName", planName);
+    context.put("planNameSpace", planNameSpace);
+
+    // Template invokerXsdTemplate = Velocity.getTemplate(TEMPLATE_PATH +
+    // "deploy.xml");
+    Template invokerXsdTemplate = getTemplate("deploy.xml");
+
+    StringWriter xsdWriter = new StringWriter();
+    invokerXsdTemplate.merge(context, xsdWriter);
+
+    return xsdWriter.toString();
+  }
+
+  private Template getTemplate(String fileName) {
+    // if(fromJar) {
+    return getTemplateInClass(fileName);
+    // } else {
+    // return Velocity.getTemplate(TEMPLATE_PATH + fileName);
+    // }
+
+  }
+
+  private Template getTemplateInClass(String templateName) {
+    VelocityEngine ve = new VelocityEngine();
+    ve.setProperty("resource.loader", "class");
+    ve.setProperty("class.resource.loader.class",
+        "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+
+    Template t = null;
+    try {
+      ve.init();
+      t = ve.getTemplate("../templates/" + templateName);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-
-    public String completeInvokerWsdlTemplate() throws ResourceNotFoundException,
-            ParseErrorException, Exception {
-        log.debug("Retrieving service invoker WSDL");
-
-        VelocityContext context = new VelocityContext();
-        // Template invokerWsdlTemplate = Velocity.getTemplate(TEMPLATE_PATH +
-        // "invoker.wsdl");
-        Template invokerWsdlTemplate = getTemplate("invoker.wsdl");
-
-        StringWriter wsdlWriter = new StringWriter();
-        invokerWsdlTemplate.merge(context, wsdlWriter);
-
-        return wsdlWriter.toString();
-    }
-
-    public String completeInvokerXsdTemplate() throws ResourceNotFoundException,
-            ParseErrorException, Exception {
-        log.debug("Retrieving service invoker XSD");
-
-        VelocityContext context = new VelocityContext();
-        // Template invokerXsdTemplate = Velocity.getTemplate(TEMPLATE_PATH +
-        // "invoker.xsd");
-        Template invokerXsdTemplate = getTemplate("invoker.xsd");
-
-        StringWriter xsdWriter = new StringWriter();
-        invokerXsdTemplate.merge(context, xsdWriter);
-
-        return xsdWriter.toString();
-    }
-
-    public String completeDeploymentDescriptorTemplate(String planName, String planNameSpace)
-            throws ResourceNotFoundException, ParseErrorException, Exception {
-        log.debug("Retrieving Apache ODE deployment descriptor");
-
-        VelocityContext context = new VelocityContext();
-
-        // add by lvbo 20160105
-        context.put("planName", planName);
-        context.put("planNameSpace", planNameSpace);
-
-        // Template invokerXsdTemplate = Velocity.getTemplate(TEMPLATE_PATH +
-        // "deploy.xml");
-        Template invokerXsdTemplate = getTemplate("deploy.xml");
-
-        StringWriter xsdWriter = new StringWriter();
-        invokerXsdTemplate.merge(context, xsdWriter);
-
-        return xsdWriter.toString();
-    }
-
-    private Template getTemplate(String fileName) {
-        // if(fromJar) {
-        return getTemplateInClass(fileName);
-        // } else {
-        // return Velocity.getTemplate(TEMPLATE_PATH + fileName);
-        // }
-
-    }
-
-    private Template getTemplateInClass(String templateName) {
-        VelocityEngine ve = new VelocityEngine();
-        ve.setProperty("resource.loader", "class");
-        ve.setProperty("class.resource.loader.class",
-                "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-
-        Template t = null;
-        try {
-            ve.init();
-            t = ve.getTemplate("../templates/" + templateName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return t;
-    }
+    return t;
+  }
 
 }

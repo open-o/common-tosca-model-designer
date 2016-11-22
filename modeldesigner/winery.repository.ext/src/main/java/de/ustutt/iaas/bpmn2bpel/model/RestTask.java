@@ -36,6 +36,16 @@ public class RestTask extends ManagementTask {
 
     private String requestBody;
     
+    private Parameter responseStatus;
+    
+    public Parameter getResponseStatus() {
+      return responseStatus;
+    }
+
+    public void setResponseStatus(Parameter responseStatus) {
+      this.responseStatus = responseStatus;
+    }
+
     public String getRequestBody() {
       return requestBody;
     }
