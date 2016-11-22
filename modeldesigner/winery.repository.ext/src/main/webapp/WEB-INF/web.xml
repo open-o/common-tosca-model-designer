@@ -92,7 +92,9 @@
 	<listener>
 		<listener-class>org.eclipse.winery.repository.Prefs</listener-class>
 	</listener>
-
+	<listener>
+		<listener-class>org.eclipse.winery.common.config.WineryConfig</listener-class>
+	</listener>
 	<session-config>
 		<tracking-mode>COOKIE</tracking-mode>
 	</session-config>

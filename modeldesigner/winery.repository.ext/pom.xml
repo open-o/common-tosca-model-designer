@@ -66,6 +66,10 @@
                                     <groupId>org.openo.common-tosca.model-designer.modeldesigner</groupId>
                                     <artifactId>modeldesigner.winery.common.ext</artifactId>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.openo.common-tosca.model-designer.modeldesigner</groupId>
+                                    <artifactId>modeldesigner.winery.common.config.ext</artifactId>
+                                </artifactItem>
                             </artifactItems>
                             <excludes>META-INF\/*</excludes>
                             <outputDirectory>${project.build.directory}/classes</outputDirectory>
@@ -105,6 +109,12 @@
         <dependency>
             <groupId>org.openo.common-tosca.model-designer.modeldesigner</groupId>
             <artifactId>modeldesigner.winery.common.ext</artifactId>
+            <version>${project.version}</version> 
+            <scope>provided</scope>
+        </dependency>
+                <dependency>
+            <groupId>org.openo.common-tosca.model-designer.modeldesigner</groupId>
+            <artifactId>modeldesigner.winery.common.config.ext</artifactId>
             <version>${project.version}</version> 
             <scope>provided</scope>
         </dependency>
@@ -291,6 +301,10 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+           <groupId>org.yaml</groupId>
+           <artifactId>snakeyaml</artifactId>    
         </dependency>
     </dependencies>
 </project>

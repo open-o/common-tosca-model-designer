@@ -63,6 +63,7 @@
         <httpclient.version>4.4.1</httpclient.version>
         <commons.collections.version>3.2</commons.collections.version>
         <commons.beanutils.version>1.8.0</commons.beanutils.version>
+        <snakeyaml.version>1.16</snakeyaml.version>
     </properties>
 
     <dependencyManagement>
@@ -170,6 +171,11 @@
                 <groupId>com.sun.jersey</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${jersey.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>                
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller.thirdparty</groupId>

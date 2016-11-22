@@ -31,6 +31,7 @@
 
     <modules>
         <module>winery.model.tosca.ext</module>
+        <module>winery.common.config.ext</module>
         <module>winery.common.ext</module>
         <module>winery.repository.ext.api</module>
         <module>winery.repository.ext</module>
