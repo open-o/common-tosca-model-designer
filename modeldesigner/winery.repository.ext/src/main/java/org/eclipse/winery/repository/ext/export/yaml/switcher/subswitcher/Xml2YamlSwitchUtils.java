@@ -77,6 +77,12 @@ public class Xml2YamlSwitchUtils {
     return name; // name + "_" + id;
   }
   
+  public static <T> Map<String, T> convert2MapObject(String name, T object) {
+    Map<String, T> policy = new HashMap<>();
+    policy.put(name, object);
+    return policy;
+  }
+  
   /**
    * @param map.
    * @return .
@@ -95,6 +101,22 @@ public class Xml2YamlSwitchUtils {
     }
 
     return list;
+  }
+  
+  public static <K, T> Map<K, T> convertListMap2Map(List<Map<K, T>> listMap) {
+    if (listMap == null || listMap.isEmpty()) {
+      return new HashMap<>();
+    }
+
+    Map<K, T> tmpMap = new HashMap<>();
+    
+    for (Map<K, T> map : listMap) {
+      for (Entry<K, T> entry : map.entrySet()) {
+        tmpMap.put(entry.getKey(), entry.getValue());
+      }
+    }
+    
+    return tmpMap;
   }
 
     /**

@@ -30,7 +30,7 @@ public class Xml2YamlTypeMapper {
   /** */
   private static final String TOSCA_RELATIONSHIPS_ROOT = "tosca.relationships.Root";
   /** */
-  private static final String TOSCA_NODES_ROOT = "tosca.nodes.Root";
+  public static final String TOSCA_NODES_ROOT = "tosca.nodes.Root";
   /** */
   private static final String TOSCA_CAPABILITIES_ROOT = "tosca.capabilities.Root";
   /** */

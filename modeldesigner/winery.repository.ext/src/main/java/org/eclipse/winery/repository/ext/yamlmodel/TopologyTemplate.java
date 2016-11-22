@@ -18,7 +18,9 @@
  */
 package org.eclipse.winery.repository.ext.yamlmodel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +32,7 @@ public class TopologyTemplate extends YAMLElement {
     private Map<String, NodeTemplate> node_templates = new HashMap<String, NodeTemplate>();
     private Map<String, Object> relationship_templates = new HashMap<>();
     private Map<String, Group> groups = new HashMap<String, Group>();
-    private Map<String, Object> policies = new HashMap<>();
+    private List<Map<String, Policy>> policies = new ArrayList<>();
     private Map<String, Output> outputs = new HashMap<String, Output>();
     private Map<String, Object> substitution_mappings = new HashMap<>();
 
@@ -74,12 +76,12 @@ public class TopologyTemplate extends YAMLElement {
         return this.groups;
     }
 
-    public Map<String, Object> getPolicies() {
-        return policies;
+    public List<Map<String, Policy>> getPolicies() {
+      return policies;
     }
 
-    public void setPolicies(Map<String, Object> policies) {
-        this.policies = policies;
+    public void setPolicies(List<Map<String, Policy>> policies) {
+      this.policies = policies;
     }
 
     public void setOutputs(Map<String, Output> outputs) {
