@@ -21,83 +21,72 @@ import java.util.List;
 import java.util.Map;
 
 public class NodeTemplate extends YAMLElement {
+  private String type = "";
+  private Map<String, Object> properties = new HashMap<String, Object>();
+  private Map<String, Object> attributes = new HashMap<String, Object>();
+  private List<Map<String, Object>> requirements = new ArrayList<>();  // May be string or org.eclipse.winery.repository.ext.yamlmodel.Requirement
+  private Map<String, Capability> capabilities = new HashMap<>();
+  private Map<String, String> interfaces = new HashMap<String, String>();
+  private Map<String, Object> artifacts = new HashMap<>();  // Maybe String or ArtifactDefinition.
 
-	private String type = "";
-	private Map<String, Object> properties = new HashMap<String, Object>();
-    private Map<String, Object> attributes = new HashMap<String, Object>();
-    private List<Map<String, Object>> requirements = new ArrayList<>();  // May be string or org.eclipse.winery.repository.ext.yamlmodel.Requirement
-    private Map<String, Capability> capabilities = new HashMap<>();
-	private Map<String, String> interfaces = new HashMap<String, String>();
-	private Map<String, Object> artifacts = new HashMap<>();  // Maybe String or ArtifactDefinition.
-//	private NodeTemplatePosition position;
-	
-//	public NodeTemplatePosition getPosition() {
-//        return position;
-//    }
-//
-//    public void setPosition(NodeTemplatePosition position) {
-//        this.position = position;
-//    }
-
-    public void setType(String type) {
-		if (type != null) {
-			this.type = type;
-		}
-	}
-
-	public String getType() {
-		return this.type;
-	}
-
-	public void setProperties(Map<String, Object> properties) {
-		if (properties != null) {
-			this.properties = properties;
-		}
-	}
-
-	public Map<String, Object> getProperties() {
-		return this.properties;
-	}
-
-    public Map<String, Object> getAttributes() {
-        return attributes;
+  public void setType(String type) {
+    if (type != null) {
+      this.type = type;
     }
+  }
 
-    public void setAttributes(Map<String, Object> attributes) {
-        this.attributes = attributes;
+  public String getType() {
+    return this.type;
+  }
+
+  public void setProperties(Map<String, Object> properties) {
+    if (properties != null) {
+      this.properties = properties;
     }
+  }
 
-    public void setRequirements(List<Map<String, Object>> requirements) {
-		if (requirements != null) {
-			this.requirements = requirements;
-		}
-	}
+  public Map<String, Object> getProperties() {
+    return this.properties;
+  }
 
-	public List<Map<String, Object>> getRequirements() {
-		return this.requirements;
-	}
+  public Map<String, Object> getAttributes() {
+    return attributes;
+  }
 
-    public void setCapabilities(Map<String, Capability> capabilities) {
-		if (capabilities != null) {
-			this.capabilities = capabilities;
-		}
-	}
+  public void setAttributes(Map<String, Object> attributes) {
+    this.attributes = attributes;
+  }
 
-    public Map<String, Capability> getCapabilities() {
-		return this.capabilities;
-	}
+  public void setRequirements(List<Map<String, Object>> requirements) {
+    if (requirements != null) {
+      this.requirements = requirements;
+    }
+  }
 
-	public Map<String, String> getInterfaces() {
-		return this.interfaces;
-	}
+  public List<Map<String, Object>> getRequirements() {
+    return this.requirements;
+  }
 
-	public void setInterfaces(Map<String, String> interfaces) {
-		if (interfaces != null) {
-			this.interfaces = interfaces;
-		}
-	}
+  public void setCapabilities(Map<String, Capability> capabilities) {
+    if (capabilities != null) {
+      this.capabilities = capabilities;
+    }
+  }
 
-	
+  public Map<String, Capability> getCapabilities() {
+    return this.capabilities;
+  }
+
+  public Map<String, String> getInterfaces() {
+    return this.interfaces;
+  }
+
+  public void setInterfaces(Map<String, String> interfaces) {
+    if (interfaces != null) {
+      this.interfaces = interfaces;
+    }
+  }
+  
   public Map<String, Object> getArtifacts() {
     return artifacts;
   }
@@ -105,37 +94,4 @@ public class NodeTemplate extends YAMLElement {
   public void setArtifacts(Map<String, Object> artifacts) {
     this.artifacts = artifacts;
   }
-
-  @Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
-
-		NodeTemplate that = (NodeTemplate) o;
-
-		if (!artifacts.equals(that.artifacts)) return false;
-		if (!capabilities.equals(that.capabilities)) return false;
-		if (!interfaces.equals(that.interfaces)) return false;
-		if (!properties.equals(that.properties)) return false;
-        if (!attributes.equals(that.attributes))
-            return false;
-		if (!requirements.equals(that.requirements)) return false;
-		if (!type.equals(that.type)) return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = super.hashCode();
-		result = 31 * result + type.hashCode();
-		result = 31 * result + properties.hashCode();
-        result = 31 * result + attributes.hashCode();
-		result = 31 * result + requirements.hashCode();
-		result = 31 * result + capabilities.hashCode();
-		result = 31 * result + interfaces.hashCode();
-		result = 31 * result + artifacts.hashCode();
-		return result;
-	}
 }

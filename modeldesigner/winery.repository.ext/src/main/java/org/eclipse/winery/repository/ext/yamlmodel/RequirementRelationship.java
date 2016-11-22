@@ -16,21 +16,41 @@
 package org.eclipse.winery.repository.ext.yamlmodel;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author 10090474
- *
+ * 
  */
-public class CapabilityFilter extends HashMap<String, PropertiesFilter> {
+public class RequirementRelationship {
+  private String type = "";
+  private Map<String, Object> properties = new HashMap<String, Object>();
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-
-  public CapabilityFilter(String capabilityName, PropertiesFilter propertiesFilter) {
+  public RequirementRelationship() {
     super();
-    this.put(capabilityName, propertiesFilter);
+  }
+  
+  public RequirementRelationship(String type) {
+    super();
+    this.type = type;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public Map<String, Object> getProperties() {
+    return properties;
+  }
+
+  public void setProperties(Map<String, Object> properties) {
+    if (properties != null) {
+      this.properties = properties;
+    }
   }
 
 }

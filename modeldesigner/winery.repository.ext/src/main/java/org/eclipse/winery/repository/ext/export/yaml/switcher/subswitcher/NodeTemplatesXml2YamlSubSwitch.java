@@ -52,6 +52,7 @@ import org.eclipse.winery.repository.ext.yamlmodel.PropertyDefinition;
 import org.eclipse.winery.repository.ext.yamlmodel.PropertyFilter;
 import org.eclipse.winery.repository.ext.yamlmodel.Requirement;
 import org.eclipse.winery.repository.ext.yamlmodel.RequirementDefinition;
+import org.eclipse.winery.repository.ext.yamlmodel.RequirementRelationship;
 
 /**
  * This class supports processing of node templates of a YAML service template.
@@ -303,17 +304,21 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     String capability =
             trequirement.getOtherAttributes().get(
                     new QName(Constants.REQUIREMENT_EXT_CAPABILITY));
-    // String rsTemplate =
-    // tRequirement.getOtherAttributes().get(
-    // new QName(Constants.REQUIREMENT_EXT_RELATIONSHIP));
+
     if (destNodeName == null || destNodeName.isEmpty()) {
         return null;
     }
-
     Requirement yrequirement = new Requirement();
     yrequirement.setNode(destNodeName);
+    
     yrequirement.setCapability(capability);
-
+    
+    String rsType =
+        trequirement.getOtherAttributes().get(new QName(Constants.REQUIREMENT_EXT_RELATIONSHIP));
+    if (rsType != null && !rsType.isEmpty()) {
+      yrequirement.setRelationship(new RequirementRelationship(rsType));
+    }
+    
     return yrequirement;
   }
     
@@ -324,7 +329,9 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
       for (TRelationshipTemplate rst : rstList){
         if(isRequirementEqualSourceNode(trequirement, rst)){
             TEntityTemplate target  = (TEntityTemplate) rst.getTargetElement().getRef();
-            Requirement yrequirement = buildRequirement(target);
+            String rsType = Xml2YamlTypeMapper.mappingRelationshipType(
+                Xml2YamlSwitchUtils.getNamefromQName(rst.getType()));
+            Requirement yrequirement = buildRequirement(target, rsType);
             if (yrequirement != null) {
               yrequirementList.add(yrequirement);
             }
@@ -335,12 +342,13 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     return yrequirementList.toArray(new Requirement[0]);
   }
 
-  private Requirement buildRequirement(TEntityTemplate target) {
+  private Requirement buildRequirement(TEntityTemplate target, String rsType) {
     // when the target is a node
     if(target instanceof TNodeTemplate){
         TNodeTemplate tnode = (TNodeTemplate)target;
         Requirement yrequirement = new Requirement();
         yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
+        yrequirement.setRelationship(new RequirementRelationship(rsType));
         return yrequirement;
     //when the target is a capability
     }else if(target instanceof TCapability){
@@ -349,6 +357,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
         Requirement yrequirement = new Requirement();
         yrequirement.setCapability(capability.getName());
         yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
+        yrequirement.setRelationship(new RequirementRelationship(rsType));
         return yrequirement;
     }
 
