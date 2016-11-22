@@ -83,6 +83,40 @@ define(
 			}
 
 		}
+		
+		function writeArtifacts(elements, xmlw, globalWrapperElementName, singleElementWrapperName) {
+			if (elements.length != 0) {
+				xmlw.writeStartElement(globalWrapperElementName);
+
+				$.each(elements, function(i, e) {
+					xmlw.writeStartElement(singleElementWrapperName);
+					e = $(e);
+					
+					var artifactName = e.children(".artifactName").children().html();
+					var deploy_path = e.children(".deploy_path").children().html();
+					var artifactFileName = e.children(".artifactFileName").children().html();
+					var nodeDescriptionInput = e.children(".nodeDescriptionInput").children().html();
+					var nodeRepositoryInput = e.children(".nodeRepositoryInput").children().html();
+					var artifactType = e.children(".artifactType").children().html();
+					var artifactQname = e.children(".deploy_path").children().attr("data-qname");
+					
+					
+					xmlw.writeAttributeString("name", artifactName);
+					xmlw.writeAttributeString("artifactQname", artifactQname);
+					xmlw.writeAttributeString("deploy_path", deploy_path);
+					xmlw.writeAttributeString("artifactFileName", artifactFileName);
+					xmlw.writeAttributeString("artifactType", artifactType);
+					xmlw.writeAttributeString("artifactTypeStr", artifactType);
+					xmlw.writeAttributeString("nodeDescriptionInput", nodeDescriptionInput);
+					xmlw.writeAttributeString("nodeRepositoryInput", nodeRepositoryInput);
+					
+					xmlw.writeEndElement();
+				});
+
+				xmlw.writeEndElement();
+			}
+
+		}
 
 		/**
 		 * "doSave"
@@ -201,17 +235,13 @@ define(
 					"Policies");
 
 				/** Deployment Artifacts **/
-				var das = $(this).children("div.deploymentArtifactsContainer").children("div.content").children("div.deploymentArtifact");
-				if (das.length != 0) {
-					xmlw.writeStartElement("DeploymentArtifacts");
-					das.each(function(i, e) {
-						// the textarea contains a valid deployment artifact xml
-						var xml = $(e).children("textarea").val();
-						xmlw.writeXML(xml);
-					});
-					xmlw.writeEndElement();
-				}
-
+				writeArtifacts(
+					$(this).children("div.deploymentArtifactsContainer").children("div.content").children("div.deploymentArtifact"),
+					xmlw,
+					"DeploymentArtifacts",
+					"DeploymentArtifact");
+								
+			
 				// End: Nodetemplate
 				xmlw.writeEndElement();
 			});
