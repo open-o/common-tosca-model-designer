@@ -38,6 +38,7 @@ import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.common.ids.definitions.TOSCAComponentId;
 import org.eclipse.winery.common.ids.elements.PlanId;
 import org.eclipse.winery.common.ids.elements.PlansId;
+import org.eclipse.winery.common.servicetemplate.FileInfo;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPlan.InputParameters;
 import org.eclipse.winery.model.tosca.TPlan.OutputParameters;
@@ -217,4 +218,18 @@ public class PlanResource extends EntityWithIdResource<TPlan> implements IHasNam
         PlanFileResource planFileResource = new PlanFileResource((ServiceTemplateResource) this.res, this.getId(), this.o);
         return planFileResource.getWsdl();
     }
+	
+  @Override
+  protected void rmElement() {
+    super.rmElement();
+    rmPlanFile();
+  }
+
+  private void rmPlanFile() {
+    FileInfo fileInfo = new FileInfo();
+    fileInfo.setFileName(this.getName() + ".zip");
+    fileInfo.setPath("/plan");
+    getServiceTemplateResource().getServiceFilesResource().onDelete(fileInfo);
+  }
+
 }
