@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -40,7 +39,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.winery.common.RepositoryFileReference;
+import org.eclipse.winery.common.boundaryproperty.BoundaryPropertyDefinition;
+import org.eclipse.winery.common.boundaryproperty.BoundaryPropertyUtil;
 import org.eclipse.winery.common.ids.elements.PlanId;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.repository.Constants;
 import org.eclipse.winery.repository.backend.BackendUtils;
@@ -203,23 +205,24 @@ public class PlanFileResource {
   @Produces(MediaType.APPLICATION_JSON)
   public void bpmn4tosca2bpel() {
     RepositoryFileReference ref = this.getFileRef();
-    String archivePath = BackendUtils.getPathInsideRepo(ref);
-    if (!archivePath.endsWith(".bpmn4tosca") && !archivePath.endsWith("file.json")) {
-      logger.info("{} is not a bpmn4tosca file!", archivePath);
+    String srcFileArchive = BackendUtils.getPathInsideRepo(ref);
+    if (!srcFileArchive.endsWith(".bpmn4tosca") && !srcFileArchive.endsWith("file.json")) {
+      logger.info("{} is not a bpmn4tosca file!", srcFileArchive);
       return;
     }
 
     String repositoryRoot = Repository.INSTANCE.getRepositoryRootPath() + "/";
-    String srcFileName = repositoryRoot + archivePath;
+    String srcFileName = repositoryRoot + srcFileArchive;
     File srcFile = new File(srcFileName);
     if (!srcFile.exists()) {
-      logger.info("{} does not exsit!", archivePath);
+      logger.info("{} does not exsit!", srcFileArchive);
       return;
     }
 
     String nameSpace = res.getNamespace().getDecoded();
     String csarName = res.getName();
-    String bpelName = planId.getXmlId().getDecoded();
+    String planName = planId.getXmlId().getDecoded();
+    String bpelFileName = buildBpelFileName(planName, csarName);
 
     String tempPath = repositoryRoot + "temp/";
     File tempDir = new File(tempPath);
@@ -227,46 +230,59 @@ public class PlanFileResource {
       tempDir.mkdirs();
     }
 
-    String tempTargetFileName = tempPath + bpelName + ".zip";
-    File tempFile = new File(tempTargetFileName);
+    String tempFileName = tempPath + bpelFileName;
+    File tempFile = new File(tempFileName);
     if (tempFile.exists()) {
-      logger.info("{} has exsited!", tempTargetFileName);
+      logger.info("{} has exsited! delete it before converting plan", tempFileName);
       tempFile.delete();
     }
 
-    String targeFileName = getNewFileNameByPlanName(srcFileName, bpelName);
+    String targeFileName = getTargetFileName(bpelFileName, repositoryRoot);
     File targetFile = new File(targeFileName);
-    if (targetFile.exists()) {
-      logger.info("{} has exsited!", targeFileName);
-      targetFile.delete();
-    }
 
     try {
-      URI srcUrl = srcFile.toURI();
-      URI tempTargetUrl = tempFile.toURI();
-      BPMN4Tosca2BPEL transformer = new BPMN4Tosca2BPEL();
-
-      logger.info("convert file {} to bpel!", archivePath);
-      transformer.transform(srcUrl, tempTargetUrl, bpelName, nameSpace, csarName + ".csar",
-          nameSpace, csarName);
+      logger.info("begin to convert file {} to bpel!", srcFileArchive);
+      new BPMN4Tosca2BPEL().transform(srcFile.toURI(), tempFile.toURI(), bpelFileName, nameSpace,
+          csarName + ".csar", nameSpace, csarName);
 
       if (tempFile.exists()) {
-        Files.copy(tempFile, targetFile);
-        this.plan.getOtherAttributes().put(new QName(Constants.PLAN_NAME), bpelName + ".zip");
-        tempFile.delete();
+        Files.createParentDirs(targetFile);
+        Files.move(tempFile, targetFile);
+        this.plan.getOtherAttributes().put(new QName(Constants.PLAN_NAME), bpelFileName);
       }
+      logger.info("convert file {} to BPEL successful!", srcFileArchive);
     } catch (Exception e) {
-      logger.error("Could not copy file content to ZIP outputstream", e);
+      logger.error("Could not convert file to BPEL", e);
     }
   }
 
-  private String getNewFileNameByPlanName(String fileName, String bpelName) {
-    String newFileName = null;
-    if (fileName.endsWith(".bpmn4tosca")) {
-      newFileName = fileName.replace(".bpmn4tosca", ".zip");
-    } else if (fileName.endsWith("file.json")) {
-      newFileName = fileName.replace("file.json", bpelName + ".zip");
+  private String buildBpelFileName(String planName, String csarName) {
+    String provider = "csarProvider";
+    String version = "csarVersion";
+    String type = "csarType";
+    TBoundaryDefinitions boundaryDefinitions = res.getServiceTemplate().getBoundaryDefinitions();
+    BoundaryPropertyDefinition def =
+        BoundaryPropertyUtil.getBoundaryPropertyDefinition(boundaryDefinitions.getProperties()
+            .getAny());
+    if (null != def) {
+      provider = getMetaDataValue(def, provider);
+      version = getMetaDataValue(def, version);
+      type = getMetaDataValue(def, type);
     }
-    return newFileName;
+
+    return new StringBuffer(planName).append("_").append(type).append("_").append(provider)
+        .append("_").append(csarName).append("_").append(version).append(".zip").toString();
+  }
+
+  private String getMetaDataValue(BoundaryPropertyDefinition def, String key) {
+    String value = def.getMetaData(key);
+    return null == value ? key : value;
+  }
+
+  private String getTargetFileName(String fileName, String rootPath) {
+    RepositoryFileReference fileRef =
+        res.getServiceFilesResource().fileName2fileRef(fileName, "/plan", false);
+    String targetFileArchive = BackendUtils.getPathInsideRepo(fileRef);
+    return rootPath + targetFileArchive;
   }
 }
