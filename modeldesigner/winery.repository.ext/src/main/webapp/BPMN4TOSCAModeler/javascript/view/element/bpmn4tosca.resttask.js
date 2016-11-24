@@ -104,7 +104,7 @@
 
 
 				var data = {
-					name: event.dialog.$el.find("#name").val(),
+					name: event.dialog.$el.find("#name").val() ,
 					microservice: event.dialog.$el.find("#microservice").val(),
 					publicInterface: event.dialog.$el.find("#publicInterface").val(),
 					method: publicInterface.method,
@@ -123,6 +123,10 @@
 					body: root.varParam,
 					requestBody:root.param,
 					output: _.object(_.map(event.dialog.$el.find(".parameter.output"), function(parameter){
+						var dialogParameter = Backbone.$(parameter).data("parameter");
+						return [dialogParameter.name(), dialogParameter.toJSON()];
+					})),
+					responseStatus: _.object(_.map(event.dialog.$el.find(".parameter.responseStatus"), function(parameter){
 						var dialogParameter = Backbone.$(parameter).data("parameter");
 						return [dialogParameter.name(), dialogParameter.toJSON()];
 					}))
@@ -480,22 +484,32 @@
 						this.$el.find(".parameter, hr, .ztree").remove();
 
 						this.model.collection.options.msb.microServiceInterfaceParameter(microservice.value, publicInterface.value, _.bind(function(parameters){
-							_.each({"input": {editable: false, type: "string"}, "output": {editable: false}}, function(constraints, type){
+							parameters.responseStatus = " ";
+							_.each({"input": {editable: false, type: "string"}, "output": {editable: false}, "responseStatus": {editable: false}},
+							function(constraints, type){
 								if(parameters[type].length > 0) event.dialog.$el.find("form").append("<hr/>");
 
 								var bodyParam = null;
 								_.each(parameters[type], function(parameter){
-									// var parameter = this.model.has(type) ? this.model.get(type)[name] : false;
-									
+									// var parameter = this.model.has(type) ? this.model.get(type)[name] : false;									
 									if(parameter.in == "body") {
-										bodyParam = parameter;
-									} else {
+										bodyParam = parameter;						
+									}else if(type == "responseStatus"){
+										var direction = "responseStatus";
+										event.dialog.$el.find("form").append(new Application.View.DialogParameter(_.extend(constraints, {
+											direction: direction,
+											model: this.model,
+											name: "responseStatus",
+											sources: ["plan", "topology"],
+											type: "plan"
+										})).render().el);
+									}else {
 										var direction = (type == "input"? parameter.in:"output");
 										event.dialog.$el.find("form").append(new Application.View.DialogParameter(_.extend(constraints, {
 											direction: direction,
 											model: this.model,
 											name: parameter.name,
-											sources: (type == "output" ? ["topology", "plan"] : ["concat", "string", "plan"]),
+											sources: (type == "output" ? ["topology", "plan"] : ["concat", "string", "plan", "topology"]),
 											type: (type == "output" ? "topology" : "string" )
 										})).render().el);
 									}
@@ -541,7 +555,7 @@
 				event.dialog.model.collection.options.msb.microservices(function(microservices){
 					microserviceDropdown.clearOptions();
 					_.each(microservices, function(microservice){
-						microserviceDropdown.addOption({text: microservice.name, id: microservice.id, namespace: microservice.namespace, value: microservice.id});					
+						microserviceDropdown.addOption({text: microservice.name, id: microservice.id, namespace: microservice.namespace, value: microservice.id});	
 					});
 					microserviceDropdown.refreshOptions(false);
 					microserviceDropdown.setValue(event.dialog.model.get("microservice"));					

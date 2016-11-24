@@ -61,14 +61,24 @@
 							_.each(element.get("variable"), function(output, name){
 								options.push({text: (element.get("name") + "." + name), type: "reference", value: (element.get("name") + "." + name)});
 							});
+							
+							_.each(element.get("responseStatus"), function(output, name){
+								options.push({text: (element.get("name") + "." + name), type: "reference", value: (element.get("name") + "." + name)});
+							});
 						}
 					}, this);
 				}
 				if(type == "concat" || type == "topology"){
 					this.model.collection.options.winery.topologyProperties(function(properties){
-						_.each(properties, function(property){
-							instance.addOption({text: property, value: property});
-						});
+						_.each(properties, function(property, index){
+							if(property.key.substr(0,"[id]".length)=="[id]") {
+						
+								instance.addOption({"id":index, text: property.key, type: "reference", value: property.value});
+							} else {
+								instance.addOption({"id":index ,text: property.key, type: "reference", value: property.key});					
+							}
+							
+						}, this);
 						instance.setValue(value);
 					});
 				}
@@ -214,6 +224,7 @@
 		selectize: function(el){
 			if(!el[0].selectize){
 				var select = el.removeClass("form-control").selectize({
+					sortField : "id",
 
 				    create: function(input){
 				        return {
@@ -237,7 +248,7 @@
 				    
 				    options: [{text: this.options.value, value: this.options.value}],
 
-				    persist: false,
+				    persist: true,
 
 					render: {
 

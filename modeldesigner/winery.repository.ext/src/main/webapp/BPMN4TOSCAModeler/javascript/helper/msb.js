@@ -16,7 +16,7 @@
 (function(Application){
 
 	Application.Helper.Msb = function(url){ // TODO
-		this._predefineServiceLength = 0;	// Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ñ³¤¶ï¿½
+		this._predefineServiceLength = 0;	// Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½í¦Ží´¶ï¿½
 		this.datas = new Array();			//	ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ ï¿½ï¿½Ô¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½msbï¿½ï¿½×¢ï¿½ï¿½Ä·ï¿½ï¿½ï¿½
 		this.url = url;						// ï¿½ï¿½È¡msbï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½Ö·
 
@@ -242,7 +242,7 @@
 		                    	 "params":{
 		                    		 "input":["ip","port", "username"],
 		                    		 "output":["code", "message"]
-		                    	 }
+		                    	 }		
 		                    	 
 		                     }
 		                     

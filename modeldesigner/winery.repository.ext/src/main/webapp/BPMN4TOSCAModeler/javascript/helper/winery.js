@@ -152,25 +152,41 @@
 		}
 
 		this.topologyProperties = function(callback){
+			
+			
+			var requestKeyArr = [];
 			this.nodeTemplates(_.bind(function(nodeTemplates){
-				var requests = _.map(nodeTemplates, _.bind(function(nodeTemplate){
-					return $.ajax({
+				var tmp = [];
+				for(var i=0, len=nodeTemplates.length; i<len; i++) {
+					var key = "[id] " + nodeTemplates[i].name;
+					tmp[tmp.length] = {key:key, value:nodeTemplates[i].id};
+				}
+				
+				requestKeyArr = _.map(nodeTemplates, _.bind(function(nodeTemplate){
+					
+					return data = $.ajax({
 						crossDomain: true,
 						dataType: "json",
 						success: function(properties){
-							callback(properties.map(function(property){
-								return nodeTemplate.name + "." + property;
-							}));
+							var propertiesTmp = properties.map(function(property){
+								var key = nodeTemplate.name +"."+ property.key;
+								var value = property.value;
+								return {"key":key, "value": value }
+							});
+							for(var i=0,len=propertiesTmp.length; i<len; i++) {
+								tmp[tmp.length] = propertiesTmp[i];
+							}
+							callback(tmp);
 						},
 						url: build(this.repository_url, "nodetypes/" + encode(nodeTemplate.namespace) + "/" + encode(nodeTemplate.id) + "/propertiesdefinition/winery/list/"),
 					});
-				}, this));	
-				$.when.apply($, requests).always(function(){
-					callback({});
-				});
+									
+				}, this));					
+																								
 			}, this));
+					
 		}
-
+			
 		this.repository_url = repository_url;
 		this.namespace = namespace;
 		this.service_template = service_template;
