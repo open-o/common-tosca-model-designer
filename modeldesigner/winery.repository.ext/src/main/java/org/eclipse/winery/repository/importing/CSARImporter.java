@@ -7,7 +7,7 @@
  * and http://www.apache.org/licenses/LICENSE-2.0
  *
  * Contributors:
- *     K¨¢lm¨¢n K¨¦pes - initial API and implementation and/or initial documentation
+ *     Kï¿½ï¿½lmï¿½ï¿½n Kï¿½ï¿½pes - initial API and implementation and/or initial documentation
  *     Oliver Kopp - adapted to new storage model and to TOSCA v1.0
  *******************************************************************************/
 /*
@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -159,7 +160,7 @@ public class CSARImporter {
         if (!entry.isDirectory()) {
           Path targetPath = csarDir.resolve(entry.getName());
           Files.createDirectories(targetPath.getParent());
-          Files.copy(zis, targetPath);
+          Files.copy(zis, targetPath, StandardCopyOption.REPLACE_EXISTING);
         }
       }
 
