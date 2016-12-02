@@ -547,7 +547,9 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 %>
 
 <div id="winery">
-	<ncnt:propertiesOfOneNodeTemplate repositoryURL="<%=repositoryURL%>" palette="true"/>
+	<ncnt:propertiesOfOneNodeTemplate repositoryURL="<%=repositoryURL%>" serviceTemplateURL="<%=serviceTemplateURL%>" palette="true"
+		allArtifactTypes="<%=client.getQNameListOfAllTypes(TArtifactType.class)%>"
+	/>
 	<ncrt:propertiesOfOneNfpRelationshipTemplate relationshipTypes="<%=relationshipTypes%>" repositoryURL="<%=repositoryURL%>"/>
 	<%-- add boundaryDefinitions in paas --%>
 	<bdf:boundaryDefinitions serviceTemplateURL="<%=serviceTemplateURL%>" 
@@ -589,13 +591,13 @@ Collection<QNameWithName> artifactTemplateList = client.getListOfAllInstances(Ar
 		});
 		$("#deployCSARbtn").on("click", function(evt)  {
 			var url = $(this).attr("href");
-			dConfirmYesNo("确认发布" + "<%=serviceTemplateName%>" + "到软件仓库?", function(){
+			dConfirmYesNo("确认发布" + "<%=serviceTemplateName%>" + "到软件仓�?", function(){
 				require(["winery-topologymodeler-AMD"], function(wt) {
 					wt.saveServiceTemplate();
 					$.get(url, function(data) {
 						//console.log(data);
 						if(data[0].result == "OK") {
-							vShowSuccess("成功发布" + "<%=serviceTemplateName%>" + "到软件仓库。");   
+							vShowSuccess("成功发布" + "<%=serviceTemplateName%>" + "到软件仓库�?);   
 						} else {
 							vShowError("发布 " + "<%=serviceTemplateName%>" + " 失败!");
 						}
