@@ -25,7 +25,7 @@
 		this._predefineService = function() {
 			var statusUrl = "http://127.0.0.1:80/api/nsoc/v1/appinstances/{instanceId}/operations/{operation}/callbackstatus";
 			var resourceUrl = "http://127.0.0.1:80/api/nsoc/v1/appinstances/{instanceId}/operations/{operation}/callbackresource";
-
+			
 			var predefineServiceData = {
 				"id":"predefine", "name":"predefine services", "url":"",
 				"interfaces" : [
@@ -62,9 +62,10 @@
 
 			this.datas.push(predefineServiceData);
 			this._predefineServiceLength = this.datas.length;
+			
 		};
 
-		this._predefineService();
+		//this._predefineService();
 
 
 
@@ -205,7 +206,11 @@
 				success: function(response){
 
 					_.each(response, function(service){
-							var serviceData = {"id":service.serviceName, "name":service.serviceName, "url":service.apiJson};
+							// temporary change the way of get ms url, this will be changed while the interface change
+							var url = "/apijson/" + service.serviceName + "/" + service.version;
+							var serviceData = {"id":service.serviceName, "name":service.serviceName, "url":url};
+							 
+							//var serviceData = {"id":service.serviceName, "name":service.serviceName, "url":service.apiJson};
 							datas.push(serviceData);
 						}, this);
 					
