@@ -882,9 +882,9 @@
 				}
 			});
 
-			resData.dependent_virtual_link = "[" + vlNameArray.join() + "]";
-			resData.constituent_vnfs = "[" + vnfArray.join() + "]";
-			resData.connection_point = "[" + cpArray.join() + "]";
+			resData.dependent_virtual_link = JSON.stringify(vlNameArray);
+			resData.constituent_vnfs = JSON.stringify(vnfArray);
+			resData.connection_point = JSON.stringify(cpArray);
 			resData.number_of_endpoints = cpArray.length;
 
 			REQ.saveVnffgProperties(resData);
