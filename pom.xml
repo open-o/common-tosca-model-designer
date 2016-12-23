@@ -29,7 +29,7 @@
 
     <groupId>org.openo.common-tosca.model-designer</groupId>
     <artifactId>modeldesigner-root</artifactId>
-    <name>common-tosca-model-designer/model-designer-root</name>    
+    <name>common-tosca-model-designer</name>    
     <packaging>pom</packaging>
 
     <modules>
