@@ -31,6 +31,7 @@
     <modules>
         <module>modeldesigner-resource</module>
         <module>modeldesigner-standalone</module>
+        <module>modeldesigner-plugin</module>       
     </modules>
 
 </project>

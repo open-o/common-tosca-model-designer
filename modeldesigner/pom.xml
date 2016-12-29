@@ -36,7 +36,8 @@
         <module>winery.repository.ext.api</module>
         <module>winery.repository.ext</module>
         <module>winery.topologymodeler.ext</module>
-        <module>distribution</module>
+         <module>winery.common.cli.plugin</module>
+        <module>distribution</module>        
     </modules>
 
     <properties>
