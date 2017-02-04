@@ -27,16 +27,15 @@ import com.google.gson.Gson;
 
 public class JsonUtil {
     public static String readJson(String path) {
-        // 从给定位置获取文件
         File file = new File(path);
+        if (!file.isFile()) {
+            return null;
+        }
+        
         BufferedReader reader = null;
-        // 返回值,使用StringBuffer
         StringBuffer data = new StringBuffer();
-        //
         try {
-            // reader = new BufferedReader(new FileReader(file));
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
-            // 每次读取文件的缓存
             String temp = null;
             while ((temp = reader.readLine()) != null) {
                 data.append(temp);
@@ -46,7 +45,6 @@ public class JsonUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            // 关闭文件流
             if (reader != null) {
                 try {
                     reader.close();

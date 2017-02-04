@@ -50,8 +50,10 @@ public class OverwiewConfHandler {
             return;
         }
         String jsonStr = JsonUtil.readJson(path);
-        OverwiewConfHandler.INSTANCE =
-                new Gson().fromJson(jsonStr, ServiceTemplatesOverviewConfigration.class);
+        if (null != jsonStr) {
+          OverwiewConfHandler.INSTANCE =
+              new Gson().fromJson(jsonStr, ServiceTemplatesOverviewConfigration.class);
+        }
         if (null == OverwiewConfHandler.INSTANCE) {
             OverwiewConfHandler.INSTANCE = new ServiceTemplatesOverviewConfigration();
         }
