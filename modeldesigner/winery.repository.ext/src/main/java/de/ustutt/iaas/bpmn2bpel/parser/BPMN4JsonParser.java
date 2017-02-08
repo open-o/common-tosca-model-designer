@@ -1,17 +1,15 @@
 /**
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2015 IAAS University of Stuttgart <br>
+ * <br>
+ * 
+ * TODO describe expected JSON format here
+ * 
+ * @author Sebastian Wagner
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ */
+/**
+ * modified: qinlihan
+ * add rest/Gateways parser
  */
 package de.ustutt.iaas.bpmn2bpel.parser;
 
@@ -53,15 +51,6 @@ import de.ustutt.iaas.bpmn2bpel.model.param.Parameter;
 import de.ustutt.iaas.bpmn2bpel.model.param.PlanParameter;
 import de.ustutt.iaas.bpmn2bpel.model.param.StringParameter;
 
-/**
- * Copyright 2015 IAAS University of Stuttgart <br>
- * <br>
- * 
- * TODO describe expected JSON format here
- * 
- * @author Sebastian Wagner
- *
- */
 public class BPMN4JsonParser extends Parser {
 
   private static Logger log = LoggerFactory.getLogger(BPMN4JsonParser.class);
@@ -297,10 +286,10 @@ public class BPMN4JsonParser extends Parser {
       restTask.setRequestBody(reqBody.toString());
     }
 
-    List<Parameter> responseStatus = getParams(restNode.get(JsonKeys.REST_RESPONSE_STATUS));
-    if (null != responseStatus && !responseStatus.isEmpty()) {
-      restTask.setResponseStatus(responseStatus.get(0));
-    }
+//    List<Parameter> responseStatus = getParams(restNode.get(JsonKeys.REST_RESPONSE_STATUS));
+//    if (null != responseStatus && !responseStatus.isEmpty()) {
+//      restTask.setResponseStatus(responseStatus.get(0));
+//    }
 
     restTask.setPathParameters(getParams(restNode.get(JsonKeys.PATH_PARAMS)));
     List<Parameter> bodyParams = getParams(restNode.get(JsonKeys.BODY_PARAMS));
@@ -310,11 +299,14 @@ public class BPMN4JsonParser extends Parser {
     rmEmptyQueryParams(queryParams);
     restTask.setQueryParameters(queryParams);
 
-    if (hasOutput(restNode)) {
+//    if (hasOutput(restNode)) {
       String restName = restNode.get(JsonKeys.NAME).asText();
-      String varName = restName.trim().replaceAll(" ", "_") + "Response";
-      variables.add(new StringParameter(varName, null));
-    }
+      String nodeName = restName.trim().replaceAll(" ", "_");
+      String response = nodeName + "Response";
+      String responseStatus = nodeName + "ResponseStatus";
+      variables.add(new StringParameter(response, null));
+      variables.add(new StringParameter(responseStatus, null));
+//    }
 
     return restTask;
   }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016 ZTE Corporation.
+    Copyright 2016-2017 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -80,18 +80,9 @@
             <groupId>org.eclipse.winery</groupId>
             <artifactId>org.eclipse.winery.repository</artifactId>
             <version>${opentosca.winery.version}</version>
-            <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../winery.repository.ext/lib/winery.jar</systemPath>
-        </dependency> 
-        <!--dependency>
-            <groupId>org.eclipse.winery</groupId>
-            <artifactId>org.eclipse.winery.repository</artifactId>
-            <version>${opentosca.winery.version}</version>
             <classifier>classes</classifier>
-            <scope>provided</scope>
-            <optional>true</optional>            
-        </dependency-->
+            <scope>provided</scope>           
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>

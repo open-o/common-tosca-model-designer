@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2016 ZTE Corporation.
+    Copyright 2016-2017 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -109,8 +109,7 @@
             <artifactId>org.eclipse.winery.topologymodeler</artifactId>
             <version>${opentosca.winery.version}</version>
             <type>jar</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../winery.repository.ext/lib/winery-topologymodeler.jar</systemPath>
+            <classifier>classes</classifier>
         </dependency>
     </dependencies>
 </project>

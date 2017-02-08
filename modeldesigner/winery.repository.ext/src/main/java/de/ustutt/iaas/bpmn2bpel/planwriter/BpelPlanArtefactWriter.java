@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016-2017 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,10 +88,6 @@ public class BpelPlanArtefactWriter {
           for (Parameter param : manageTask.getOutputParameters()) {
             inputVariables.add(param.getName());
           }
-        } else if (JsonKeys.TASK_TYPE_DETAIL_REST.equals(manageTask.getTaskTypeDetail())) {
-          String status = manageTask.getName().trim().replaceAll(" ", "_") + "ResponseStatus";
-          responseStatusList.add(status);
-          taskSeq.add(manageTask);
         } else {
           taskSeq.add(manageTask);
         }
