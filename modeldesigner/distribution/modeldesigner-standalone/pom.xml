@@ -99,7 +99,7 @@
                             <ignorePermissions>false</ignorePermissions>
                         </configuration>
                     </execution>         
-                    <!--execution>
+                    <execution>
                         <id>unpack-repository-resources</id>
                         <goals>
                             <goal>unpack</goal>
@@ -117,7 +117,7 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
-                    </execution-->          
+                    </execution>          
                 </executions>
             </plugin>
             <plugin>
@@ -159,13 +159,13 @@
             <type>zip</type>
             <optional>true</optional>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>org.openo.common-tosca.model-designer.modeldesigner-repository</groupId>
             <artifactId>modeldesigner.repository.basic</artifactId>
             <version>${model.repository.version}</version>
             <type>zip</type>
             <optional>true</optional>
-        </dependency-->
+        </dependency>
     </dependencies>
 
 </project>

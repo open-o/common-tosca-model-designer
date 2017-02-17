@@ -11,6 +11,10 @@
  *    Uwe Breitenbücher - initial API and implementation and/or initial documentation
  *    Oliver Kopp - improvements
  *******************************************************************************/
+ 
+ /*******************************************************************************
+ * Modifications Copyright 2016-2017 ZTE Corporation.
+ *******************************************************************************/
 --%>
 <%@tag language="java" pageEncoding="UTF-8" description="Renders the palette on the left"%>
 
@@ -62,21 +66,21 @@ NodeType
 		String namespace = nodeType.getTargetNamespace();
 		String nodeTypeName = nodeType.getName();
 		//根据服务模板命名空间ns和nodetype的命名空间来过滤nodetype
-		if("http://www.zte.com.cn/tosca/nfv/vnf".equals(ns)) {
+		if("http://www.zte.com.cn/tosca/nfv/vnf".equals(ns) || "http://www.open-o.org/tosca/nfv/vnf".equals(ns)) {
 			//VNF
-			if(!"http://www.zte.com.cn/tosca/nfv".equals(namespace)) {
+			if(!"http://www.zte.com.cn/tosca/nfv".equals(namespace) && !"http://www.open-o.org/tosca/nfv".equals(namespace)) {
 				continue;
 			}
-		} else if("http://www.zte.com.cn/tosca/nfv/ns".equals(ns)) {
+		} else if("http://www.zte.com.cn/tosca/nfv/ns".equals(ns) || "http://www.open-o.org/tosca/nfv/ns".equals(ns)) {
 			//NS
 			if(nodeTypeName.indexOf(".BlockStorage") > -1 || nodeTypeName.indexOf(".ImageFile") > -1 || 
 				nodeTypeName.indexOf(".LocalStorage") > -1 || nodeTypeName.indexOf(".VolumeStorage") > -1 || 
 				nodeTypeName.indexOf(".Plugin") > -1 || nodeTypeName.indexOf(".VDU") > -1) {
 				continue;
-			} else if(!"http://www.zte.com.cn/tosca/nfv".equals(namespace) &&
-				!"http://www.zte.com.cn/tosca/nfv/vnf".equals(namespace) && 
-				!"http://www.zte.com.cn/tosca/nfv/ns".equals(namespace) &&
-				!"http://www.zte.com.cn/tosca/nfv/pnf".equals(namespace)) {
+			} else if(!"http://www.zte.com.cn/tosca/nfv".equals(namespace) && !"http://www.open-o.org/tosca/nfv".equals(namespace) &&
+				!"http://www.zte.com.cn/tosca/nfv/vnf".equals(namespace) && !"http://www.open-o.org/tosca/nfv/vnf".equals(namespace) &&
+				!"http://www.zte.com.cn/tosca/nfv/ns".equals(namespace) && !"http://www.open-o.org/tosca/nfv/ns".equals(namespace) &&
+				!"http://www.zte.com.cn/tosca/nfv/pnf".equals(namespace) && !"http://www.open-o.org/tosca/nfv/pnf".equals(namespace)) {
 				continue;
 			}
 		} else if("http://www.open-o.org/tosca/sdn/ns".equals(ns)) {

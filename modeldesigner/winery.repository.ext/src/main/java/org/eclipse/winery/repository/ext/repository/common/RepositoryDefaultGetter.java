@@ -49,6 +49,7 @@ import org.eclipse.winery.model.tosca.TRequirementRef;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.Utils;
 import org.eclipse.winery.repository.backend.Repository;
+import org.eclipse.winery.repository.ext.common.CommonConst;
 import org.eclipse.winery.repository.ext.repository.RepositoryService;
 import org.eclipse.winery.repository.ext.repository.entity.NodeTemplateDetail;
 import org.eclipse.winery.repository.ext.repository.entity.Summary;
@@ -116,8 +117,7 @@ public class RepositoryDefaultGetter extends RepositoryService {
         }
         for (TOSCAComponentId componentId : componentInstanceIds) {
             TServiceTemplate st = getServiceTemplate(componentId);
-            if (!isCurrentServiceTepmlate(id, namespace, componentId)
-                    && isSubstitutableNodeTypeExsist(st)) {
+            if (isAcceptable(id, namespace, componentId, st)) {
                 Summary sumary = new Summary();
                 sumary.setId(componentId.getQName().getLocalPart());
                 sumary.setName(componentId.getQName().getLocalPart());
@@ -129,11 +129,31 @@ public class RepositoryDefaultGetter extends RepositoryService {
         return list;
     }
 
-    private boolean isCurrentServiceTepmlate(String currentId, String currentNamespace,
-            TOSCAComponentId componentId) {
-        return componentId.getQName().getLocalPart().equals(currentId)
-                && componentId.getQName().getNamespaceURI().equals(currentNamespace);
-    }
+  protected boolean isAcceptable(String id, String namespace, TOSCAComponentId componentId,
+      TServiceTemplate st) {
+    return !isCurrentServiceTepmlate(id, namespace, componentId)
+        && isSubstitutableNodeTypeExsist(st) && isCurrentDomainType(st.getTargetNamespace());
+  }
+
+  protected boolean isCurrentDomainType(String ns) {
+    return isZteNs(ns) || isOpenoNs(ns);
+  }
+  
+  private boolean isOpenoNs(String ns) {
+    return CommonConst.VNF_NS_OPENO.equals(ns)
+        || CommonConst.NS_NS_OPENO.equals(ns);
+  }
+
+  private boolean isZteNs(String ns) {
+    return CommonConst.VNF_NS.equals(ns)
+        || CommonConst.NS_NS.equals(ns);
+  }
+
+  protected boolean isCurrentServiceTepmlate(String currentId, String currentNamespace,
+      TOSCAComponentId componentId) {
+    return componentId.getQName().getLocalPart().equals(currentId)
+        && componentId.getQName().getNamespaceURI().equals(currentNamespace);
+  }
 
     private TServiceTemplate getServiceTemplate(TOSCAComponentId componentId) {
         AbstractComponentInstanceResource res =

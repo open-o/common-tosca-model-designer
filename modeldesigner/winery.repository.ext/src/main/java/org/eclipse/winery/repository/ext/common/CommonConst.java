@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016-2017 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ public class CommonConst {
        
     //nfv
     public static final String VNF_NS="http://www.zte.com.cn/tosca/nfv/vnf";
+    public static final String VNF_NS_OPENO="http://www.open-o.org/tosca/nfv/vnf";
     public static final String VNF_PREFIX="ztevnf";    
 
     public static final String TARGET_PREFIX="ztenfv";
@@ -51,7 +52,10 @@ public class CommonConst {
     public static final String SERVICE_PREFIX="passservice";
     
     public static final String NS_NS="http://www.zte.com.cn/tosca/nfv/ns";
+    public static final String NS_NS_OPENO="http://www.open-o.org/tosca/nfv/ns";
     public static final String NS_PREFIX="ztens";
+    
+    public static final String NS_SDN_NS_OPENO="http://www.open-o.org/tosca/sdn/ns";
     
     public static final String TOSCA_IMPORT_TYPE = "http://docs.oasis-open.org/tosca/ns/2011/12";
 	public static final String XMLSCHEMA_NS = "http://www.w3.org/2001/XMLSchema";

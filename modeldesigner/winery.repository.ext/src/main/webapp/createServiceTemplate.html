@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2016 ZTE Corporation.
+    Copyright 2016-2017 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@
                         <input  maxlength="50" type="text" class="form-control" name="name" id="name"/>
                         <!-- <label class="nameHints">"0-9" "a-z" "A-Z" 开头和结尾只能是字母或者数字</label> -->
                     </div>
-                    <div class="form-item">
+                    <div class="form-item" hidden="hidden">
                         <div class="control-label">
                         	<span class="required" aria-required="true">*</span>
                             <span class="name" id="winery-createTemplate-csarType" name_i18n="winery_i18n"></span>
@@ -133,21 +133,25 @@
             switch(serviceType) {
                 case "ns":
                 	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-ns"));
-                	namespace = "http://www.zte.com.cn/tosca/nfv/ns";
+                	$("#csarType").val("NSAR");
+                	namespace = "http://www.open-o.org/tosca/nfv/ns";
                 	break;
                 case "sdn":
                 	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-sdn"));
+                	$("#csarType").val("SSAR");
                 	namespace = "http://www.open-o.org/tosca/sdn/ns";
                 	break;
                 case "gso":
                 	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-gso"));
+                	$("#csarType").val("GSAR");
                 	$("#createType_div").hide();
                 	$("#inheritNodetypeSelect_div").hide();
                 	namespace = "http://www.open-o.org/tosca/gso";
                 	break;
                 default:
                 	$(".serviceType").text($.i18n.prop("winery-createTemplate-title-vnf"));
-                	namespace = "http://www.zte.com.cn/tosca/nfv/vnf";
+                    $("#csarType").val("NFAR");
+                	namespace = "http://www.open-o.org/tosca/nfv/vnf";
             }
             $("#namespace").val(namespace);            
 

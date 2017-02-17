@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openonfv-tosca.nodes.nfv.ext.zte.CP" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:NodeType name="tosca.nodes.nfv.ext.zte.CP" targetNamespace="http://www.open-o.org/tosca/nfv" winery:bordercolor="#843782">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>bond</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>interface_name</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>macbond</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>sfc_encapsulation</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>direction</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>ip_address</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>order</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>mac_address</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>floating_ip_address</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.ext.FloatingIP</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>service_ip_address</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>bandwidth</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>vnic_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>allowed_address_pairs</winery:key>
+                <winery:type>objlist_tosca.datatypes.nfv.ext.AddressPairs</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>proxiedVNFs</winery:key>
+                <winery:type>list_string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>proxiedVNFtype</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>guest_os_mtu</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.ext.FloatingIP">
+            <winery:properties>
+                <winery:key>external_network</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>ip_address</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.ext.AddressPairs">
+            <winery:properties>
+                <winery:key>ip</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>mac</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:RequirementDefinitions>
+            <tosca:RequirementDefinition xmlns:openoforward="http://www.open-o.org/tosca/nfv/vnffg/forwarder" name="forwarder" requirementType="openoforward:tosca.requirements.nfv.Forwarder" lowerBound="0" upperBound="unbounded"/>
+            <tosca:RequirementDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="virtualbinding" requirementType="openonfv:tosca.requirements.nfv.VirtualBinding" lowerBound="0" upperBound="unbounded"/>
+            <tosca:RequirementDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="virtualLink" requirementType="openonfv:tosca.requirements.nfv.VirtualBinding" lowerBound="0" upperBound="unbounded"/>
+        </tosca:RequirementDefinitions>
+        <tosca:CapabilityDefinitions>
+            <tosca:CapabilityDefinition xmlns:openoforward="http://www.open-o.org/tosca/nfv/vnffg/forwarder" name="forwarder" capabilityType="openoforward:tosca.capabilities.nfv.Forwarder" lowerBound="0" upperBound="unbounded"/>
+        </tosca:CapabilityDefinitions>
+    </tosca:NodeType>
+</tosca:Definitions>

@@ -12,6 +12,10 @@
  *    Oliver Kopp - improvements to fit updated index.jsp
  *    Yves Schubert - switch to bootstrap 3
  *******************************************************************************/
+  
+ /*******************************************************************************
+ * Modifications Copyright 2016-2017 ZTE Corporation.
+ *******************************************************************************/
 --%>
 
 <%@tag language="java" pageEncoding="UTF-8" description="Renders the properies of one node tempate on the right"%>
@@ -25,6 +29,7 @@
 <%@tag import="java.util.List"%>
 
 <%@taglib prefix="ct" tagdir="/WEB-INF/tags/common" %>
+<%@taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core"%>
 
 <div id="NTPropertiesView" class="right-menu" style="display: none;">
 	<div class="right-menu-content">
@@ -138,15 +143,10 @@
 								
 							</label>
 							<div class="col-sm-8">
-								<select name="artifactType" class="form-control" id="artifactTypeInput">							
-								<%
-								for(Object artifactQName : allArtifactTypes){
-									String artifactType = artifactQName.toString().split("}")[1];
-								%>
-									<option value=<%="winery:" + artifactType%>><%=artifactType%></option>
-								<%
-								}
-								%>									
+								<select name="artifactType" class="form-control" id="artifactTypeInput">				
+								<c:forEach var="t" items="${allArtifactTypes}">
+									<option value="${t.toString()}">${t.localPart}</option>
+								</c:forEach>						
 								</select>						
 							</div>
 						</div>
@@ -230,8 +230,9 @@
 				</h4>
 			</div>
 			<div class="modal-body">
+				<div id="reqAndCapPropertyEditor"></div>
 				<form id="reqAndCapPropertyForm" role="form" class="form-horizontal">
-				</form>
+				</form> 
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="zte-btn zte-primary" id="reqAndCapPropertyConfirm">
@@ -272,7 +273,7 @@
 	// the min/max fields of the currently selected node template
 	var ntMin;
 	var ntMax;
-	
+	var editor;
 	function fillInformationSection(nodeTemplate) {
 		require(["winery-support-common", "winery-datatable", "winery-util", "jsoneditor", "winery-support-common"], 
 		function(wsc, wd, util) {
@@ -459,8 +460,9 @@
 			//初始化json editor
 			var initEditor = function(editorId, options) {
 				$("#" + editorId).children().remove();
-
+				
 				var $editor = document.getElementById(editorId);
+								
 		        JSONEditor.defaults.options.theme = 'bootstrap3';
 		        JSONEditor.defaults.options.iconlib = 'bootstrap3';
 		        JSONEditor.defaults.options.object_layout = 'normal';
@@ -470,10 +472,11 @@
 		        en.error_notempty = $.i18n.prop("winery-property-validate-required");
 
 		        var editor = new JSONEditor($editor, options);
-		        if(!${palette}) {
-		        	editor.disable();
-		        }
-
+				
+				var selects = $("#" + editorId).children().find("select");
+											   
+				//this.addproperty_controls.style.display="block";
+		        
 		        //实例化输入提示的JS
 		        var oDiv = $('<div>', {class: 'col-fixed-34'});
 		        var sDiv = $('<div>', {class: 'search_suggest'});
@@ -513,6 +516,7 @@
 		                };
 						options.disable_properties = false;
 						break;
+				
 					default: 
 						schema.type = "object";
 						schema.properties = props;
@@ -556,9 +560,9 @@
 						extractProperties(type, props[name], options);
 					}
 				}
-			}
+			}					
 			
-			var editor;
+
 			$("#propertiesInfo .editIcon").click(function(e) {
 				var $input = $(this).prev();
 				var json = $input.val();
@@ -580,12 +584,12 @@
 					disable_properties: true
 				}
 				if(json) { //赋值
-					options.startval = JSON.parse(json);
+					options.startval = JSON.parse(json);			
 				}
-
 				var type = $(this).attr("data-type");
-				extractProperties(type, schema, options);
-
+			
+				extractProperties(type, schema, options);			
+					
 				editor = initEditor("complexPropertyEditor", options);
 
 				$("#propertyInputDiag").modal("show");
@@ -632,7 +636,28 @@
 				});
 			}
 			bindEventsToUpdatePropertiesContainer();			
-
+			
+			
+			//把右侧属性的值更新到propertiesContainer中
+			function updatePropertyDataToContainer(nodeTemplateId, propertyName, propertyValue) {
+				var oTrs = $("#" + nodeTemplateId).children(".propertiesContainer")
+						.children("[name='Properties']").find("tr");
+				for(var i=0; i<oTrs.length; i++) {
+					var tr = oTrs.eq(i);
+					var name = tr.find(".KVPropertyKey").text();
+					if(name == propertyName) {
+						tr.find(".KVPropertyValue").text(propertyValue);
+						if(propertyValue) {
+							tr.find(".KVPropertyValue").removeClass("editable-empty");
+						} else {
+							tr.find(".KVPropertyValue").addClass("editable-empty");
+						}						
+						break;
+					}
+				};
+			}
+			
+			
 			//get_input输入提示
 			function oSearchSuggest($input) {
 			    var suggestWrap;
@@ -740,7 +765,131 @@
 
 			    init();
 			}
-
+						
+			
+			var extractProperties4rc = function(propertiesTrs) {
+			
+				var props = {};
+				
+				for(var i=0; i<propertiesTrs.length; i++) {
+					var property = propertiesTrs.eq(i).children();
+					var name = property.children(".KVPropertyKey").text();
+					var value = property.children(".KVPropertyValue").text();
+					var type = property.children(".KVPropertyType").text();
+					var tag = property.children(".KVPropertyTag").text(); 
+					var required = property.children(".KVPropertyRequired").text(); //是否必填
+					var validValue = property.children(".KVPropertyValidValue").text(); //枚举值
+					
+									
+					if(validValue != "") {
+						props[name] ={
+							type: "string",
+							enum: validValue.split(",")
+						};
+					}else{
+						props[name] = martchingType(type, value);
+					}	
+				}
+				
+				return props;
+			}
+			//匹配属性类型
+			var  martchingType = function(type, value){
+				var propertyValue ;
+				
+				var mapType ;
+				if(value == "Empty") {
+					value = "";
+				}else{
+					if(type.indexOf(":") > -1) {
+						type = type.substring(type.indexOf(":") + 1);						
+					}else if(type.indexOf("_") > -1){
+						mapType = type.split("_")[1];	
+						type = type.split("_")[0];													
+					}																									
+				}	
+				switch(type) {  //type不同，输入方式不同
+							case "string":
+								propertyValue = {
+										default:value,
+										type:"string"
+								};
+								break;
+							case "list":
+								if(value == ""){
+									propertyValue = {
+										default:[],
+										type:"array"
+									};
+								}else{
+									propertyValue = {
+										default:JSON.parse(value),
+										type:"array"
+									};	
+								}
+								break;
+							case "map":	
+								if(value == ""){
+									var schema = { "additionalProperties" : {"type":mapType} ,
+									"properties" : {},
+									 "options": {"disable_properties": false, disable_edit_json: false}									
+									};
+								}else{
+									var schema = { 
+										"additionalProperties" : {"type":mapType },										
+										default:JSON.parse(value),
+										"options": {"disable_properties": false, disable_edit_json: false}	,
+										type:"object"
+									}
+								}		
+								propertyValue = schema;					
+								break;														
+							case "boolean":
+								if(value == ""){
+									propertyValue = {
+										default:false,
+										type:"boolean"
+									};
+								}else{
+									propertyValue = {
+										default:JSON.parse(value),
+										type:"boolean"
+									};
+								}							
+								break;							
+							case "object": 
+								if(value == ""){
+									propertyValue = {
+										default:{},
+										type:"object",
+										"options": {"disable_properties": false, disable_edit_json: false}	
+									};
+								}else{
+									propertyValue = {
+										default:JSON.parse(value),
+										type:"object",
+										"options": {"disable_properties": false, disable_edit_json: false}	
+									};
+								}
+								break;
+							default:								
+								if(value == ""){
+									propertyValue = {
+										type:type
+									};
+								}else{
+									propertyValue = {
+										default:JSON.parse(value),
+										type:type
+									};
+								}
+													
+				}
+				
+				return propertyValue;
+			
+			}
+		
 			//nodetemplate的requirements和capabilities展示
 			var generateReqOrCapTable = function(nodeTemplate, elementClass, tableId, visible) {
 				var reqorcaps = $("#" + nodeTemplate.attr("id")).find(elementClass);
@@ -769,9 +918,46 @@
 						{"mData": null, "name": $.i18n.prop("winery-table-operation"), "sWidth":"30%", "fnRender" : operationRender, "bVisible": visible}
 					]
 				}
+				
 				wd.initTableWithData(tableInfo, reqorcapTableData, function(){
-					$("#" + tableInfo.id).find("tbody .fa-edit").off("click")
-						.on("click", function(){
+					$("#" + tableInfo.id).find("tbody .fa-edit").off("click").on("click", function(){	
+									
+						var attrName = $("#" + $(this).attr("data-id")).find(".name").text();
+						
+						$("#reqAndCapPropertyDiag").attr("name", attrName);
+						var title;
+						if(palette) {
+						
+							title = $.i18n.prop("winery-property-dialog-title-edit") + " " + attrName;
+						} else {
+							title = $.i18n.prop("winery-property-dialog-title-view") + " " + attrName;
+						}
+						$("#reqAndCapPropertyDiag .modal-title").text(title);
+
+						var schema = { 
+							title: attrName							
+						}
+						var options = {
+							schema: schema,
+							disable_collapse: false,							
+							disable_edit_json: true,
+							disable_properties: true
+						}
+							
+						
+						schema.type = "object";
+						
+						var id = $(this).attr("data-id");
+						$("#reqAndCapPropertyDiag").attr("data-id", id);
+						var propertiesTrs = $("#" + id).children(".propertiesContainer").find("tr");
+						
+						schema.properties = extractProperties4rc(propertiesTrs);
+						editor = initEditor("reqAndCapPropertyEditor", options);
+						
+												
+						$("#reqAndCapPropertyDiag").modal("show");
+						
+						/**
 							var id = $(this).attr("data-id");
 							var propertiesTrs = $("#" + id).children(".propertiesContainer").find("tr");
 
@@ -780,38 +966,67 @@
 
 							generateProperties("reqAndCapPropertyForm", propertiesTrs);
 							$("#reqAndCapPropertyDiag").modal("show");
+						*/
 					});
 				});
 			}
 			generateReqOrCapTable(nodeTemplate, ".requirements", "nodeRequirementsTable", false);
 			generateReqOrCapTable(nodeTemplate, ".capabilities", "nodeCapabilitiesTable", palette);
 
-			$("#reqAndCapPropertyConfirm").click(function(){
+			$("#reqAndCapPropertyConfirm").click(function(){				
 				var id = $("#reqAndCapPropertyDiag").attr("data-id");
-				var inputs = $("#reqAndCapPropertyForm").find("input");
-				inputs.each(function(index, input){
-					var name = $(input).attr("name");
-					var value = $(input).val();
-					updateReqOrCapPropertyDataToContainer(id, name, value);
-				});
+				var rows = $("#reqAndCapPropertyEditor").find(".row");
+							
+				var json = editor.getValue();	
+				
+				for(var i=0,len = rows.length; i<len; i++){
+					var property = $(rows[i]).children().eq(0);
+					var propertyName = property.attr("data-schemapath").split(".")[1];
+					//var propertyType = property.find("select").val();					
+					var propertyValue ;
+					
+					for ( var p in json ){	
+						if(p == propertyName){
+							propertyValue = json[p];
+						}
+					}
+					
+					updateReqOrCapPropertyDataToContainer(id, propertyName, propertyValue );	
+				}
+				
+				$("#"+id).attr("json","");
+				$("#"+id).attr("json",JSON.stringify(json));
+				
+				 
+							
 				$("#reqAndCapPropertyDiag").modal("hide");
 			});
-			//属性的值更新到propertiesContainer中
-			function updateReqOrCapPropertyDataToContainer(reqOrCapId, propertyName, propertyValue) {
+			
+			//把需求和能力的属性的值更新到propertiesContainer中
+			function updateReqOrCapPropertyDataToContainer	(reqOrCapId, propertyName, propertyValue) {
 				var oTrs = $("#" + reqOrCapId).children(".propertiesContainer").find("tr");
-				for(var i=0; i<oTrs.length; i++) {
-					var tr = oTrs.eq(i);
-					var name = tr.find(".KVPropertyKey").text();
+																		
+				for(var i=0, len=oTrs.length; i<len ; i++ ){
+
+					var name = oTrs.eq(i).find(".KVPropertyKey").text();
+					var type = typeof(propertyValue);			
+					
 					if(name == propertyName) {
-						tr.find(".KVPropertyValue").text(propertyValue);
+						if(type == "object"){	
+							oTrs.eq(i).find(".KVPropertyValue").text(JSON.stringify(propertyValue));							
+						}else{
+							oTrs.eq(i).find(".KVPropertyValue").text(propertyValue);			
+						}			
+												
 						if(propertyValue) {
-							tr.find(".KVPropertyValue").removeClass("editable-empty");
+							oTrs.eq(i).find(".KVPropertyValue").removeClass("editable-empty");
 						} else {
-							tr.find(".KVPropertyValue").addClass("editable-empty");
+							oTrs.eq(i).find(".KVPropertyValue").addClass("editable-empty");
 						}						
-						break;
 					}
-				};
+														
+				}
+								
 			}
 			
 			
@@ -821,7 +1036,7 @@
 		});
 	}
 	
-	var qnameNamespace = "{http://www.zte.com.cn/tosca/nfv}";	
+	var qnameNamespace = "{http://www.open-o.org/tosca/nfv}";	
 	//添加artifacts属性
 	function addArtifactFile(){
 		require(["winery-support-common"], 
@@ -833,11 +1048,11 @@
 			var content = nodeTemplate.children("div.deploymentArtifactsContainer").children("div.content");			
 			
 			var fileIndex = (new Date()).getTime();
-			var deploy_path = wsc.qname2href("", null, qnameNamespace+$("#deploy_path").val());		
-			var artifactFileName = wsc.qname2href("", null, qnameNamespace+$("#artifactFileName").val());					
+			var deploy_path = wsc.qname2href("", null, qnameNamespace+$("#deploy_path").val());
+			var artifactFileName = wsc.qname2href("", null, qnameNamespace+$("#artifactFileName").val());
 			var nodeDescriptionInput = wsc.qname2href("", null, qnameNamespace+$("#nodeDescriptionInput").val());
 			var nodeRepositoryInput = wsc.qname2href("", null, qnameNamespace+$("#nodeRepositoryInput").val());			
-			var artifactTypeInput = wsc.qname2href("", null, qnameNamespace+$("#artifactTypeInput").val());
+			var artifactTypeInput = wsc.qname2href("", null, $("#artifactTypeInput").val());
 			var artifactName = wsc.qname2href("", null, qnameNamespace+$("#artifactNameInput").val());
 			
 			var rowId = "artifactFiles_" + fileIndex ;
@@ -853,10 +1068,10 @@
 			nodeArtifactInfo.append("<div class='nodeDescriptionInput'>" + nodeDescriptionInput + "</div>");
 			nodeArtifactInfo.append("<div class='nodeRepositoryInput'>" + nodeRepositoryInput + "</div>");
 
-			
+			var artifactFile = $("#artifactFileName").val().split("/");
 			var str = "<tr class='odd'>"
 				+"<td>"+artifactName+"</td>"
-				+"<td>"+artifactFileName+"</td>"
+				+"<td>"+artifactFile[artifactFile.length - 1]+"</td>"
 				+"<td><i class='fa fa-edit icon-del' id='winery-btn-edit' name_i18n='winery_i18n' "
 				+"onclick='showArtifactUpdate(" + rowId + ")' ></i>"				
 				+"<i class='fa fa-trash icon-del' id='winery-btn-delete' name_i18n='winery_i18n' style='margin-left:8px;' "
@@ -891,7 +1106,7 @@
 				
 		$("#artifactNameInput").val(artifactDiv.children(".artifactName").children().html());
 		$("#artifactFileName").val(artifactDiv.children(".artifactFileName").children().html());
-		$("#artifactTypeInput").val(artifactDiv.children(".artifactType").children().html());
+		$("#artifactTypeInput").val(artifactDiv.children(".artifactType").children().attr("data-qname"));
 		$("#deploy_path").val(artifactDiv.children(".deploy_path").children().html());
 		$("#nodeDescriptionInput").val(artifactDiv.children(".nodeDescriptionInput").children().html());
 		$("#nodeRepositoryInput").val(artifactDiv.children(".nodeRepositoryInput").children().html());	
@@ -919,7 +1134,7 @@
 			var artifactName = wsc.qname2href("", null, qnameNamespace+$("#artifactNameInput").val());
 			var deploy_path = wsc.qname2href("", null, qnameNamespace+$("#deploy_path").val());		
 			var artifactFileName = wsc.qname2href("", null, qnameNamespace+$("#artifactFileName").val());		
-			var artifactType = wsc.qname2href("", null, qnameNamespace+$("#artifactTypeInput").val());
+			var artifactType = wsc.qname2href("", null, $("#artifactTypeInput").val());
 			var nodeDescriptionInput = wsc.qname2href("", null, qnameNamespace+$("#nodeDescriptionInput").val());
 			var nodeRepositoryInput = wsc.qname2href("", null, qnameNamespace+$("#nodeRepositoryInput").val());			
 		
@@ -949,7 +1164,8 @@
 			var artifactDiv = $(artifacts[ai]);	
 								
 			var artifactName = artifactDiv.children(".artifactName").children().html();
-			var artifactFileName = artifactDiv.children(".artifactFileName").children().html();
+			var artifactFile = artifactDiv.children(".artifactFileName").children().html().split("/");
+			var artifactFileName = artifactFile[artifactFile.length - 1];
 			var artifactType = artifactDiv.children(".artifactType").children().html();
 			var deploy_path = artifactDiv.children(".deploy_path").children().html();
 			var nodeDescriptionInput = artifactDiv.children(".nodeDescriptionInput").children().html();
@@ -989,7 +1205,7 @@
 					var filesData = resp || [];
 					for(var i=0,len = filesData.length; i<len; i++){
 						$("#artifactFileName").append(
-						"<option value='" + filesData[i].fileName + "'>"+ filesData[i].fileName +"</option>"
+						"<option value='" + filesData[i].path + "/" + filesData[i].fileName + "'>"+ filesData[i].fileName +"</option>"
 						);
 					}					
 				}
@@ -1047,24 +1263,7 @@
 		$(e.target).parent.remove();
 	}
 
-	//把右侧属性的值更新到propertiesContainer中
-	function updatePropertyDataToContainer(nodeTemplateId, propertyName, propertyValue) {
-		var oTrs = $("#" + nodeTemplateId).children(".propertiesContainer")
-				.children("[name='Properties']").find("tr");
-		for(var i=0; i<oTrs.length; i++) {
-			var tr = oTrs.eq(i);
-			var name = tr.find(".KVPropertyKey").text();
-			if(name == propertyName) {
-				tr.find(".KVPropertyValue").text(propertyValue);
-				if(propertyValue) {
-					tr.find(".KVPropertyValue").removeClass("editable-empty");
-				} else {
-					tr.find(".KVPropertyValue").addClass("editable-empty");
-				}						
-				break;
-			}
-		};
-	}
+
 
 $(function() {
 	winery.events.register(

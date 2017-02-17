@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016-2017 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,10 @@ var vm = avalon
 						vm.tab.ifNS = true;
 						vm.nsInfoArray = resp["http://www.zte.com.cn/tosca/nfv/ns"];
 					}
+					if (resp["http://www.open-o.org/tosca/nfv/ns"] != null) {
+						vm.tab.ifNS = true;
+						vm.nsInfoArray = resp["http://www.open-o.org/tosca/nfv/ns"];
+					}
 						
 					if (resp["http://www.open-o.org/tosca/sdn/ns"] != null) {
 						vm.tab.ifSDN = true;
@@ -84,6 +88,10 @@ var vm = avalon
 					if (resp["http://www.zte.com.cn/tosca/nfv/vnf"] != null) {
 						vm.tab.ifVNF = true;
 						vm.vnfInfoArray = resp["http://www.zte.com.cn/tosca/nfv/vnf"]
+					}
+					if (resp["http://www.open-o.org/tosca/nfv/vnf"] != null) {
+						vm.tab.ifVNF = true;
+						vm.vnfInfoArray = resp["http://www.open-o.org/tosca/nfv/vnf"]
 					}
 
 					if (resp["services"] != null) {
@@ -143,7 +151,10 @@ var vm = avalon
 				return;
 			}
 
-			var queryTemplateByIdUrl = vm.baseUrl + "/API/templates/" + idStr + "?type=" + type + "&namespace=" + projects;
+			var url = window.location.search.substr(1);
+			var filter = softwareRepositoryUtil.getQueryString(url, "filter");
+			var namespace = filter.split(",")[0];
+			var queryTemplateByIdUrl = vm.baseUrl + "/API/templates/" + idStr + "?type=" + type + "&namespace=" + namespace;// + projects;
 			$.ajax({
 				"type": 'GET',
 				"url": queryTemplateByIdUrl,

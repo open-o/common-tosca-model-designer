@@ -12,6 +12,10 @@
  *    Oliver Kopp - improvements to fit updated index.jsp
  *    Yves Schubert - switch to bootstrap 3
  *******************************************************************************/
+ 
+ /*******************************************************************************
+ * Modifications Copyright 2016-2017 ZTE Corporation.
+ *******************************************************************************/
 --%>
 
 <%@tag language="java" pageEncoding="UTF-8" description="Renders the boundary definitions of the service template"%>
@@ -37,12 +41,7 @@
 				</div>
 				<div class="item-group">
 					<label id="winery-boundary-template-csarType" name_i18n="winery_i18n"></label>
-					<select class="form-control desc-input csarType" <c:if test="${!palette}">disabled</c:if>>
-                        <option>GSAR</option>
-                        <option>SSAR</option>
-                        <option>NSAR</option>
-                        <option>NFAR</option>
-                    </select>
+					<input class="form-control desc-input csarType" disabled/>
 				</div>
 				<div class="item-group">
 					<label id="winery-boundary-template-csarVersion" name_i18n="winery_i18n"></label>
@@ -78,6 +77,11 @@
 		   	<li>
 		      	<a href="#boundaryPolicy" data-toggle="tab" class="tab-multi">
 		      		<span id="winery-boundary-tab-policy" name_i18n="winery_i18n"></span>
+		      	</a>
+		   	</li>
+			<li>
+		      	<a href="#serverGroups" data-toggle="tab" class="tab-multi">
+		      		<span id="winery-boundary-tab-groups" name_i18n="winery_i18n"></span>
 		      	</a>
 		   	</li>
 		   	<li style="display:none;">
@@ -143,10 +147,11 @@
 						</label>
 						<div class="col-sm-8">
 							<select class="form-control" id="scriptPrefixPath">
-								<option>/SoftwareImages</option>
-								<option>/AppSoftwares</option>
-								<option>/Scripts</option>
-								<option>/Policies</option>
+								<option>/SoftwareImages/</option>
+								<option>/AppSoftwares/</option>
+								<option>/Scripts/</option>
+								<option>/Policies/</option>
+								<option>/</option>
 							</select>
 						</div>
 					</div>
@@ -155,7 +160,7 @@
 							<span id="winery-boundary-script-text-path" name_i18n="winery_i18n"></span>
 						</label>
 						<div class="col-sm-8">
-							<input class="form-control" type="text" id="scriptPath" placeholder="/a/b/c">
+							<input class="form-control" type="text" id="scriptPath" placeholder="a/b/c">
 						</div>
 					</div>
 			        <div class="input-group fileupload-btn">
@@ -187,6 +192,14 @@
 				</button>
 				</c:if>
 				<div id="boundaryPolicyTable_div"></div>
+			</div>
+			<div class="tab-pane fade" id="serverGroups">
+				<c:if test="${palette}">
+				<button id="addGroupsBtn" class="zte-btn zte-white zte-multi boundary-btn">
+					<span id="winery-boundary-groups-btn-add" name_i18n="winery_i18n"></span>
+				</button>
+				</c:if>
+				<div id="serverGroupsTable_div"></div>
 			</div>
 			<div class="tab-pane fade" id="boundaryVnffg">
 				<c:if test="${palette}">
@@ -264,6 +277,63 @@
 			</div>
 		</div>
 	</div>
+</div>
+
+<%-- add groups dialog --%>
+<div class="modal fade" id="groupsDialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">
+					<span id="winery-boundary-groups-dialog-title" name_i18n="winery_i18n"></span>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<form id="groupsForm" class="form-horizontal" role="form">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">
+							<span id="winery-boundary-groups-dialog-type" name_i18n="winery_i18n"></span>
+							<span class="required" aria-required="true">*</span>
+						</label>
+						<div class="col-sm-7">
+					    	<select class="form-control" id="groups_type" name="groups_type">				
+					    	</select>
+					    </div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">
+							<span id="winery-boundary-groups-dialog-name" name_i18n="winery_i18n"></span>
+							<span class="required" aria-required="true">*</span>
+						</label>
+						<div class="col-sm-7">
+					    	<input class="form-control" id="groups_name" name="groups_name" />
+					    </div>
+					</div>									
+					<div class="form-group">
+						<label class="col-sm-4 control-label">
+							<span id="winery-boundary-groups-dialog-target" name_i18n="winery_i18n"></span>
+							<span class="required" aria-required="true">*</span>
+						</label>
+						<div class="col-sm-7">
+					    	<select class="form-control" id="groups_target" name="groups_target" multiple="multiple">
+					    	</select>
+					    </div>
+					</div>					
+					<div id="groups_properties"></div>												
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="zte-btn zte-primary" id="groupsConfirm">
+					<span id="winery-btn-confirm" name_i18n="winery_i18n"></span>
+				</button>
+				<button type="button" class="zte-btn zte-default" data-dismiss="modal">
+					<span id="winery-btn-cancel" name_i18n="winery_i18n"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<div id="groupsPropertieContainer" style="display: none;"></div>	
 </div>
 
 <%-- add reqorcap dialog --%>
@@ -380,7 +450,30 @@
 		</div>
 	</div>
 </div>
-
+<%-- add complex property dialog --%>
+<div class="modal fade" id="groupsInputDiag">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">
+					<span id="winery-property-dialog-title-edit" name_i18n="winery_i18n"></span>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div id="groupsPropertyEditor"></div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="zte-btn zte-primary" id="groupsInputConfirm">
+					<span id="winery-btn-confirm" name_i18n="winery_i18n"></span>
+				</button>
+				<button type="button" class="zte-btn zte-default" data-dismiss="modal">
+					<span id="winery-btn-cancel" name_i18n="winery_i18n"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 $(function() {
 	function initReqAndCapTab(datatable) {
@@ -510,6 +603,7 @@ $(function() {
 				url : scriptInfo.url,
 				success : function(resp) {
 					var tableData = resp || [];
+				
 					datatable.initTableWithData(scriptInfo, tableData, function(){
 						$("#boundaryScriptTable tbody").find("i").click(function(){
 							var oTds = $(this).parent().siblings();
@@ -556,12 +650,9 @@ $(function() {
 	                .click(function () {
 	                	var prefixPath = $("#scriptPrefixPath").val();
 	                	var path =  $("#scriptPath").val();
-                		if(path.indexOf("/") != 0) {
-                			path = prefixPath + "/" + path;
-                		} else {
-                			path = prefixPath + path;
-                		}
-
+  
+                		path = prefixPath + path;
+                		
 	                	var extData = {
 	                        path: path
 	                    };
@@ -809,7 +900,572 @@ $(function() {
 			$("#policyDialog").modal("hide");
 		});
 	}
+	
+	function initGroups(dataTable, palette) {
+		
+		var operationGroupsRender = function(obj) {
+					
+			var operationHtml = '<i class="fa fa-edit icon-del" data-row="'+ obj.iDataRow 
+			+ '" id="winery-btn-edit" name_i18n="winery_i18n" style="margin-right:3px;"></i>'
+			+ '<i class="fa fa-trash icon-del" id="winery-btn-delete" name_i18n="winery_i18n" '
+			+ 'data-id="'+ obj.aData.id +'"></i>';
+			return operationHtml;
+			
+		}
 
+		var groupsInfo = {
+			divId : "serverGroupsTable_div",
+			id : "serverGroupsTable",
+			url : "${serviceTemplateURL}/grouptemplates/",
+			addUrl : "${serviceTemplateURL}/grouptemplates/create/",
+			columns : [
+				{"mData": "name", "name": $.i18n.prop("winery-boundary-groups-dialog-name"), "sWidth":"30%"},
+				{"mData": "type", "name": $.i18n.prop("winery-boundary-groups-dialog-type"), "sWidth":"50%"},		
+				{"mData": null, "name": $.i18n.prop("winery-table-operation"), "sWidth" : "20%", 
+				 	"fnRender" : operationGroupsRender, "bVisible": palette}
+			]
+		}
+
+		var editGroupsTableData = function(rowId) {
+			var rowData = $("#" + groupsInfo.id).dataTable().fnGetData(rowId);
+			initGroupsDialog(rowData);
+		}
+
+		var initTable = function(rowData) {
+			//dataTable.initTable(groupsInfo);
+
+			var addBind = function(){
+				//delete button
+					$("#" + groupsInfo.id).find("tbody").find(".fa-trash").off("click")
+						.on("click", function(){
+							var tr = $(this).parent().parent()[0];
+							delTableData("serverGroupsTable", tr);
+					});
+					//edit button
+					$("#" + groupsInfo.id).find("tbody").find(".fa-edit").off("click")
+						.on("click", function(){
+							var rowId = $(this).attr("data-row");
+							$("#groups_properties").attr("data-row",rowId);
+							editGroupsTableData(rowId);
+					});				
+			}
+
+			if(rowData != null){			
+				dataTable.initTableWithData(groupsInfo, rowData);
+				addBind();
+				return		
+			}
+			
+			$.ajax({
+				type : "GET",
+				dataType : "json",
+				url : groupsInfo.url,
+				success : function(resp) {
+					var tableData = resp || [];
+
+					tableData = $.grep(tableData,function(value,i){
+
+						return value.namespace.indexOf("vnffg") < 0;
+													
+					});
+					
+					dataTable.initTableWithData(groupsInfo, tableData);	
+					addBind();							
+				}		
+			});			
+		}
+		initTable();
+		var editor;
+		var initGroupsDialog = function(rowData) {
+			require(["jsoneditor", "winery-util"], function(wsc, wd, util){
+
+			//init gourpsType select
+			$.ajax({
+				type: "GET",
+				url: "/modeldesigner/grouptypes/",
+				dataType: "json",
+				success: function(resp) {
+					$("#groups_type").html("<option/>");
+					resp = resp || [];
+					resp = $.grep(resp,function(type, index){
+						return type.namespace.indexOf("vnffg") < 0;
+					});
+					$.each(resp, function(index, type){
+						var qname = "{" + type.namespace + "}" + type.id;
+						var option = $("<option>", {"value": qname}).text(type.id);
+						$("#groups_type").append(option);
+					});	
+
+					if(rowData) {
+						$("#groups_name").val(rowData.name);
+						$("#groups_type").val("{"+rowData.namespace+ "}" + rowData.type);
+						$("#groups_type").trigger('change');
+						for (var key in rowData.properties){
+							$("#"+key).val(rowData.properties[key]);
+						}
+						
+					} else {
+						$("#groups_name").val("");
+					}	
+				}
+			});
+
+				/********************   
+					groups type  #start
+				*/ 
+				$("#groups_type").unbind("change"); 
+				$("#groups_type").on('change', function(){
+					var qname = $(this).val();
+					if(!qname) return;
+
+					var namespace = qname.substring(1, qname.indexOf("}"));
+					var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
+					var id = qname.substring(qname.indexOf("}") + 1);
+					var url = "/modeldesigner/grouptypes/" + namespace_encode + "/" + id 
+							+ "/propertiesdefinition/complexprop/all";
+					var targetTypeUrl = "/modeldesigner/grouptypes/" + namespace_encode + "/" + id + "/targetslist";		
+
+					$.ajax({
+						type: "GET",
+						url: url,
+						dataType: "json",
+						async: false,
+						success: function(resp) {
+							resp = resp || [];
+							$("#groups_properties").children().remove();
+
+							var props = {};
+							var properties = [];
+						
+							properties = $.grep(resp[0].propertyDefinitionKVList, function(property, index){
+								if(property.key != "name") return true;
+							});	
+					
+							complexProperty(resp);
+							generateProperties("groups_properties", properties);
+
+							$.ajax({
+								type: "GET",
+								url: targetTypeUrl,
+								dataType: "json",
+								async: false,
+								success: function(resp){
+									initTargets(resp);
+								}
+							});	
+							
+						},
+						error: function() {
+							$("#groups_properties").children().remove();
+						}
+					});
+				});
+
+				//initialize groups target
+				$("#groups_target").select2();
+				var initTargets = function(targetTypes){
+					$("#groups_target").children().remove();
+					var nodeTemplates = $(".NodeTemplateShape:not('.hidden')");
+					$.each(nodeTemplates, function(index, template){
+						var name = $(template).children(".fullName").text();
+						$.each(targetTypes, function(index, value){
+							if(name.indexOf(value) > -1){
+								var option = $("<option>").text(name);
+							    $("#groups_target").append(option);
+							}
+						});
+					});
+					
+					if(rowData && rowData.targets.length > 0) {
+						$("#groups_target").val(rowData.targets).trigger('change');
+					}
+				};
+
+				/********************   
+					groups type  #end
+				*/ 
+
+				$("#groupsDialog").modal("show");
+			});
+		}
+		/********************   
+			groups properties && jsoneditor #start
+		*/
+		//初始化json editor
+		var initEditor = function(editorId, options) {
+			$("#" + editorId).children().remove();
+			
+			var $editor = document.getElementById(editorId);
+							
+	        JSONEditor.defaults.options.theme = 'bootstrap3';
+	        JSONEditor.defaults.options.iconlib = 'bootstrap3';
+	        JSONEditor.defaults.options.object_layout = 'normal';
+	        JSONEditor.defaults.options.show_errors = 'change';
+	        JSONEditor.plugins.selectize.enable = true;
+	        var en = JSONEditor.defaults.languages.en;
+	        en.error_notempty = $.i18n.prop("winery-property-validate-required");
+
+	        var editor = new JSONEditor($editor, options);
+		
+	        return editor;
+		  
+		}
+		//复杂属性---
+		var generateSelectHtml = function(options, name, value, disabledAttr) {
+			var select = $('<select>', { 
+					id: name, 
+					name: name,  
+					class: "form-control control-edit",
+					style: "width: 87%"
+				});
+			if(disabledAttr) {
+				select.attr("disabled", disabledAttr);
+			}
+			$.each(options, function(index, optionValue){
+				var option = $('<option>').text(optionValue);
+				if(value == optionValue) {
+					option.attr("selected", "selected");
+				}
+				select.append(option);
+			});
+
+			return select;
+		}
+
+		var generateProperties = function(id, properties) {
+			var propertyInfo = $("#" + id);
+			propertyInfo.children().remove();
+		
+			var inputDiv = $('<div>'); //属性来源于输入参数
+			var metaDataDiv = $('<div>'); //属性来源于元数据
+			var needValidateProperties = []; //需要校验的数据
+
+			for(var i=0; i<properties.length; i++) {
+				var property = properties[i]; 				
+				var name = property.key;
+				var value = property.value
+				if(value == "Empty") {
+					value = "";
+				}
+				//value = value.replace(/\"/g, '&#34;'); //对于复杂数据，要把引号替换为转译字符
+
+				var type = property.type;
+				var tag = property.tag;
+				var required = property.required; //是否必填
+				var validValue;
+				if(property.constraint != null){
+					validValue = property.constraint.validValue;
+				}
+				var validator = { name: name, rules: {}}; //属性校验规则				
+
+				var groupDiv = $('<div>', {class: "form-group"});
+				var label = $('<label>', {class: "col-sm-4 control-label"}).text(name);
+				if(required == "true") {
+					var requiredSpan = $('<span>', {class: "required", "aria-required": "true"}).text("*");
+					label.append(requiredSpan);
+				}
+				
+				var colDiv = $('<div>', {class: "col-sm-8"});
+				var input = $('<input>', {
+						class: "form-control control-edit",
+						id: name,
+						name: name,
+						value: value,
+						style: "width:87%; float:left;"
+					});
+				var disabledAttr = "";
+				groupDiv.append(label).append(colDiv);
+
+				if(validValue) { //枚举类型
+					var options = validValue.split(",");
+					var select = generateSelectHtml(options, name, value, disabledAttr);
+					colDiv.append(select);
+				} else {
+					switch(type) {  //type不同，输入方式不同
+						case "xsd:boolean" :
+							var options = ["", "true", "false"];
+							var select = generateSelectHtml( options, name, value, disabledAttr);
+							colDiv.append(select);
+							break;
+						case "xsd:integer" :
+							input.attr("placeholder", $.i18n.prop("winery-property-validate-digits"));
+							colDiv.append(input);
+							validator.rules.digits = true;
+							break;
+						case "string":
+						case "xsd:string":
+							var suggestDiv = $('<div>', {class: "search_suggest"});
+							colDiv.append(input);
+							colDiv.append(suggestDiv);
+							break;
+						default :
+							var editSpan = $('<span>', {"class": "editIcon", "data-type": type});
+							var editIcon = $('<i>', {class: "fa fa-edit icon-edit", "editvalue": value});
+							input.attr("disabled", true);
+							input.css("background-color", "white");
+							editSpan.append(editIcon);
+							colDiv.append(input);
+							colDiv.append(editSpan);
+					}
+				}
+			
+				inputDiv.append(groupDiv);
+				
+				if(property.required) {
+					needValidateProperties.push(property.key);
+				}
+			}
+			
+			propertyInfo.append(metaDataDiv).append(inputDiv);
+
+			//添加校验
+			//initialize validator rules
+			var rules = {
+				groups_name : {required: true},
+				groups_target : {required: true},
+				groups_type : {required: true}
+			}
+			
+			$.each(needValidateProperties, function(index, key){
+				//$("#" + validator.name).on("keyup", function(){
+				//});
+				rules[key] = {required: true}
+
+			});
+			initValidate("groupsForm", rules);
+
+			$("#groups_properties .editIcon").click(function(e) {
+				var $input = $(this).prev();
+				var json = $input.val();
+				var attrName = $input.attr("name");
+				$("#groupsInputDiag").attr("name", attrName);
+				var title;
+				if(palette) {
+					title = $.i18n.prop("winery-property-dialog-title-edit") + " " + attrName;
+				} else {
+					title = $.i18n.prop("winery-property-dialog-title-view") + " " + attrName;
+				}
+				$("#groupsInputDiag .modal-title").text(title);
+
+				var schema = { 
+					title: attrName
+				}
+				var options = {
+					schema: schema,
+					disable_properties: true,
+					disable_collapse: true,							
+					disable_edit_json: true
+				}
+				if(json) { //赋值
+					options.startval = JSON.parse(json);			
+				}
+				
+
+				var type = $(this).attr("data-type");	
+
+				extractProperties(type, schema, options);		
+						
+				editor = initEditor("groupsPropertyEditor", options);
+
+				$("#groupsInputDiag").modal("show");
+			});
+
+			$("#groupsInputConfirm").off('click').on('click', function(){
+				var errors = editor.validate();
+				if(errors.length) return;
+
+				var json = JSON.stringify(editor.getValue());
+				var name = $("#groupsInputDiag").attr("name");
+				$("#groups_properties input[name='"+name+"']").val(json);
+				updatePropertyDataToContainer(name, json);
+				//editor.destroy();
+				$("#groupsInputDiag").modal("hide");
+			});
+		}
+		//添加关联的复杂属性
+		var complexProperty = function(data){		
+			for(var i=1, len=data.length; i<len; i++){
+				var wineryPropertyDefinitions = data[i];
+				if(wineryPropertyDefinitions && wineryPropertyDefinitions.propertyDefinitionKVList) {
+					//group的复杂属性在界面只生成一次,作为类型模版
+					var propertiesDiv = $("#groupsPropertieContainer")
+						.children("[name='" + wineryPropertyDefinitions.elementName + "']");
+					if(propertiesDiv.html() != null) return ;
+
+					var propertiesContainer = $("#groupsPropertieContainer");
+					var propertyDefinitionKVList = wineryPropertyDefinitions.propertyDefinitionKVList;
+					var wineryPropertiesHtml = "";
+					var str = '<div class="content" name="' + wineryPropertyDefinitions.elementName + '">'
+						+ '<span class="elementName">' + wineryPropertyDefinitions.elementName + '</span>'
+						+ '<span class="namespace">' + wineryPropertyDefinitions.namespace + '</span>'
+						+ '<table><tbody></tbody></table></div>'
+					propertiesContainer.append(str);
+					$.each(propertyDefinitionKVList, function(index, property){
+						//属性值或者属性定义的默认值
+						var value =  property.value;
+						if(!value) {
+							value = "";
+						}
+						var validValue = "";
+						if(property.constraint) {
+							validValue = property.constraint.validValue || "";
+						}
+
+						wineryPropertiesHtml += '<tr class="KVProperty">'
+							+ '<td><span class="' + property.key + ' KVPropertyKey">' + property.key 
+							+ '</span></td><td><a class="KVPropertyValue" href="#" data-type="text"' 
+							+ 'data-title="Enter ' + property.key + '">' + value
+							+ '</a></td><td><span class="KVPropertyType">' + property.type + '</span></td>'
+							+ '<td><span class="KVPropertyTag">' + property.tag + '</span></td>'
+							+ '<td><span class="KVPropertyRequired">' + property.required + '</span></td>'
+							+ '<td><span class="KVPropertyValidValue">' + validValue + '</span></td>'
+							+ '</tr>';
+					});
+					var propertiesTable = $("#groupsPropertieContainer")
+							.children("[name='" + wineryPropertyDefinitions.elementName + "']");
+					propertiesTable.find("tbody").html(wineryPropertiesHtml);
+
+				}
+			}
+		}
+		var extractProperties = function(defineType, schema, options) {
+			defineType = defineType.split("_");
+			var propertyType = defineType[0];
+			var propertyName = defineType[1];
+			var props = {};
+
+			switch(propertyType) {
+				case "list":
+					schema.type = "array";
+					schema.format = "table";
+					schema.items = {
+						type: "string"
+					}
+					break;
+				case "objlist":
+					schema.type = "array";
+					schema.format = "table";
+					schema.items = {
+						type: "object",
+						properties: props
+					}
+					break;
+				case "map":
+					schema.type = "object";
+					//schema.properties = props;
+					schema.additionalProperties = {
+	                    type: "string"
+	                };
+					options.disable_properties = false;
+					break;
+			
+				default: 
+					schema.type = "object";
+					schema.properties = props;
+			}
+
+			var propertiesTrs = $("#groupsPropertieContainer")
+				.children("[name='" + propertyName + "']").find("tr");
+			for(var i=0; i<propertiesTrs.length; i++) {
+				var property = propertiesTrs.eq(i).children();
+				var name = property.children(".KVPropertyKey").text();
+				var value = property.children(".KVPropertyValue").text();
+				var type = property.children(".KVPropertyType").text();
+				var tag = property.children(".KVPropertyTag").text(); 
+				var required = property.children(".KVPropertyRequired").text(); //是否必填
+				var validValue = property.children(".KVPropertyValidValue").text(); //枚举值
+
+				if(value == "Empty") {
+					value = "";
+				}
+
+				if(type.indexOf(":") > -1) {
+					type = type.substring(type.indexOf(":") + 1);
+					if(name == "size") type = "string";
+					props[name] = {
+						type: type,
+						default: value
+					};
+
+					if(type == "boolean") {
+						props[name].type = "string";
+						props[name].enum = ["true", "false"];
+					}
+					if(validValue) {
+						props[name].enum = validValue.split(",");
+					}
+					if(required == "true") {
+						props[name].minLength = 1;
+					}
+				} else {
+					props[name] = {};
+					extractProperties(type, props[name], options);
+				}
+			}
+		}			
+		/******************************** 
+			groups properties && jsoneditor #end
+		*/
+
+		$("#groupsConfirm").click(function(event){
+			event.stopPropagation(); 
+			var form = $("#groupsForm");
+			if($("#groups_type").val() == "") return;
+			if(!form.valid()) {
+				return;
+			}		
+			var target = $("#groups_target").val() || [];
+			var qname = $("#groups_type").val();
+			var namespace = qname.substring(1, qname.indexOf("}"));
+			var properties = {"name": $("#groups_name").val()};
+			var inputs = $("#groups_properties").find("input");
+			var selects = $("#groups_properties").find("select");
+
+			$.each(inputs, function(index, input){
+				var name = $(input).attr("name");
+				properties[name] = $(input).val();
+			});
+			$.each(selects, function(index, select){
+				var name = $(select).attr("name");
+				properties[name] = $(select).val();
+			});
+			var rowData = {
+				name: $("#groups_name").val(),
+				type: $("#groups_type").val().split("}")[1],
+				namespace: namespace,
+				targets: target,					
+				properties: properties																				
+			}
+			
+			
+			var url = $("#groupsConfirm").attr("data-url");
+			var dataTable = $("#serverGroupsTable").dataTable();
+			var rowId = parseInt($("#groups_properties").attr("data-row"));
+			if(isNaN(rowId) ){
+				dataTable.fnAddData(rowData);			
+			}else{
+				dataTable.fnUpdate(rowData, rowId);
+			}
+
+			initTable(dataTable.fnGetData());
+			
+			$("#groupsDialog").modal("hide");
+		});
+
+		$("#addGroupsBtn").click(function(){
+			var rowId = $("#groups_properties").attr("data-row","");
+			initGroupsDialog();
+			$("#groups_properties").html("");
+			$("#groups_name").val("");
+			$("#groups_type").val("");
+			$("#groups_target").children().remove();
+			//$("#groupsConfirm").attr("data-url", groupsInfo.addUrl);
+		});
+
+
+
+	}
+	
 	function initVnffg(dataTable, palette) {
 		var operationVnffgRender = function(obj) {
 			var operationHtml = '<i class="fa fa-edit icon-del" data-id="'+ obj.aData.id +'"'
@@ -865,23 +1521,36 @@ $(function() {
 		}
 
 		var initTable = function() {
-			dataTable.initTable(vnffgInfo);			
+			$.ajax({
+				type : "GET",
+				dataType : "json",
+				url : vnffgInfo.url,
+				success : function(resp) {
+					var tableData = resp || [];
+					tableData = $.grep(tableData,function(value,i){
 
-			$("#" + vnffgInfo.id).on('draw', function(){
-				//edit button
-				$(this).find("tbody").find(".fa-edit").off("click")
-					.on("click", function(){
-						var id = $(this).attr("data-id");
-						editVnffg(id);
-				});
+						return value.namespace.indexOf("vnffg") > 0;
+													
+					});
+						
+					dataTable.initTableWithData(vnffgInfo, tableData);
+				
+					//delete button
+					$("#"+vnffgInfo.id).find("tbody").find(".fa-edit").off("click")
+						.on("click", function(){
+							var id = $(this).attr("data-id");
+							editVnffg(id);
+					});
+					//edit button
+					$("#"+vnffgInfo.id).find("tbody").find(".fa-trash").off("click")
+						.on("click", function(){
+							var id = $(this).attr("data-id");
+							delVnffgTableData(id);
+					});											
+				}		
+			});				
 
-				//delete button
-				$(this).find("tbody").find(".fa-trash").off("click")
-					.on("click", function(){
-						var id = $(this).attr("data-id");
-						delVnffgTableData(id);
-				});
-			});
+	
 		}
 		initTable();
 
@@ -895,6 +1564,9 @@ $(function() {
 				dataType: "json",
 				success: function(resp) {
 					resp = resp || [];
+					resp = $.grep(resp,function(type, index){
+						return type.namespace.indexOf("vnffg") > 0;
+					});
 					$.each(resp, function(index, type){
 						var option = $("<option>", {value: type.namespace}).text(type.id);
 						$("#vnffg_type").append(option);
@@ -1115,11 +1787,16 @@ $(function() {
 		var afterInit = function() {
 			var table = $("#" + metaInfo.id).dataTable();
 			var data = table.fnGetNodes();
+			var isExistCsarType = false;
 			$.each(data, function(index, trElem){
 				var key = $(trElem.cells[0]).text();
 				var value = $(trElem.cells[2]).text() || "";
 				switch(key) {
 					case "csarType":
+						isExistCsarType = true;
+						$("#boundaryDefinition").find("." + key).val(value);
+						table.fnDeleteRow(trElem);
+						break;
 					case "csarVersion":
 					case "csarProvider":
 						$("#boundaryDefinition").find("." + key).val(value);
@@ -1127,6 +1804,25 @@ $(function() {
 						break;
 				}
 			});
+			if(!isExistCsarType) {
+				var namespace = "${ns}";
+				var csarType = "";
+				switch(namespace) {
+					case "http://www.zte.com.cn/tosca/nfv/ns":
+					case "http://www.open-o.org/tosca/nfv/ns":
+						csarType = "NSAR";
+						break;
+					case "http://www.open-o.org/tosca/sdn/ns":
+						csarType = "SSAR";
+						break;
+					case "http://www.open-o.org/tosca/gso":
+						csarType = "GSAR";
+						break;
+					default:
+						csarType = "NFAR";
+				}
+				$("#boundaryDefinition").find(".csarType").val(csarType);
+			}
 		}
 
 		initTable(metaInfo, afterInit);
@@ -1158,6 +1854,9 @@ $(function() {
 
 		//policy table
 		initPolicy(wd, palette);
+		
+		//groups table
+		initGroups(wd, palette);
 
 		//vnffg table
 	    initVnffg(wd, palette);
@@ -1172,14 +1871,14 @@ $(function() {
 	});
 
 	var namespace = "${ns}";
-	if(namespace == "http://www.zte.com.cn/tosca/nfv/ns") {		
+	if(namespace == "http://www.zte.com.cn/tosca/nfv/ns" || namespace == "http://www.open-o.org/tosca/nfv/ns") {		
 		$("#boundaryDefinition").find('a[href="#boundaryVnffg"]').parent().show();
-	} else if(namespace == "http://www.zte.com.cn/tosca/nfv/vnf") {
+	} else if(namespace == "http://www.zte.com.cn/tosca/nfv/vnf" || namespace == "http://www.open-o.org/tosca/nfv/vnf") {
 		$("#boundaryDefinition").find('a[href="#boundaryScript"]').parent().show();
 	}
 
 	function initValidate(formId, rules) {
-		require(["jquery.validate", "jquery.i18n"], function(){
+		require(["jquery.validate"], function(){
 			var form = $("#" + formId);
 			var error = $('.alert-danger', form);
 			var success = $('.alert-success', form);

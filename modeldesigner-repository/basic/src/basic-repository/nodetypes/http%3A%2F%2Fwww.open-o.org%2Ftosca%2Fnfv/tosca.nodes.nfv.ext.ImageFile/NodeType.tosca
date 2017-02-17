@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openonfv-tosca.nodes.nfv.ext.ImageFile" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:NodeType name="tosca.nodes.nfv.ext.ImageFile" targetNamespace="http://www.open-o.org/tosca/nfv" winery:bordercolor="#7d8165">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>container_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>disk_format</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>file_url</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>name</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>version</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:CapabilityDefinitions>
+            <tosca:CapabilityDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="image_fle" capabilityType="openonfv:tosca.capabilities.nfv.ext.ImageFile" lowerBound="0" upperBound="unbounded"/>
+            <tosca:CapabilityDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="guest_os" capabilityType="openonfv:tosca.capabilities.nfv.ext.GuestOs" lowerBound="0" upperBound="unbounded"/>
+        </tosca:CapabilityDefinitions>
+    </tosca:NodeType>
+</tosca:Definitions>

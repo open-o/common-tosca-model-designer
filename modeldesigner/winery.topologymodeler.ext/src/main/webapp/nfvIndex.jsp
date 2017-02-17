@@ -1,6 +1,6 @@
 <%--
 
-    Copyright 2016 ZTE Corporation.
+    Copyright 2016-2017 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -77,7 +77,6 @@
 
 <jsp:include page="./jsp/csarDialogs.jsp" />
 
-<%-- 从软件仓库选择nodeTemplate界面 --%>
 <iframe name="template_iframe" id="template_iframe" src="" marginwidth="0" marginheight="0" scrolling="auto" frameborder="0" WIDTH="100%" height="100%" 
 style="display:none"></iframe>
 
@@ -263,8 +262,6 @@ style="display:none"></iframe>
 
     }; 
 
-
-    /** 比较两个组件是否重叠 **/
     function isOverlap(idOne,idTwo){ 
     	var objOne=$("#"+idOne), 
     	objTwo=$("#"+idTwo), 
@@ -301,7 +298,6 @@ style="display:none"></iframe>
     	    alert(description); 
     } 
     
-    // 生成随机�?
     function RndNum(n){
     	var rnd="";
     	for(var i=0;i<n;i++)
@@ -1069,7 +1065,6 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 			$(document).off("mousemove", selectionBoxModeMouseMoveFunction);
 			selectionBoxMode = false;
 			
-			// 创建一个DIV�?
 			var width = $("#selectionbox").width();
 			if(width > 100)
 			{
@@ -1086,7 +1081,6 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 					id = temp_id + (count - 1);
 				}
 				
-				// 创建新层并设置ID和样�?
 				var newDiv = $("#selectionbox").clone();
 				newDiv.attr("id", id);
 				newDiv.addClass("div_selectionbox");
@@ -1117,7 +1111,6 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 				newDiv.appendTo($("#editorArea"));
 			}
 
-			// 隐藏选择�?
 			$("#selectionbox").hide();
 			
 		} else if (multiDNDmode) {
@@ -1296,6 +1289,12 @@ require(["winery-topologymodeler-AMD"], function(wt) {
 		var qName = namespace + "_" + localName;
 		var cssName = qName.replace(/[^\w]/g, "_");
 		var nodetemplates = $("div.NodeTemplateShape").children(".endpointContainer")
+				.children("." + cssName).hide();
+		// new openo namespace
+		namespace = "http://www.open-o.org/tosca/nfv/vnffg";
+		qName = namespace + "_" + localName;
+		cssName = qName.replace(/[^\w]/g, "_");
+		$("div.NodeTemplateShape").children(".endpointContainer")
 				.children("." + cssName).hide();
 	});
 </script>

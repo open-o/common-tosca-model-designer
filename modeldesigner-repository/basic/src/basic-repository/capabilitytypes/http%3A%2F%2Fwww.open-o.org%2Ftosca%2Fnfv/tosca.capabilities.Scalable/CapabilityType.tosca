@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openonfv-tosca.capabilities.Scalable" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:CapabilityType name="tosca.capabilities.Scalable" targetNamespace="http://www.open-o.org/tosca/nfv">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>min_instances</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>max_instances</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>default_instances</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+    </tosca:CapabilityType>
+</tosca:Definitions>

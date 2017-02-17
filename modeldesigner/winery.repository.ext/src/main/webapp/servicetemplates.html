@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2016 ZTE Corporation.
+    Copyright 2016-2017 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -192,7 +192,8 @@
             var namespacetype;
             if(obj.aData.namespace == "http://www.open-o.org/tosca/sdn/ns") {
             	namespacetype ="SSAR";
-            }else if(obj.aData.namespace == "http://www.zte.com.cn/tosca/nfv/ns") {
+            }else if(obj.aData.namespace == "http://www.zte.com.cn/tosca/nfv/ns" || 
+            	obj.aData.namespace == "http://www.open-o.org/tosca/nfv/ns") {
             	namespacetype ="NSAR";
             }else if(obj.aData.namespace == "http://www.open-o.org/tosca/gso") {
             	namespacetype ="GSAR";
@@ -322,7 +323,10 @@
                                 break;
                             } else {
                                 var name;
-                                var language = window.navigator.language;
+                                var language = window.top.getLanguage;
+                                if(!language){
+                                	language=window.navigator.language;
+                                }
                                 if(language == "zh-CN") {
                                     name = menu.name_zh;
                                 } else {

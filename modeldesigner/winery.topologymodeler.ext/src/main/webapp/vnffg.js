@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016-2017 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,14 @@
 	var vnffgConstants = {
 
 		RELATIONSHIP_FORWARDTO_TYPE : "tosca.relationships.nfv.ForwardsTo",
-		RELATIONSHIP_FORWARDTO_NAMESPACE : "http://www.zte.com.cn/tosca/nfv/vnffg",
+		RELATIONSHIP_FORWARDTO_NAMESPACE : "http://www.open-o.org/tosca/nfv/vnffg",
 		RELATIONSHIP_VIRTUAL_LINKSTO : "tosca.relationships.nfv.VirtualLinksTo",
 		NODETPYE_FORWARD_PATH_NAMESPACE : "http://www.zte.com.cn/tosca/nfv/vnffg/fp",
+		NODETPYE_FORWARD_PATH_NAMESPACE_OPENO : "http://www.open-o.org/tosca/nfv/vnffg/fp",
 		NODETPYE_VNF_NAMESPACE : "http://www.zte.com.cn/tosca/nfv/vnf",
+		NODETPYE_VNF_NAMESPACE_OPENO : "http://www.open-o.org/tosca/nfv/vnf",
 
-		_URL_BASE : "/modeldesigner/servicetemplates/http%253A%252F%252Fwww.zte.com.cn%252Ftosca%252Fnfv%252Fns/{nsId}",
+		_URL_BASE : "/modeldesigner/servicetemplates/{namespace}/{nsId}",
 		URL_BASE : "",
 		_URL_NODETEMPLATE_REQUIREMENT : "/topologytemplate/nodetemplates/{nodeTmepateId}/extrequirements",
 		URL_NODETEMPLATE_REQUIREMENT : "",
@@ -102,7 +104,7 @@
 		},
 
 		getNodeType : function(nodeType) {
-			var url = "/modeldesigner/nodetypes/http%253A%252F%252Fwww.zte.com.cn%252Ftosca%252Fnfv%252Fvnffg%252Ffp/" + nodeType + "/detail/";
+			var url = "/modeldesigner/nodetypes/http%253A%252F%252Fwww.open-o.org%252Ftosca%252Fnfv%252Fvnffg%252Ffp/" + nodeType + "/detail/";
 
 			var successFunc = function(resData, textStatus, jqXHR) {
 				vnffgConstants.CURRENT_NODE_TYPE = resData;
@@ -198,7 +200,7 @@
 			"id": name,
 			"name":name,
 			"type":nodeType,
-			"namespace" :  vnffgConstants.NODETPYE_FORWARD_PATH_NAMESPACE
+			"namespace" :  vnffgConstants.NODETPYE_FORWARD_PATH_NAMESPACE_OPENO
 		};
 
 		$("#addNFPDialog").modal("hide");
@@ -371,7 +373,45 @@
 			//remove property node while there is no property, or there will an error
 			newNodeTemplate.children(".propertiesContainer").remove();
 		}
+		//��ӹ����ĸ�������		
+		for(var i=1, len=data.type.any.length; i<len; i++){
+			var wineryPropertyDefinitions = data.type.any[i];
+			if(wineryPropertyDefinitions && wineryPropertyDefinitions.propertyDefinitionKVList) {
+				var propertiesContainer = newNodeTemplate.children(".propertiesContainer");
+				var propertyDefinitionKVList = wineryPropertyDefinitions.propertyDefinitionKVList;
+				var wineryPropertiesHtml = "";
+				var str = '<div class="content" name="' + wineryPropertyDefinitions.elementName + '">'
+					+ '<span class="elementName">' + wineryPropertyDefinitions.elementName + '</span>'
+					+ '<span class="namespace">' + wineryPropertyDefinitions.namespace + '</span>'
+					+ '<table><tbody></tbody></table></div>'
+				propertiesContainer.append(str);
+				$.each(propertyDefinitionKVList, function(index, property){
+					//����ֵ�������Զ����Ĭ��ֵ
+					var value = properties[property.key] || property.value;
+					if(!value) {
+						value = "";
+					}
+					var validValue = "";
+					if(property.constraint) {
+						validValue = property.constraint.validValue || "";
+					}
 
+					wineryPropertiesHtml += '<tr class="KVProperty">'
+						+ '<td><span class="' + property.key + ' KVPropertyKey">' + property.key 
+						+ '</span></td><td><a class="KVPropertyValue" href="#" data-type="text"' 
+						+ 'data-title="Enter ' + property.key + '">' + value
+						+ '</a></td><td><span class="KVPropertyType">' + property.type + '</span></td>'
+						+ '<td><span class="KVPropertyTag">' + property.tag + '</span></td>'
+						+ '<td><span class="KVPropertyRequired">' + property.required + '</span></td>'
+						+ '<td><span class="KVPropertyValidValue">' + validValue + '</span></td>'
+						+ '</tr>';
+				});
+				var propertiesTable = newNodeTemplate.children(".propertiesContainer")
+						.children("[name='" + wineryPropertyDefinitions.elementName + "']");
+				propertiesTable.find("tbody").html(wineryPropertiesHtml);
+
+			}
+		}
 		//set Requirements
 		var generateKVProperty = function(properties) {
 			var propertiesHtml = "";
@@ -598,7 +638,7 @@
 	function validateConnectionSourceTarget(connection, connData) {
 
 		var sourceNamespace = $(connection.source).children('.headerContainer').children('span.typeNamespace').text();
-		if(sourceNamespace == vnffgConstants.NODETPYE_VNF_NAMESPACE) { 
+		if(sourceNamespace == vnffgConstants.NODETPYE_VNF_NAMESPACE || sourceNamespace == vnffgConstants.NODETPYE_VNF_NAMESPACE_OPENO) { 
 			if (!connData.req) {
 				vShowError("please set the source of the path");
 				return false;
@@ -606,7 +646,7 @@
 		}
 
 		var targetNamespace = $(connection.target).children('.headerContainer').children('span.typeNamespace').text();;
-		if(targetNamespace == vnffgConstants.NODETPYE_VNF_NAMESPACE) { 
+		if(targetNamespace == vnffgConstants.NODETPYE_VNF_NAMESPACE || targetNamespace == vnffgConstants.NODETPYE_VNF_NAMESPACE_OPENO) { 
 			if (!connData.cap) {
 				vShowError("please set the source of the path");
 				return false;
@@ -703,7 +743,7 @@
 		
 		var capabilityName = null;
 		var nodeNamespace = $('#' + nodeId + ' span.typeNamespace').text();
-		if(vnffgConstants.NODETPYE_VNF_NAMESPACE == nodeNamespace) {
+		if(vnffgConstants.NODETPYE_VNF_NAMESPACE == nodeNamespace || vnffgConstants.NODETPYE_VNF_NAMESPACE_OPENO == nodeNamespace) {
 			capabilityName = $('#' + capabilityId + " div.name").text();
 			requirement.capability = capabilityName;
 		}
@@ -928,7 +968,7 @@
 			// 
 		} else {
 			$.each(vnffgConstants.NODETYPES, function(index, nodeType) {
-				if(nodeType.namespace == vnffgConstants.NODETPYE_FORWARD_PATH_NAMESPACE) {
+				if(nodeType.namespace == vnffgConstants.NODETPYE_FORWARD_PATH_NAMESPACE || nodeType.namespace == vnffgConstants.NODETPYE_FORWARD_PATH_NAMESPACE_OPENO) {
 					var option = '<option value="' + nodeType.id + '">' + nodeType.id + '</option>';
 					$("#nodeTypeSelect").append(option);
 				}
@@ -1091,8 +1131,10 @@
 
 		vnffgConstants.NS_ID = getUrlParam("id");
 		vnffgConstants.CURRENT_GROUP_ID = getUrlParam("groupId");
+		var namespace = getUrlParam("ns");
+		namespace = encodeURIComponent(encodeURIComponent(namespace));
 		
-		vnffgConstants.URL_BASE = vnffgConstants._URL_BASE.replace("{nsId}", vnffgConstants.NS_ID);
+		vnffgConstants.URL_BASE = vnffgConstants._URL_BASE.replace("{nsId}", vnffgConstants.NS_ID).replace("{namespace}", namespace);
 		vnffgConstants.URL_VNFFG_TARGET = vnffgConstants._URL_VNFFG_TARGET.replace("{groupId}", vnffgConstants.CURRENT_GROUP_ID);
 		vnffgConstants.URL_VNFFG_PROPERTIES = vnffgConstants._URL_VNFFG_PROPERTIES.replace("{groupId}", vnffgConstants.CURRENT_GROUP_ID);
 

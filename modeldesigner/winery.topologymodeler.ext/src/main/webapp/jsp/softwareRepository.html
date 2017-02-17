@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2016 ZTE Corporation.
+    Copyright 2016-2017 ZTE Corporation.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@
     			<div class="tab-content">
                     <div class="tab-pane fade" id="vnfTab">
                         <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
-                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('vnfTable','http://www.zte.com.cn/tosca/nfv/vnf')">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('vnfTable','http://www.open-o.org/tosca/nfv/vnf')">
                                 <i class="fa fa-plus-circle"></i> {{addBtnName}}
                             </button>
                         </div>
@@ -89,7 +89,6 @@
                                     <td ms-text="vnf.name"></td>
                                     <td ms-text="vnf.description"></td>                                           
                                     <td>
-                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(vnf.id,'http://www.zte.com.cn/tosca/nfv/vnf')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
                                         <input type="checkbox" ms-value="vnf.id"/>
                                     </td>                                      
                                 </tr> 
@@ -98,7 +97,7 @@
                     </div>
                     <div class="tab-pane fade " id="nsTab">
                         <div style="text-align: right;margin-top: 10px; margin-bottom: 10px;">
-                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('nsTable','http://www.zte.com.cn/tosca/nfv/ns')">
+                            <button type="button" class="zte-btn zte-small" ms-click="queryTemplate('nsTable','http://www.open-o.org/tosca/nfv/ns')">
                                 <i class="fa fa-plus-circle"></i> {{addBtnName}}
                             </button>
                         </div>
@@ -117,7 +116,6 @@
                                     <td ms-text="ns.name"></td>
                                     <td ms-text="ns.description"></td>                                           
                                     <td>
-                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(ns.id,'http://www.zte.com.cn/tosca/nfv/ns')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
                                         <input type="checkbox" ms-value="ns.id"/>
                                     </td>                                      
                                 </tr>                                                                
@@ -145,7 +143,6 @@
                                     <td ms-text="service.name"></td>
                                     <td ms-text="service.description"></td>
                                     <td>
-                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(service.id,'services')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
                                         <input type="checkbox" ms-value="service.id"/>
                                     </td>                                      
                                 </tr> 
@@ -173,7 +170,6 @@
                                     <td ms-text="sdn.name"></td>
                                     <td ms-text="sdn.description"></td>                                           
                                     <td>
-                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(vnf.id,'http://www.zte.com.cn/tosca/nfv/vnf')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
                                         <input type="checkbox" ms-value="sdn.id"/>
                                     </td>                                      
                                 </tr> 
@@ -201,7 +197,6 @@
                                     <td ms-text="gso.name"></td>
                                     <td ms-text="gso.description"></td>                                           
                                     <td>
-                                        <!--<button type="button" class="zte-btn zte-small" ms-click="queryTemplate(vnf.id,'http://www.zte.com.cn/tosca/nfv/vnf')"><i class="fa fa-plus-circle"></i> {{addBtnName}}</button>-->
                                         <input type="checkbox" ms-value="gso.id"/>
                                     </td>                                      
                                 </tr> 
