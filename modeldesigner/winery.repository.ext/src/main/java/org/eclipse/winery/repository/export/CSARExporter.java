@@ -7,7 +7,7 @@
  * and http://www.apache.org/licenses/LICENSE-2.0
  *
  * Contributors:
- *     K¨¢lm¨¢n K¨¦pes - initial API and implementation and/or initial documentation
+ *     Kálmán Képes - initial API and implementation and/or initial documentation
  *     Oliver Kopp - adapted to new storage model and to TOSCA v1.0
  *******************************************************************************/
 /*
