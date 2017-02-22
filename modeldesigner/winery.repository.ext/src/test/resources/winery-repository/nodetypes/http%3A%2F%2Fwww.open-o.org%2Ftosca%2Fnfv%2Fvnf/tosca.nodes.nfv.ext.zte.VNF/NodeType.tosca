@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openovnf-tosca.nodes.nfv.ext.zte.VNF" targetNamespace="http://www.open-o.org/tosca/nfv/vnf">
+    <tosca:NodeType name="tosca.nodes.nfv.ext.zte.VNF" targetNamespace="http://www.open-o.org/tosca/nfv/vnf" winery:bordercolor="#030019">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/vnf/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>name</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>vnfd_version</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>vendor</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>version</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>id</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>domain_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>vnf_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>is_shared</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>cross_dc</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>request_reclassification</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>nsh_aware</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>custom_properties</winery:key>
+                <winery:type>map_string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>vmnumber_overquota_alarm</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>vnf_extend_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>plugin_info</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>script_info</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>adjust_vnf_capacity</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>is_sfc_proxy</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:RequirementDefinitions>
+            <tosca:RequirementDefinition xmlns:openoforward="http://www.open-o.org/tosca/nfv/vnffg/forwarder" name="forwarder" requirementType="openoforward:tosca.requirements.nfv.Forwarder" lowerBound="0" upperBound="unbounded"/>
+            <tosca:RequirementDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="virtualLink" requirementType="openonfv:tosca.requirements.nfv.VirtualLink" lowerBound="0" upperBound="unbounded"/>
+        </tosca:RequirementDefinitions>
+        <tosca:CapabilityDefinitions>
+            <tosca:CapabilityDefinition xmlns:openoforward="http://www.open-o.org/tosca/nfv/vnffg/forwarder" name="forwarder" capabilityType="openoforward:tosca.capabilities.nfv.Forwarder" lowerBound="0" upperBound="unbounded"/>
+        </tosca:CapabilityDefinitions>
+    </tosca:NodeType>
+</tosca:Definitions>
