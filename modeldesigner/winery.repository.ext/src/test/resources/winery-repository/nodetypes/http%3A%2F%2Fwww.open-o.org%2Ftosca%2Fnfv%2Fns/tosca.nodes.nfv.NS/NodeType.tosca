@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openons-tosca.nodes.nfv.NS" targetNamespace="http://www.open-o.org/tosca/nfv/ns">
+    <tosca:NodeType name="tosca.nodes.nfv.NS" targetNamespace="http://www.open-o.org/tosca/nfv/ns" winery:bordercolor="#f4310a">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/ns/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>id</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>vendor</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>version</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>name</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:RequirementDefinitions>
+            <tosca:RequirementDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="virtualLink" requirementType="openonfv:tosca.requirements.nfv.VirtualLink" lowerBound="0" upperBound="unbounded"/>
+        </tosca:RequirementDefinitions>
+    </tosca:NodeType>
+</tosca:Definitions>

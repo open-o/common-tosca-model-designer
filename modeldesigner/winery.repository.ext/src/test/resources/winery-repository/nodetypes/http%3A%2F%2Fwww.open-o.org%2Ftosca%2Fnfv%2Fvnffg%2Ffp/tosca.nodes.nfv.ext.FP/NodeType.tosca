@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openofp-tosca.nodes.nfv.ext.FP" targetNamespace="http://www.open-o.org/tosca/nfv/vnffg/fp">
+    <tosca:NodeType name="tosca.nodes.nfv.ext.FP" targetNamespace="http://www.open-o.org/tosca/nfv/vnffg/fp" winery:bordercolor="#7ee87c">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/vnffg/fp/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>policy</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.ext.FPPolicy</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>symmetric</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>direction</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>purpose</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.ext.FPPolicy">
+            <winery:properties>
+                <winery:key>type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>criteria</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.ext.FPPolicyCriteria</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.ext.FPPolicyCriteria">
+            <winery:properties>
+                <winery:key>source_port_range</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>dest_port_range</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>ip_protocol</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>dscp</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>source_ip_range</winery:key>
+                <winery:type>list_string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>dest_ip_range</winery:key>
+                <winery:type>list_string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:RequirementDefinitions>
+            <tosca:RequirementDefinition xmlns:ns1="http://www.open-o.org/tosca/nfv/vnffg/forwarder" name="forwarder" requirementType="ns1:tosca.requirements.nfv.Forwarder" lowerBound="0" upperBound="unbounded"/>
+        </tosca:RequirementDefinitions>
+    </tosca:NodeType>
+</tosca:Definitions>

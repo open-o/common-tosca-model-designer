@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openonfv-tosca.nodes.nfv.ext.VolumeStorage" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:NodeType name="tosca.nodes.nfv.ext.VolumeStorage" targetNamespace="http://www.open-o.org/tosca/nfv" winery:bordercolor="#4e8eef">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>size</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>volume_name</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>custom_volume_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>disk_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>delete_on_termination_vm</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>location_info</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.ext.LocationInfo</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>volume_id</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>snapshot_id</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.ext.LocationInfo">
+            <winery:properties>
+                <winery:key>region</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>dc</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>host</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:RequirementDefinitions>
+            <tosca:RequirementDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="image_file" requirementType="openonfv:tosca.requirements.nfv.ext.ImageFile" lowerBound="0" upperBound="unbounded"/>
+        </tosca:RequirementDefinitions>
+        <tosca:CapabilityDefinitions>
+            <tosca:CapabilityDefinition xmlns:openonfv="http://www.open-o.org/tosca/nfv" name="attachment" capabilityType="openonfv:tosca.capabilities.nfv.ext.LocalAttachment" lowerBound="0" upperBound="unbounded"/>
+        </tosca:CapabilityDefinitions>
+    </tosca:NodeType>
+</tosca:Definitions>

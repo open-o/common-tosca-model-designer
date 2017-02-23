@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:winerymodel="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_ns3-tosca.groups.nfv.VNFFG" targetNamespace="http://www.open-o.org/tosca/nfv/vnffg">
+    <tosca:GroupType name="tosca.groups.nfv.VNFFG" targetNamespace="http://www.open-o.org/tosca/nfv/vnffg">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/vnffg/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>vendor</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>version</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>number_of_endpoints</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>dependent_virtual_link</winery:key>
+                <winery:type>list_string</winery:type>
+            </winery:properties> 
+            <winery:properties>
+                <winery:key>connection_point</winery:key>
+                <winery:type>list_string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>constituent_vnfs</winery:key>
+                <winery:type>list_string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:Targets>
+            <tosca:Target>tosca.nodes.nfv.ext.FP</tosca:Target>
+        </tosca:Targets>
+    </tosca:GroupType>
+</tosca:Definitions>
