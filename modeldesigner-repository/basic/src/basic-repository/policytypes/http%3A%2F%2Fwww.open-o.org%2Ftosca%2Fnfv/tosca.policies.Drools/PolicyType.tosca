@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:winerymodel="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_ns11-tosca.policies.Drools" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:PolicyType name="tosca.policies.Drools" targetNamespace="http://www.open-o.org/tosca/nfv">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>drl_file_url</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+    </tosca:PolicyType>
+</tosca:Definitions>
