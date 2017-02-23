@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 ZTE Corporation.
+ * Copyright 2016-2017 ZTE Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -328,10 +328,7 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     if (rstList != null && !rstList.isEmpty()) {
       for (TRelationshipTemplate rst : rstList){
         if(isRequirementEqualSourceNode(trequirement, rst)){
-            TEntityTemplate target  = (TEntityTemplate) rst.getTargetElement().getRef();
-            String rsType = Xml2YamlTypeMapper.mappingRelationshipType(
-                Xml2YamlSwitchUtils.getNamefromQName(rst.getType()));
-            Requirement yrequirement = buildRequirement(target, rsType);
+            Requirement yrequirement = buildRequirement(rst);
             if (yrequirement != null) {
               yrequirementList.add(yrequirement);
             }
@@ -342,26 +339,43 @@ public class NodeTemplatesXml2YamlSubSwitch extends AbstractXml2YamlSubSwitch {
     return yrequirementList.toArray(new Requirement[0]);
   }
 
-  private Requirement buildRequirement(TEntityTemplate target, String rsType) {
+  private Requirement buildRequirement(TRelationshipTemplate rst) {
+    String rsType =
+        Xml2YamlTypeMapper.mappingRelationshipType(Xml2YamlSwitchUtils.getNamefromQName(rst
+            .getType()));
+    Map<String, Object> yproperties =
+        Xml2YamlSwitchUtils.convert2PropertiesOrAttributes(rst.getProperties());
+
+    TEntityTemplate target = (TEntityTemplate) rst.getTargetElement().getRef();
     // when the target is a node
-    if(target instanceof TNodeTemplate){
-        TNodeTemplate tnode = (TNodeTemplate)target;
-        Requirement yrequirement = new Requirement();
-        yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
-        yrequirement.setRelationship(new RequirementRelationship(rsType));
-        return yrequirement;
-    //when the target is a capability
-    }else if(target instanceof TCapability){
-        TCapability capability = (TCapability)target;
-        TNodeTemplate tnode = findTNodeTemplatByCapability(capability);
-        Requirement yrequirement = new Requirement();
-        yrequirement.setCapability(capability.getName());
-        yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
-        yrequirement.setRelationship(new RequirementRelationship(rsType));
-        return yrequirement;
+    if (target instanceof TNodeTemplate) {
+      return buildRequirementFromNodeTemplateTarget((TNodeTemplate) target, rsType, yproperties);
+      // when the target is a capability
+    } else if (target instanceof TCapability) {
+      return buildRequirementFromCapabilityTarget((TCapability) target, rsType, yproperties);
     }
 
     return null;
+  }
+
+  private Requirement buildRequirementFromCapabilityTarget(TCapability capability, String rsType,
+      Map<String, Object> yproperties) {
+    TNodeTemplate tnode = findTNodeTemplatByCapability(capability);
+    Requirement yrequirement = new Requirement();
+    yrequirement.setCapability(capability.getName());
+    yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
+    yrequirement.setRelationship(new RequirementRelationship(rsType));
+    yrequirement.getRelationship().setProperties(yproperties);
+    return yrequirement;
+  }
+
+  private Requirement buildRequirementFromNodeTemplateTarget(TNodeTemplate tnode, String rsType,
+      Map<String, Object> yproperties) {
+    Requirement yrequirement = new Requirement();
+    yrequirement.setNode(Xml2YamlSwitchUtils.getYamlNodeTemplateName(tnode));
+    yrequirement.setRelationship(new RequirementRelationship(rsType));
+    yrequirement.getRelationship().setProperties(yproperties);
+    return yrequirement;
   }
   
     private boolean isRequirementEqualSourceNode(TRequirement trequirement, TRelationshipTemplate rst){
