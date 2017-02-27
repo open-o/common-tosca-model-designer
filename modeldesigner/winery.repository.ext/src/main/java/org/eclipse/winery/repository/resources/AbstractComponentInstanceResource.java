@@ -120,7 +120,7 @@ public abstract class AbstractComponentInstanceResource implements
     this.id = id;
 
     // the resource itself exists
-    assert (Repository.INSTANCE.exists(id));
+    // assert (Repository.INSTANCE.exists(id));
 
     // the data file might not exist
     this.ref = BackendUtils.getRefOfDefinitions(id);
