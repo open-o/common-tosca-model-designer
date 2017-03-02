@@ -98,6 +98,7 @@ import org.eclipse.winery.repository.resources.servicetemplates.boundarydefiniti
 import org.eclipse.winery.repository.resources.servicetemplates.groups.GroupTemplatesResource;
 import org.eclipse.winery.repository.resources.servicetemplates.plans.PlansResource;
 import org.eclipse.winery.repository.resources.servicetemplates.plans.PlansResourceData;
+import org.eclipse.winery.repository.resources.servicetemplates.policy.PolicyResource;
 import org.eclipse.winery.repository.resources.servicetemplates.selfserviceportal.SelfServicePortalResource;
 import org.eclipse.winery.repository.resources.servicetemplates.topologytemplates.TopologyTemplateResource;
 import org.restdoc.annotations.RestDoc;
@@ -580,6 +581,11 @@ public class ServiceTemplateResource extends AbstractComponentInstanceWithRefere
   @Path("servicefiles/")
   public ServiceFilesResource getServiceFilesResource() {
     return new ServiceFilesResource(this.id);
+  }
+  
+  @Path("policies/")
+  public PolicyResource getPolicyResource(){
+    return new PolicyResource(this.id);
   }
 
   @Override
