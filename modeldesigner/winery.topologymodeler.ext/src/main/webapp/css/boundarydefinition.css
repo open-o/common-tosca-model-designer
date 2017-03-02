@@ -149,3 +149,14 @@ div.propertiesView {
 .modal-label {
 	word-break: break-all;
 }
+.policy-editor-area{
+	width: 100%;
+	height: 200px;
+	overflow: auto;
+}
+.require-red-star{
+	color: red;
+}
+.star-hide{
+	visibility: hidden;
+}

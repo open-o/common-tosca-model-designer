@@ -223,11 +223,11 @@
 					<span id="winery-boundary-policy-dialog-title" name_i18n="winery_i18n"></span>
 				</h4>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body">				
 				<form id="policyForm" class="form-horizontal" role="form">
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							<span id="winery-boundary-policy-dialog-name" name_i18n="winery_i18n"></span>
+							<span id="winery-boundary-policy-dialog-name" name_i18n="winery_i18n"></span><span class="require-red-star">*</span>
 						</label>
 						<div class="col-sm-7">
 					    	<input class="form-control" id="policy_name" name="policy_name" />
@@ -235,7 +235,7 @@
 					</div>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							<span id="winery-boundary-policy-dialog-desc" name_i18n="winery_i18n"></span>
+							<span id="winery-boundary-policy-dialog-desc" name_i18n="winery_i18n"></span><span class="require-red-star">*</span>
 						</label>
 						<div class="col-sm-7">
 					    	<input class="form-control" id="policy_desc" name="policy_desc" />
@@ -243,7 +243,7 @@
 					</div>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							<span id="winery-boundary-policy-dialog-type" name_i18n="winery_i18n"></span>
+							<span id="winery-boundary-policy-dialog-type" name_i18n="winery_i18n"></span><span class="require-red-star">*</span>
 						</label>
 						<div class="col-sm-7">
 					    	<select class="form-control" id="policy_type" name="policy_type">
@@ -252,7 +252,7 @@
 					</div>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							<span id="winery-boundary-policy-dialog-target" name_i18n="winery_i18n"></span>
+							<span id="winery-boundary-policy-dialog-target" name_i18n="winery_i18n"></span><span class="require-red-star star-hide">*</span>
 						</label>
 						<div class="col-sm-7">
 					    	<select class="form-control" id="policy_target" name="policy_target" multiple="multiple">
@@ -262,10 +262,30 @@
 					<div class="arrow-separator">
 						<span id="winery-boundary-policy-dialog-properties" name_i18n="winery_i18n"></span>
 						<div class="arrow"></div>
-						<div class="arrow arrow-outer"></div>
-					</div>
-					<div id="policy_properties"></div>
-				</form>
+						<div class="arrow arrow-outer"></div>						
+					</div>		
+					<div id="policy_properties"></div>					
+					</form>
+					<div class="policy-editor" id="policyeditor" hidden="hidden">
+						<form class="form-horizontal" role="form">
+							<div class="form-group">
+								<label class="col-sm-4 control-label">
+									<span id="winery-boundary-policy-file-name" name_i18n="winery_i18n"></span><span class="require-red-star">*</span>
+								</label>
+								<div class="col-sm-7">
+									<input class="form-control" id="policy_file_name" name="policy_file_name" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">
+									<span id="winery-boundary-policy-rule" name_i18n="winery_i18n"></span><span class="require-red-star">*</span>
+								</label>
+								<div class="col-sm-7">
+									<textArea class="policy-editor-area" id="policy_file_content"></textArea>
+								</div>
+							</div>
+						</form>					
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="zte-btn zte-primary" id="policyConfirm">
@@ -715,11 +735,31 @@ $(function() {
 			]
 		}
 
-		var delPolicyTableData = function(name) {
+		var delPolicyTableData = function(name, rowData) {
+			var delPolicyFile = function(){
+				var type = rowData.type;
+				var drl_file_url = rowData.properties.drl_file_url;
+				var fname = drl_file_url.split("/Policies/")[1].split(".drl")[0];
+				if("{http://www.open-o.org/tosca/nfv}tosca.policies.Drools" == type){
+					var namespace = "<%=ns%>";
+					var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
+					var id = "<%=serviceTemplateName%>";
+					var url = "/modeldesigner/servicetemplates/" + namespace_encode + "/" + id + "/policies?fileName=" + fname;
+					$.ajax({
+						type: "DELETE",
+						url: url,
+						dataType: "json",
+						success: function(resp) {
+							var resp = resp || {};							
+						}
+					});
+				}
+			}
 			$.ajax({
 				type: "DELETE",
 				url: policyInfo.delUrl + "?name=" + name,
 				success: function(resp) {
+					delPolicyFile();
 					initTable();
 				}
 			});
@@ -745,7 +785,9 @@ $(function() {
 				$(this).find("tbody").find(".fa-trash").off("click")
 					.on("click", function(){
 						var name = $(this).parent().siblings().eq(0).text();
-						delPolicyTableData(name);
+						var rowId = $(this).prev().attr("data-row");
+						var rowData = $("#" + policyInfo.id).dataTable().fnGetData(rowId);
+						delPolicyTableData(name, rowData);
 				});
 			});
 		}
@@ -772,9 +814,40 @@ $(function() {
 
 				var updateUrl = policyInfo.updateUrl + "?name=" + rowData.name;
 				$("#policyConfirm").attr("data-url", updateUrl);
+				
+				var type = rowData.type;
+				var drl_file_url = rowData.properties.drl_file_url;
+				var fname = drl_file_url.split("/Policies/")[1].split(".drl")[0];
+				if("{http://www.open-o.org/tosca/nfv}tosca.policies.Drools" == type){
+					var namespace = "<%=ns%>";
+					var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
+					var id = "<%=serviceTemplateName%>";
+					var url = "/modeldesigner/servicetemplates/" + namespace_encode + "/" + id + "/policies?fileName=" + fname;
+					$.ajax({
+						type: "GET",
+						url: url,
+						dataType: "json",
+						success: function(resp) {
+							var resp = resp || {};
+							var fileName = $("#policy_file_name").val(resp.name);
+							var fileContent = $("#policy_file_content").val(resp.content);
+							try{
+								$("#policyeditor").show();
+								$("#policy_properties input[name='drl_file_url']").parent().parent().hide();
+							} catch(ignore){}
+						}
+					});
+				} else {
+					try{
+						$("#policyeditor").hide();
+						$("#policy_properties input[name='drl_file_url']").parent().parent().show();
+					} catch(ignore){}					
+				}
 			} else {
 				$("#policy_name").val("");
 				$("#policy_desc").val("");
+				$("#policy_file_name").val("");
+				$("#policy_file_content").val("");
 			}
 
 			$("#policy_properties").children().remove();
@@ -821,7 +894,7 @@ $(function() {
 			var rules = {
 				policy_name : {required: true},
 				policy_type : {required: true},
-				policy_target : {required: true}
+				policy_target : {required: false}
 			}
 			initValidate("policyForm", rules);
 
@@ -861,15 +934,59 @@ $(function() {
 					$("#policy_properties").children().remove();
 				}
 			});
+			
+			if("tosca.policies.Drools" == id){
+				$("#policy_properties input[name='drl_file_url']").parent().parent().hide();
+				$("#policyeditor").show();
+			} else {
+				$("#policy_properties input[name='drl_file_url']").parent().parent().show();
+				$("#policyeditor").hide();
+			}
 		});
 
+		//add policy upload button in dialog
+		var policyUpload = function(){
+			var uploadStatus = false;
+			var namespace = "<%=ns%>";
+			var namespace_encode = encodeURIComponent(encodeURIComponent(namespace));
+			var id = "<%=serviceTemplateName%>";
+			var url = "/modeldesigner/servicetemplates/" + namespace_encode + "/" + id + "/policies";
+			var fileName = $("#policy_file_name").val();
+			var fileContent = $("#policy_file_content").val();
+			
+			var rowData = {"name": fileName, "content": fileContent};
+			var drl_file_url = "";			
+			if("" == fileName){
+				vShowError($.i18n.prop("winery-upload-file-name-empty"));
+			}
+			if("" == fileContent){
+				vShowError($.i18n.prop("winery-upload-file-content-empty"));
+			}
+			$.ajax({
+				type: "POST",
+				url: url,
+				async: false,
+				contentType: "application/json",
+				data: JSON.stringify(rowData),
+				success: function(resp) {
+					drl_file_url = resp;					
+					uploadStatus = true;
+				}
+			});
+			
+			$("#policy_properties input[name='drl_file_url']").val(drl_file_url);
+			return uploadStatus;
+		}
+		
 		//add policy confirm button in dialog
 		$("#policyConfirm").click(function(){
 			var form = $("#policyForm");
 			if(!form.valid()) {
 				return;
 			}
-
+			if(!policyUpload()){
+				return;
+			}
 			var target = $("#policy_target").val() || [];
 			var properties = {};
 			var inputs = $("#policy_properties").find("input");
@@ -894,6 +1011,7 @@ $(function() {
 				data: JSON.stringify(rowData),
 				success: function(resp) {
 					initTable();
+					vShowSuccess($.i18n.prop("winery-save-policy-success"));
 				}
 			});
 
