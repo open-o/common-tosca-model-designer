@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns1="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_ns0-tosca.capabilities.nfv.VirtualCompute" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:CapabilityType name="tosca.capabilities.nfv.VirtualCompute" targetNamespace="http://www.open-o.org/tosca/nfv">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>requested_additional_capabilities</winery:key>
+                <winery:type>map_tosca.datatypes.nfv.RequestedAdditionalCapability</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>virtual_memory</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.VirtualMemory</winery:type>
+                <winery:required>true</winery:required>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>virtual_cpu</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.VirtualCpu</winery:type>
+                <winery:required>true</winery:required>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.RequestedAdditionalCapability">
+            <winery:properties>
+                <winery:key>request_additional_capability_name</winery:key>
+                <winery:required>true</winery:required>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>support_mandatory</winery:key>
+                <winery:required>true</winery:required>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>min_requested_additional_capability_version</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+             <winery:properties>
+                <winery:key>preferred_requested_additinal_capability_version</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+             <winery:properties>
+                <winery:key>target_performance_parameters</winery:key>
+                <winery:required>true</winery:required>
+                <winery:type>map_string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition> 
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.VirtualMemory">
+            <winery:properties>
+                <winery:key>virtual_mem_size</winery:key>
+                <winery:required>true</winery:required>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>virtual_mem_oversubscription_polity</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>numa_enabled</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition> 
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.VirtualCpu">
+            <winery:properties>
+                <winery:key>cpu_architecture</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>num_virtual_cpu</winery:key>
+                <winery:required>true</winery:required>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>virtual_cpu_clock</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+             <winery:properties>
+                <winery:key>virtual_cpu_oversubscription_policy</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+             <winery:properties>
+                <winery:key>virtual_cpu_pinning</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.VirtualCpuPinning</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.VirtualCpuPinning">
+            <winery:properties>
+                <winery:key>cpu_pinning_policy</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>cpu_pinning_map</winery:key>
+                <winery:type>map_string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+    </tosca:CapabilityType>
+</tosca:Definitions>

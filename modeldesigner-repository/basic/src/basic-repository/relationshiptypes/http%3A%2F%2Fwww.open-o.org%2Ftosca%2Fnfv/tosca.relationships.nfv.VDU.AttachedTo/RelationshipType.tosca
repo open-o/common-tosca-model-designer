@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns0="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_openonfv-tosca.relationships.nfv.VDU.AttachedTo" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:RelationshipType name="tosca.relationships.nfv.VDU.AttachedTo" targetNamespace="http://www.open-o.org/tosca/nfv" winery:color="#e00579">
+	    <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>location</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+    </tosca:RelationshipType>
+</tosca:Definitions>

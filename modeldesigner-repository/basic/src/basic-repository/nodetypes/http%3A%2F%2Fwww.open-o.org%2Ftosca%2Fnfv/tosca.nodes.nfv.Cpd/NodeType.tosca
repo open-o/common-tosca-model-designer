@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns1="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_ns0-tosca.nodes.nfv.Cpd" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:NodeType name="tosca.nodes.nfv.Cpd" targetNamespace="http://www.open-o.org/tosca/nfv" winery:bordercolor="#91cad2">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>layer_protocol</winery:key>
+                <winery:type>xsd:string</winery:type>
+                <winery:required>true</winery:required> 
+                <winery:constraint>
+                    <winery:validValue>ethernet,mpls,odu2,ipv4,ipv6,pseudo_wire</winery:validValue>
+                </winery:constraint>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>role</winery:key>
+                <winery:type>xsd:string</winery:type>
+                <winery:constraint>
+                    <winery:validValue>root,leaf</winery:validValue>
+                </winery:constraint>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>description</winery:key>
+                <winery:type>xsd:string</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>address_data</winery:key>
+                <winery:type>list_tosca.datatype.nfv.AddressData</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition> 
+        <winery:PropertiesDefinition elementname="tosca.datatype.nfv.AddressData">
+            <winery:properties>
+                <winery:key>address_type</winery:key>
+                <winery:required>true</winery:required>
+                <winery:type>xsd:string</winery:type>
+                <winery:constraint>
+                    <winery:validValue>mac_address,ip_address</winery:validValue>
+                </winery:constraint>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>l2_address_data</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.L2AddressData</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>l3_address_data</winery:key>
+                <winery:type>obj_tosca.datatypes.nfv.L3AddressData</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition> 
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.L2AddressData">
+        </winery:PropertiesDefinition> 
+        <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.L3AddressData">
+            <winery:properties>
+                <winery:key>ip_address_assignment</winery:key>
+                <winery:required>true</winery:required>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>floating_ip_activated</winery:key>
+                <winery:type>xsd:string</winery:type>
+                <winery:required>true</winery:required>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>ip_address_type</winery:key>
+                <winery:type>xsd:string</winery:type>
+                <winery:constraint>
+                    <winery:validValue>ipv4,ipv6</winery:validValue>
+                </winery:constraint>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>number_of_ip_address</winery:key>
+                <winery:type>xsd:integer</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition> 
+    </tosca:NodeType>
+</tosca:Definitions>

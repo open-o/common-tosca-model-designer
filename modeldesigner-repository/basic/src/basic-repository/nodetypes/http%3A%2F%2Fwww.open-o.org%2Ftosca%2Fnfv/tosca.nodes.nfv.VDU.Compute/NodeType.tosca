@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns1="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_ns0-tosca.nodes.nfv.VDU.Compute" targetNamespace="http://www.open-o.org/tosca/nfv">  
+  <tosca:NodeType name="tosca.nodes.nfv.VDU.Compute" targetNamespace="http://www.open-o.org/tosca/nfv" winery:bordercolor="#f85aeb"> 
+    <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery"> 
+      <winery:properties> 
+        <winery:key>name</winery:key>  
+        <winery:type>xsd:string</winery:type>  
+        <winery:required>true</winery:required> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>descrption</winery:key>  
+        <winery:type>xsd:string</winery:type>  
+        <winery:required>true</winery:required> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>boot_order</winery:key>  
+        <winery:type>list_string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>nfvi_constraints</winery:key>  
+        <winery:type>list_string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>configurable_properties</winery:key>  
+        <winery:type>map_tosca.datatypes.nfv.VnfcConfigurableProperties</winery:type>  
+        <winery:required>true</winery:required> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>private_address</winery:key>  
+        <winery:type>xsd:string</winery:type>  
+        <winery:tag>10000</winery:tag> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>public_address</winery:key>  
+        <winery:type>xsd:string</winery:type>  
+        <winery:tag>10000</winery:tag> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>networks</winery:key>  
+        <winery:type>map_tosca.datatypes.network.NetworkInfo</winery:type>  
+        <winery:tag>10000</winery:tag> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>ports</winery:key>  
+        <winery:type>map_tosca.datatypes.network.PortInfo</winery:type>  
+        <winery:tag>10000</winery:tag> 
+      </winery:properties> 
+    </winery:PropertiesDefinition>  
+    <winery:PropertiesDefinition elementname="tosca.datatypes.nfv.VnfcConfigurableProperties"> 
+      <winery:properties> 
+        <winery:key>additional_vnfc_configurable_properties</winery:key>  
+        <winery:type>map_string</winery:type> 
+      </winery:properties> 
+    </winery:PropertiesDefinition>  
+    <winery:PropertiesDefinition elementname="tosca.datatypes.network.NetworkInfo"> 
+      <winery:properties> 
+        <winery:key>network_name</winery:key>  
+        <winery:type>xsd:string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>network_id</winery:key>  
+        <winery:type>xsd:string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>addresses</winery:key>  
+        <winery:type>list_string</winery:type> 
+      </winery:properties> 
+    </winery:PropertiesDefinition>  
+    <winery:PropertiesDefinition elementname="tosca.datatypes.network.PortInfo"> 
+      <winery:properties> 
+        <winery:key>port_name</winery:key>  
+        <winery:type>xsd:string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>port_id</winery:key>  
+        <winery:type>xsd:string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>network_id</winery:key>  
+        <winery:type>xsd:string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>mac_address</winery:key>  
+        <winery:type>xsd:string</winery:type> 
+      </winery:properties>  
+      <winery:properties> 
+        <winery:key>addresses</winery:key>  
+        <winery:type>list_string</winery:type> 
+      </winery:properties> 
+    </winery:PropertiesDefinition>  
+    <tosca:RequirementDefinitions> 
+      <tosca:RequirementDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="local_storage" requirementType="ns0:tosca.capabilities.Attachment" lowerBound="0" upperBound="unbounded"></tosca:RequirementDefinition>  
+      <tosca:RequirementDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="virtual_storage" requirementType="ns0:tosca.requirements.nfv.VirtualStorage" lowerBound="0" upperBound="unbounded"></tosca:RequirementDefinition> 
+    </tosca:RequirementDefinitions>  
+    <tosca:CapabilityDefinitions> 
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="virtual_compute" capabilityType="ns0:tosca.capabilities.nfv.VirtualCompute" lowerBound="0" upperBound="unbounded"></tosca:CapabilityDefinition>  
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="virtual_binding" capabilityType="ns0:tosca.capabilities.nfv.VirtualBindable" lowerBound="0" upperBound="unbounded"></tosca:CapabilityDefinition>  
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="monitoring_parameter" capabilityType="ns0:tosca.capabilities.nfv.Metric" lowerBound="0" upperBound="unbounded"></tosca:CapabilityDefinition>  
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="host" capabilityType="ns0:tosca.capabilities.Container" lowerBound="0" upperBound="unbounded"></tosca:CapabilityDefinition>  
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="endpoint" capabilityType="ns0:tosca.capabilities.Endpoint.Admin" lowerBound="0" upperBound="0"></tosca:CapabilityDefinition>  
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="os" capabilityType="ns0:tosca.capabilities.OperatingSystem" lowerBound="0" upperBound="0"></tosca:CapabilityDefinition>  
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="scalable" capabilityType="ns0:tosca.capabilities.Scalable" lowerBound="0" upperBound="unbounded"></tosca:CapabilityDefinition>  
+      <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="binding" capabilityType="ns0:tosca.capabilities.network.Bindable" lowerBound="0" upperBound="unbounded"></tosca:CapabilityDefinition> 
+    </tosca:CapabilityDefinitions> 
+  </tosca:NodeType> 
+</tosca:Definitions>

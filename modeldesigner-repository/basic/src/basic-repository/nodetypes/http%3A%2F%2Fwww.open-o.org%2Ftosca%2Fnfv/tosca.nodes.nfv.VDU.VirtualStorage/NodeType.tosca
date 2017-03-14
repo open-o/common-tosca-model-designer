@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tosca:Definitions xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12" xmlns:ns1="http://www.eclipse.org/winery/model/selfservice" id="winery-defs-for_ns0-tosca.nodes.nfv.VDU.VirtualStorage" targetNamespace="http://www.open-o.org/tosca/nfv">
+    <tosca:NodeType name="tosca.nodes.nfv.VDU.VirtualStorage" targetNamespace="http://www.open-o.org/tosca/nfv" winery:bordercolor="#ee43bc">
+        <winery:PropertiesDefinition elementname="Properties" namespace="http://www.open-o.org/tosca/nfv/propertiesdefinition/winery">
+            <winery:properties>
+                <winery:key>id</winery:key>
+                <winery:type>xsd:string</winery:type> 
+                <winery:required>true</winery:required>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>type_of_storage</winery:key>
+                <winery:type>xsd:string</winery:type> 
+                <winery:required>true</winery:required>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>size_of_storage</winery:key>
+                <winery:type>xsd:string</winery:type> 
+                <winery:required>true</winery:required>
+            </winery:properties>
+            <winery:properties>
+                <winery:key>rdma_enabled</winery:key>
+                <winery:type>xsd:boolean</winery:type>
+            </winery:properties>
+        </winery:PropertiesDefinition>
+        <tosca:CapabilityDefinitions>
+            <tosca:CapabilityDefinition xmlns:ns0="http://www.open-o.org/tosca/nfv" name="virtual_storage" capabilityType="ns0:tosca.capabilities.nfv.VirtualStorage" lowerBound="0" upperBound="0"/>
+        </tosca:CapabilityDefinitions>
+    </tosca:NodeType>
+</tosca:Definitions>
