@@ -97,16 +97,16 @@ public class ServiceRegistrer implements Runnable {
 
   private void initServiceEntity() {
     ServiceRegisterEntity wineryEntity = new ServiceRegisterEntity();
-    wineryEntity.setServiceName("/winery");
+    wineryEntity.setServiceName("modeldesigner");
     wineryEntity.setProtocol("REST");
-    wineryEntity.setUrl("/winery");
+    wineryEntity.setUrl("/modeldesigner");
     wineryEntity.setSingleNode(serviceIp, "8202", 0);
     wineryEntity.setVisualRange("1");
     serviceEntityList.add(wineryEntity);
     ServiceRegisterEntity topoEntity = new ServiceRegisterEntity();
-    topoEntity.setServiceName("/winery-topologymodeler");
+    topoEntity.setServiceName("modeldesigner-topologymodeler");
     topoEntity.setProtocol("REST");
-    topoEntity.setUrl("/winery-topologymodeler");
+    topoEntity.setUrl("/modeldesigner-topologymodeler");
     topoEntity.setSingleNode(serviceIp, "8202", 0);
     topoEntity.setVisualRange("1");
     serviceEntityList.add(topoEntity);
